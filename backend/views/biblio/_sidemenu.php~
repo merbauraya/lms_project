@@ -1,0 +1,18 @@
+<?php
+$this->menu =  array(
+			    array('label'=>'Biblio', 'itemOptions'=>array('class'=>'nav-header')),
+			    array('label'=>'Add Biblio', 
+					'url'=>Yii::app()->controller->createUrl("biblio/create")),
+			    array('label'=>'List Biblio', 
+					'url'=>Yii::app()->controller->createUrl("biblio/admin")),
+array('label'=>'Items', 'itemOptions'=>array('class'=>'nav-header')),			    
+array('label'=>'Create Items', 
+					'url'=>Yii::app()->controller->createUrl("items/invoice")),
+			    array('label'=>'Print Invoice', 
+					'url'=>Yii::app()->controller->createUrl("invoice/selectInvoice")),
+				array('label'=>'Another list header', 'itemOptions'=>array('class'=>'nav-header')),
+			    array('label'=>'Profile', 'url'=>'#'),
+			    array('label'=>'Settings', 'url'=>'#'),
+			    
+		    );
+?>

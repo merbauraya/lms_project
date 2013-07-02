@@ -1,0 +1,4 @@
+<?php
+	$templateId = 1;
+
+?>
