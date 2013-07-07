@@ -62,7 +62,7 @@ $marcArr = array();
 			$subfieldName=$subField['name'];
 			$default_value=$subField['default_value'];
 			//start new subfield
-			$tagHead[$tabKey].=newMarcSubField($rec->tag,$subfieldCode,$subfieldName,$default_value,$n,$subField);
+			$tagHead[$tabKey].=newMarcSubField($rec->tag,$subfieldCode,$subfieldName,$default_value,$n,$subField,$marcTag);
 		}
 		$tagHead[$tabKey].=endMarcTag();
 	}
@@ -86,122 +86,31 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 	),
 ));	
 
-/*
-	
-  		foreach ($templates as $template) 
-		{
- 			
-			++$n;
-		    $tag = (int)$template->tag;
-			if ($tag <100) //tag 100
-				$tabKey='0';	
-			if ($tag >=100 & $tag <200) //tag 100
-				$tabKey='100';	
-			elseif ($tag >=200 & $tag < 300) //200
-				$tabKey='200';
-			elseif ($tag >=300 & $tag < 400) //200
-				$tabKey='300';	
-			elseif ($tag >=400 & $tag < 500) //200
-				$tabKey='400';	
-			elseif ($tag >=500 & $tag < 600) //200
-				$tabKey='500';
-			elseif ($tag >=600 & $tag < 700) //200
-				$tabKey='600';	
-			elseif ($tag >=700 & $tag < 800) //200
-				$tabKey='700';
-			elseif ($tag >=800 & $tag < 900) //200
-				$tabKey='800';
-			elseif ($tag >=900 & $tag < 1000) //200
-				$tabKey='900';
-			$marcTag = MarcTag::tag($template->tag);
-			
-			$tagName =$marcTag['name'];
-			$subField = MarcTag::subfield($template->tag,$template->subfield);
-			
-			$indi1 = $template->indi1;
-			$indi2 = $template->indi2;
-	
-			if (!isset($indi1))
-				$indi1 = '_';
-			if (!isset($indi2))
-				$indi2= '_';
-			
-			//row fluid - 
-			
-			if ($saveTag != $template->tag) {
-			$tagHead[$tabKey] .= CHtml::tag('div',array(
-				'id'=>$template->tag,
-				'class'=>'row-fluid marc-tag'),'',false
-			); //main row
-				$tagHead[$tabKey] .= CHtml::tag('div',array(
-					'class'=>'span12'),'',false
-				);
-					$tagHead[$tabKey] .=CHtml::tag('span',array(
-						'class'=>'marc-tag',
-						'title'=>$marcTag['name'],
-						),
-						$template->tag,
-						true
-					
-					
-					);
-			
-			$tagHead[$tabKey] .='&nbsp;';
-			$tagHead[$tabKey] .=CHtml::link($marcTag['name'],'#',array(
-				'onclick'=>'expandTag();'
-			));
-				
-			}
-			
-			//now generate div for subfield
-			$tagHead[$tabKey] .= CHtml::tag('div',array(
-				'id'=>$template->tag . $template->subfield,
-				'class'=>'row-fluid marc-subfield'),'',false
-			);
-			
-			//$tagHead[$tabKey] .= CHtml::tag('div',array('class'=>'row-fluid sp-subfield'),'',false);
-			$tagHead[$tabKey] .= CHtml::tag('div',array(
-				'class'=>'span4'),'',false);
-			$tagHead[$tabKey] .='&nbsp;';
-			if ((int)$template->tag< 10) //control field
-			{
-				$tagHead[$tabKey] .=CHtml::tag('span',array('style'=>'float:left'),'00',true	);
-			}
-			else
-			{
-				$tagHead[$tabKey] .=CHtml::tag('span',array('style'=>'float:left'),$template->subfield,true	);
-			}
-			
-			//input name: tag-indi1Indi2-subfield-counter
-			$inputName = $template->tag.'-'.'__-'.$template->subfield.'-'.$n;
-			$tagHead[$tabKey] .=CHtml::label($subField['name'],$inputName,array('class'=>'control-label'));
-			$tagHead[$tabKey] .=CHtml::closeTag('div'); //span4
-			
-			//span8
-			$tagHead[$tabKey] .= CHtml::tag('div',array('class'=>'span8'),'',false);
-			$tagHead[$tabKey] .=CHtml::textField($inputName,$subField['default_value'],array(
-				'class'=>'span5',
-			));
-			$tagHead[$tabKey] .=CHtml::closeTag('div'); //span8
-			
-			
-			//
-			$tagHead[$tabKey] .=CHtml::closeTag('div'); //row for control/marc input
-			if ($saveTag != $template->tag)
-			{
-				$tagHead[$tabKey] .=CHtml::closeTag('div'); //marc-tag
-				$tagHead[$tabKey] .=CHtml::closeTag('div'); //marc-tag
-			}
-			$saveTag = $template->tag;
-	        	
-	     }
+    function addIndicator($marcTag,$n)
+    {
+        $buffer='';
+        $options = array();
+        $options['class']='marc-indicator';
+        $options['maxlength']=1;
+        $options['readonly']=true;
+        if ($marcTag['indi1'])
+            unset ($options['readonly']);
         
-*/
-//for ($i=0;$i<10;$i++)
-	//$tagHead[$i*100] .= '</table>';	
+        $buffer .=CHtml::textField('Marc['. $marcTag['tag'].'-indi1-'.$n.']','',$options);	
+			$buffer .='-';
+        unset ($options['readonly']);
+        if (!$marcTag['indi2'])
+            $options['readonly']=true;
+        
+        $buffer .=CHtml::textField('Marc['. $marcTag['tag'].'-indi2-'.$n.']','',$options);
+			
+			$buffer .='&nbsp;';
+        return $buffer;
+        
+    }
 	
 	//start new Marc Subfield
-	function newMarcSubField($tag,$subfieldCode,$subfieldName,$default_value,$n,$subField)
+	function newMarcSubField($tag,$subfieldCode,$subfieldName,$default_value,$n,$subField,$marcTag)
 	{
 		//set counter to zero for leader
         if ((int)$tag ==0)
@@ -214,26 +123,43 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 				'class'=>'row-fluid marc-subfield'),'',false
 		);
 		$buffer .= CHtml::tag('div',array(
-				'class'=>'span4'),'',false);
+				'class'=>'span4',
+                ),'',false);
 		$buffer .='&nbsp;';
+        /*
 		if ((int)$tag< 10) //control field
 		{
-			$buffer .=CHtml::tag('span',array('style'=>'float:left'),'00',true	);
+			$buffer .=CHtml::tag('span',array('style'=>'float:left;padding-top:5px;'),'00',false	);
 		}
 		else
 		{
-			$buffer .=CHtml::tag('span',array('style'=>'float:left'),$subfieldCode,true	);
+			$buffer .=CHtml::tag('span',array('style'=>'float:left;padding-top:5px;'),'',false	);
 		}
 		//label
 		//input name: tag-indi1Indi2-subfield-counter
+        
+        
+        
+        $buffer .= CHtml::closeTag('span'); */
+        
 		$inputName = 'Marc['.$tag.'-'.'__-'.$subfieldCode.'-'.$n.']';
-		$buffer .=CHtml::label($subfieldName,$inputName,array('class'=>'control-label'));
-		$buffer .=CHtml::closeTag('div'); //span4
-			
-		//span8 - input text
-		$buffer .= CHtml::tag('div',array('class'=>'span8'),'',false);
+		if ((int)$tag< 10) //control field
+            $buffer .=CHtml::label($subfieldName,$inputName,array('class'=>'control-label'));
+		else
+            $buffer .=CHtml::label('['.$subfieldCode.'] '.$subfieldName,$inputName,array('class'=>'control-label'));
+        
+        $buffer .=CHtml::closeTag('div'); //span6
+        $buffer .=CHtml::tag('div',array('class'=>'span1'),'',false);
+        if ((int)$tag> 10) //control field
+            $buffer .= addIndicator($marcTag,$n);
+        
+		$buffer .=CHtml::closeTag('div'); //span6
+        
+        	
+		//span7 - input text
+		$buffer .= CHtml::tag('div',array('class'=>'span7'),'',false);
         $htmlOptions = array();
-        $htmlOptions['class']='span8';
+        $htmlOptions['class']='span11';
         
         if ((int)$tag==0) //leader
             $htmlOptions['readOnly'] = true;
@@ -252,7 +178,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 		{
 		
 		}
-		$buffer .=CHtml::closeTag('div'); //span8
+		$buffer .=CHtml::closeTag('div'); //span6
 		
 		
 		//
@@ -277,6 +203,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 		$buffer .= CHtml::tag('div',array(
 					'class'=>'span12'),'',false
 		);
+        /*
 		if ((int)$tag>9) //non control tag has indicator
 		{
 			$buffer .=CHtml::textField('Marc['.$tag.'-indi1-'.$n.']','',array(
@@ -290,7 +217,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
                 'maxlength'=>'1',
 			));
 			$buffer .='&nbsp;';
-		}
+		}*/
 		$buffer .=CHtml::tag('span',array(
 			'class'=>'marc-tag',
 			'title'=>$tagName,

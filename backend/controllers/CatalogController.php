@@ -25,7 +25,8 @@ class CatalogController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
+			array('auth.filters.AuthFilter - login, logout, restore, captcha, error'),
+            //'accessControl', // perform access control for CRUD operations
 		);
 	}
 

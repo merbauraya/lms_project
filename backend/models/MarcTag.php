@@ -35,11 +35,14 @@ class MarcTag extends BaseMarcTag
 		{
 			
 		   self::$_items[$model->tag]=array(
+                'tag'=>$model->tag,
 				'name'=>$model->loc_description,
 				'help'=>$model->help_text,
 				'repeatable'=>$model->repeatable,
 				'mandatory'=>$model->mandatory,
 				'default_value'=>$model->default_value,
+                'indi1'=>$model->indicator1,
+                'indi2'=>$model->indicator2,
 			
 			);
 		}
@@ -63,13 +66,15 @@ class MarcTag extends BaseMarcTag
 		{
 			
 			self::$_subfields[$model->tag][$model->subfield]=array(
-				'name'=>$model->loc_desc,
+				
+                'name'=>$model->loc_desc,
 				'help'=>$model->help_text,
 				'repeatable'=>$model->repeatable,
 				'mandatory'=>$model->mandatory,
 				'default_value'=>$model->default_value,
 				'link'=>$model->link,
 				'link_alt_text'=>$model->link_alt_text,
+                
 			
 			);
 		}	

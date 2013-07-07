@@ -29,10 +29,12 @@ class UserIdentity extends CUserIdentity {
 			$user->regenerateValidationKey();
 			$this->_id = $user->id;
 			
+            
 			$this->username = $user->username;
 			$this->setState('vkey', $user->validation_key);
 			$this->setState('libraryId',$user->library_id);
 			$this->errorCode = self::ERROR_NONE;
+            
 		}
 		return !$this->errorCode;
 	}

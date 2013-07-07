@@ -7,7 +7,49 @@
 	<p class="help-block">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
+	<?php 
+		echo $form->select2row($model, 'suggested_by', array(
+		'asDropDownList' => false,
+		'attribute'=>'suggested_by',
+		'options' => array(
+			'delay'=>300,
+			'minimumInputLength'=>3,
+			'width' => '60%',
+			'closeOnSelect' => false,
+			'placeholder' => 'Select Patron',
+			'allowClear' => false,
+			'ajax' => array(
+				'url' => CController::createUrl('patron/AjaxGetPatron'),
+				'dataType' => 'json',
+				'data' => 'js:function(term,page) 
+							{ return {
+								q: term, 
+								page_limit: 10, 
+								page: page,
+								ret: "id",
+								lib: $("#AcquisitionSuggestion_library_id").val()}; }',
+				'results' => 'js:function(data,page) { return {results: data}; }',
+			),
+			'initSelection'=>'js:function(element,callback)
+							  {var data={id:element.val(),text:element.val()};
+							  callback(data);
+							  }',
+			
+		),
+		'events'=>array('change'=>'js:function(e)
+			{
+				var theID=e.val;
+				console.log(e);
+				
+			}'				 
+		)
+		
+	));
 	
+	
+	?>
+    
+    
 	<div class="control-group">
 		<label class="control-label required" for="AcquisitionSuggestion_suggested_by">Suggested By <span class="required">*</span></label>
 		<div class="controls">

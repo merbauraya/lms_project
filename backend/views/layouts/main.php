@@ -24,11 +24,12 @@
 
 	
 
-	<div class="row space-bot" id="mainmenu">
+	<div class="row" id="mainmenu">
 		<?php $this->widget('bootstrap.widgets.TbNavbar', array(
 	
 	'collapse'=>true, // requires bootstrap-responsive.css
 	'brand'=>'Home',
+    'fixed' => false,
 	'items' => array(
 	 array(
 	  'class' => 'bootstrap.widgets.TbMenu',
@@ -62,16 +63,16 @@
 			array('label'=>'Acquisition', 'items'=>array(
 			 	array('label'=>'Suggestion','items'=>array(
 					array('label'=>'New Suggestion','url'=>
-					array('acquisitionsuggestion/create')),
-					array('label'=>'List Suggestion','url'=>array('acquisitionsuggestion/index')),
+					array('acquisitionSuggestion/create')),
+					array('label'=>'List Suggestion','url'=>array('acquisitionSuggestion/index')),
 					)),
 					
 			array('label'=>'Request','items'=>array(
 					array('label'=>'New Request','url'=>
-					array('acquisitionrequest/create')),
-					array('label'=>'List Request','url'=>array('acquisitionrequest/index')),
+					array('acquisitionRequest/create')),
+					array('label'=>'List Request','url'=>array('acquisitionRequest/index')),
 					'___',
-					array('label'=>'Request Approval','url'=>array('acquisitionrequest/approvallist')),
+					array('label'=>'Request Approval','url'=>array('acquisitionRequest/approvallist')),
 					)),
 				
 				

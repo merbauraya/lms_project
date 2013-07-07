@@ -57,11 +57,16 @@ class LoginForm extends CFormModel {
 	public function authenticate($attribute, $params) {
 		if (!$this->hasErrors()) {
 			$this->_identity = new UserIdentity($this->username, $this->password);
-			if (!$this->_identity->authenticate()) {
+			if (!$this->_identity->authenticate()) 
+            {
 				if (($user = $this->user) !== null && $user->login_attempts < 100)
 					$user->saveAttributes(array('login_attempts' => $user->login_attempts + 1));
 				$this->addError('username', Yii::t('errors', 'Incorrect username and/or password.'));
-			}
+			}else
+            { //log last login
+                $this->user->saveAttributes(array('last_login_time'=>LmUtil::dBCurrentDateTime()));
+                
+            }
 		}
 	}
 

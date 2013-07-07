@@ -53,6 +53,8 @@ return CMap::mergeArray(
 		'preload' => array('bootstrap', 'log'),
 		// @see http://www.yiiframework.com/doc/api/1.1/CApplication#language-detail
 		'language' => 'en',
+        'timeZone' => 'Asia/Kuala_Lumpur',
+
 		// using bootstrap theme ? not needed with extension
 //		'theme' => 'bootstrap',
 		// setup import paths aliases
@@ -82,7 +84,8 @@ return CMap::mergeArray(
 			
 		),
 		'aliases'=>array(
-			'xupload'=>'common.extensions.xupload'
+			'xupload'=>'common.extensions.xupload',
+            
 		
 		),
 		/* uncomment and set if required */
@@ -100,11 +103,13 @@ return CMap::mergeArray(
 				'userClass' => 'Patron', // the name of the user model class.
 				'userNameColumn' => 'username', // the name of the user name column.
 				'userIdColumn' => 'id', // the name of the user id column.
+                'class'=>'common.modules.auth.AuthModule', 
 			),
 		), 
 		'components' => array(
 			'user' => array(
 				'allowAutoLogin'=>true,
+                'class' => 'auth.components.AuthWebUser',
 			),
 			/* load bootstrap components */
 			'bootstrap' => array(
@@ -135,7 +140,7 @@ return CMap::mergeArray(
 		               'class'=>'common.extensions.EConfig',
 		      ),
 			  'authManager'=>array(
-				'class'=> 'common.modules.auth.components.CachedDbAuthManager',//  'CDbAuthManager',
+				'class'=> 'auth.components.CachedDbAuthManager',//  'CDbAuthManager',
 				'cachingDuration'=>3600,
 				'connectionID'=>'db',
 				'behaviors' => array(
