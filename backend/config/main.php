@@ -94,6 +94,7 @@ return CMap::mergeArray(
 			'gii' => array(
 				'class' => 'system.gii.GiiModule',
 				'password' => 'saga123',
+                'ipFilters' => false,
 				'generatorPaths' => array(
 					'bootstrap.gii',
 					'application.gii.generators',

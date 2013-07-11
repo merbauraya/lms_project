@@ -1,32 +1,32 @@
 <div id="marc-input" class="small-input">
 <?php
 
-$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-		'id'=>'save-marc',
-		'type'=>'horizontal',
-		'action'=> array('catalog/CreateByTemplate'),
-	)); 
+    $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+            'id'=>'save-marc',
+            'type'=>'horizontal',
+            'action'=> array('catalog/CreateByTemplate'),
+        )); 
 
 
-//we should have 9 tab.. 100 - 900
+    //we should have 9 tab.. 100 - 900
 
-$tagHead= array();
-$generalTab = '<div class="control-group">
-				<label class="control-label">Available in Opac</label>
-				<div class="controls">'.
-				CHtml::checkBox('marc[opac_release]',false,array('value'=>'0')).
-				'</div></div>';
-
-
+    $tagHead= array();
+    $generalTab = '<div class="control-group">
+                    <label class="control-label">Available in Opac</label>
+                    <div class="controls">'.
+                    CHtml::checkBox('marc[opac_release]',false,array('value'=>'0')).
+                    '</div></div>';
 
 
-for ($i=0;$i<10;$i++)
-	$tagHead[$i*100] ='';// $sHead;
 
-$n = 0;	
-$tabKey='';
-$saveTag='';
-$marcArr = array();
+
+    for ($i=0;$i<10;$i++)
+        $tagHead[$i*100] ='';// $sHead;
+
+    $n = 0;	
+    $tabKey='';
+    $saveTag='';
+    $marcArr = array();
 	$arrMarc = array();
 	//rebuild array for marc tag grouping
 	foreach ($templates as $template) 
@@ -86,7 +86,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 	),
 ));	
 
-    function addIndicator($marcTag,$n)
+    function addIndicator($marcTag,$n,$subfieldCode)
     {
         $buffer='';
         $options = array();
@@ -96,13 +96,13 @@ $this->widget('bootstrap.widgets.TbTabs', array(
         if ($marcTag['indi1'])
             unset ($options['readonly']);
         
-        $buffer .=CHtml::textField('Marc['. $marcTag['tag'].'-indi1-'.$n.']','',$options);	
+        $buffer .=CHtml::textField('Marc[indi1-'. $marcTag['tag'].'-'.$subfieldCode.'-'.$n.']','',$options);	
 			$buffer .='-';
         unset ($options['readonly']);
         if (!$marcTag['indi2'])
             $options['readonly']=true;
         
-        $buffer .=CHtml::textField('Marc['. $marcTag['tag'].'-indi2-'.$n.']','',$options);
+        $buffer .=CHtml::textField('Marc[indi2-'. $marcTag['tag'].'-'.$subfieldCode.'-'.$n.']','',$options);
 			
 			$buffer .='&nbsp;';
         return $buffer;
@@ -141,9 +141,11 @@ $this->widget('bootstrap.widgets.TbTabs', array(
         
         
         $buffer .= CHtml::closeTag('span'); */
-        
-		$inputName = 'Marc['.$tag.'-'.'__-'.$subfieldCode.'-'.$n.']';
-		if ((int)$tag< 10) //control field
+        if ((int)$tag>10)
+            $inputName = 'Marc['.$tag.'-'.$subfieldCode.'-'.$n.']';
+		else
+            $inputName = 'Marc['.$tag.'-'.$n.']'; //control field
+        if ((int)$tag< 10) //control field
             $buffer .=CHtml::label($subfieldName,$inputName,array('class'=>'control-label'));
 		else
             $buffer .=CHtml::label('['.$subfieldCode.'] '.$subfieldName,$inputName,array('class'=>'control-label'));
@@ -151,7 +153,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
         $buffer .=CHtml::closeTag('div'); //span6
         $buffer .=CHtml::tag('div',array('class'=>'span1'),'',false);
         if ((int)$tag> 10) //control field
-            $buffer .= addIndicator($marcTag,$n);
+            $buffer .= addIndicator($marcTag,$n,$subfieldCode);
         
 		$buffer .=CHtml::closeTag('div'); //span6
         
@@ -333,26 +335,12 @@ $this->endWidget();
                         break;
                         
                     case 'leader':
-                        console.log(data.div);
-                        $('#Marc_000-__-_-0').val(data.div);
+                        $('#Marc_000-0').val(data.div);
                         $('#marc-leader-dialog').dialog('close');
                         break;
                         
                 }
-                /*
-                if (data.status == 'failure')
-                {
-                    $('#marc-leader-dialog div.divForForm').html(data.div);
-                    // Here is the trick: on submit-> once again this function!
-                    $('#marc-leader-dialog div.divForForm form').submit(editLeader);
-                }
-                else
-                {
-                    $('#marc-leader-dialog div.divForForm').html(data.div);
-                    setTimeout(\"$('#marc-leader-dialog').dialog('close') \",2000);
- 
-                }*/
- 
+                
         } ",
     ))?>;
 		return false;
@@ -368,7 +356,7 @@ $this->endWidget();
 	{
 		//get parent Tag
 		var divTag = $(this).parent().closest('div[id]').attr('id');
-		
+		console.log(divTag);
 		//$("#" + inputID + ".inputfield") s
 		var cloneDiv = $('#' + divTag).clone();
 		
@@ -382,9 +370,10 @@ $this->endWidget();
 			//console.log(elem);
 		});
 		//change all input name with running number
-		cloneDiv.find('[name]').each(function() { 
+		var seq = nextSequence(); //store next id
+        cloneDiv.find('[name]').each(function() { 
 
-			//console.log($(this));
+			//we should hv only input with name attribute
 			var elem = $(this);
 			//this could be done via regex
 			var id = $(this).attr('name');
@@ -393,12 +382,12 @@ $this->endWidget();
 			if (arrId.length == 4)
 			{
 				//marc input
-				arrId[3]=arrId[3].replace(/\d+/,nextSequence());
+				arrId[3]=arrId[3].replace(/\d+/,seq);
 				
 			
 			}else
 			{
-				arrId[2]=arrId[2].replace(/\d+/,nextSequence());
+				arrId[2]=arrId[2].replace(/\d+/,seq);
 			}
 			var newID = arrId.join('-');
 			//console.log('old='+id +' new='+newID);

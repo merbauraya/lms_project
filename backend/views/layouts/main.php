@@ -51,7 +51,7 @@
 													
 				)),
 				
-														
+				array('label'=>'Authorities', 'url'=>array('catalog/authority')),										
 													
 				array('label'=>'Search Catalog', 'url'=>array('catalog/search','q'=>'1')),
 				'___',
@@ -159,6 +159,13 @@
 					)
 				),
 				array('label'=>'Authorization', 'url'=>array('auth/')),
+				array('label'=>'Cataloging', 'items'=>array(
+					array('label'=>'Bibliography Template','url'=>
+						array('circulationrule/admin')),
+                    array('label'=>'Authority Template','url'=>
+						array('authority/authoritytag')),    
+					)
+				),
 				
 			)),
 			array('label'=>'Report', 'items'=>array(

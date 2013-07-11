@@ -154,7 +154,15 @@ class CatalogController extends Controller
 	}
 	public function actionRenderCatalogTemplate()
 	{
-		if (!isset($_POST['catalogTemplate']))
+		//user attempts to save edited marc
+		if(isset($_POST['saveMarcRecord']))
+		{
+            
+            
+        }
+        
+        
+        if (!isset($_POST['catalogTemplate']))
 			return;
 		
 		try 
