@@ -1,4 +1,15 @@
 <?php
+/**
+ * This will render list of subfield for a given template and tag
+ * 
+ * 
+ * 
+ */
+
+
+?>
+
+<?php
     
     $buffer = CHtml::tag('div',array(
 				'id'=>$tag.'-'.$counter.'-subfield',
@@ -13,10 +24,10 @@
                     'id'=>$tag .'-'. $subfield->subfield.'-'.$counter,
                     'class'=>'row-fluid marc-subfield'),'',false
 		);
-        
+        $linkId = $tag.'-'.$subfield->subfield.'-id'.$counter;
         $buffer .=CHtml::tag('span',array('style'=>'padding-left:10px;'),'',false);
         $buffer .='['.$subfield->subfield .'] ' . $subfield->loc_description;
-        $buffer .='&nbsp;'. generateLink('Delete Subfield','delete-subfield','icon-remove');
+        $buffer .='&nbsp;'. generateLink('Delete Subfield','delete-subfield','icon-remove',null,$linkId);
         $buffer .=CHtml::closeTag('span'); //subfield
         $buffer .=CHtml::closeTag('div'); //subfield
     }
@@ -24,7 +35,7 @@
     $buffer .=CHtml::closeTag('div'); //main row
     
     echo $buffer;
-    function generateLink($title,$class,$icon='icon-edit',$click=null)
+    function generateLink($title,$class,$icon='icon-edit',$click=null,$id)
 	{
 		$buffer = '';
 		$linkIcon = CHtml::tag('i',array(
@@ -35,6 +46,7 @@
 		$buffer = CHtml::link($linkIcon,'#',array(
 			'title'=>$title,
 			'class'=>$class,
+            'id'=>$id,
 			'onClick'=>$click,
 		)	);
 		return $buffer;
@@ -42,11 +54,50 @@
 	}
 
 ?>
-<script type="text/javascript">
-    $(".delete-subfield").live('click',function()
-	{
+<?php
+Yii::app()->clientScript->registerScript('delete_subfield',"
+    window.myCustomState = window.myCustomState || {};
+    if (!window.myCustomState.liveClickHandlerAttached) {
+        window.myCustomState.liveClickHandlerAttached = true;
+
+        $('.delete-subfield').live('click',function(event)
+        {
     
-    
+            //get parent id
+            event.preventDefault();
+            var parentID = $(this).parent().closest('div[id]').attr('id');
+            //console.log(parentID);
+            
+            //get tag and subfield from parentid :id format=tag-subfield-counter
+            var arrID = parentID.split('-');
+            var authTag = arrID[0];
+            var authSubfield = arrID[1];
+            var templateID = $('#authorityTemplate').val();
+            {jQuery.ajax(
+                {
+                    type:'POST',
+                    data: {tag: authTag,subfield: authSubfield,authType:templateID},
+                    url:'/authority/deletesubfield/',
+                    cache:false,
+                    dataType: 'json',
+                    success:function(data)
+                    {
+                        $.lmNotify(data);
+                        $('#' + parentID).remove();
+                    },
+                    error : function(data)
+                    {
+                        $.lmNotify(data);
+                    }
+                }
+                );return false;
+            }
+        
+        
+        });
     }
 
-</script>
+",CClientScript::POS_HEAD);
+
+
+?>

@@ -119,9 +119,11 @@
 
 ?>
 <script type="text/javascript">
-    $(".deleteTag").live('click',function()
+    /*
+    $('.deleteTag').live('click',function(event)
 	{
-		var divTag = $(this).parent().closest('div[id]').attr('id');
+		event.preventDefault();
+        var divTag = $(this).parent().closest('div[id]').attr('id');
         var authTag = divTag.substring(0,3);
         var templateID = $('#authorityTemplate').val();
         console.log(authTag);
@@ -143,7 +145,9 @@
                 }
                 
             }
-            );return false;}
+            );
+            
+            return false;}
 
         
         
@@ -151,8 +155,9 @@
 		
 	});
     
-    $(".showSubfield").live('click',function()
+    $('.showSubfield').live('click',function(event)
     {
+        event.preventDefault();
         var divTag = $(this).parent().closest('div[id]').attr('id');
         var authTag = divTag.substring(0,3);
         var nID = divTag.substring(4); //our counter
@@ -161,7 +166,7 @@
         var childSel = '#' + divTag;
         //var childDiv = $(childSel + ' div:first-child').attr('id');
         var childDiv = divTag +'-subfield';
-        console.log(divTag + '::' + childDiv);
+        //console.log(divTag + '::' + childDiv);
         
         if ($('#'+childDiv).length)
         {
@@ -179,7 +184,86 @@
                 success:function(html)
                 {
                     $('#'+divTag).append(html);
-                    $(this).siblings('p').removeClass("ajax_loading_round");
+                    $(this).siblings('p').removeClass('ajax_loading_round');
+                }
+                
+            });
+            return false;
+        };
+         
+    });
+*/
+
+</script>
+
+<?php
+Yii::app()->clientScript->registerScript('tag_subfield',"
+$('.deleteTag').live('click',function(event)
+	{
+		event.preventDefault();
+        var divTag = $(this).parent().closest('div[id]').attr('id');
+        var authTag = divTag.substring(0,3);
+        var templateID = $('#authorityTemplate').val();
+        console.log(authTag);
+        {jQuery.ajax(
+            {'id':'sent',
+            type:'POST',
+            data: {tag: authTag,authType: templateID},
+            url:'/authority/deletetag/',
+            cache:false,
+            success:function(html)
+                {
+                    $.jGrowl('Tag Deleted',
+					{
+						sticky: false,
+						theme : 'lm-success',
+						life: 5000
+					});
+                    $('#' + divTag).remove();
+                }
+                
+            }
+            );
+            
+            return false;}
+
+        
+        
+        
+		
+	});
+    
+    $('.showSubfield').live('click',function(event)
+    {
+        event.preventDefault();
+        var divTag = $(this).parent().closest('div[id]').attr('id');
+        var authTag = divTag.substring(0,3);
+        var nID = divTag.substring(4); //our counter
+        var templateID = $('#authorityTemplate').val();
+        //check if we already have subfield loaded
+        var childSel = '#' + divTag;
+        //var childDiv = $(childSel + ' div:first-child').attr('id');
+        var childDiv = divTag +'-subfield';
+        //console.log(divTag + '::' + childDiv);
+        
+        if ($('#'+childDiv).length)
+        {
+            $('#' + childDiv).slideToggle('fast');
+            return false;
+        }
+        
+        $(this).siblings('p').addClass('ajax_loading_round');
+        console.log($(this).siblings('p'));
+        {jQuery.ajax(
+            {
+                type: 'POST',
+                data: {tag: authTag,authType: templateID,counter:nID},
+                url:'/authority/loadsubfield/',
+                cache:false,
+                success:function(html)
+                {
+                    $('#'+divTag).append(html);
+                    $(this).siblings('p').removeClass('ajax_loading_round');
                 }
                 
             });
@@ -188,5 +272,7 @@
          
     });
 
+");
 
-</script>
+
+?>

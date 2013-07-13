@@ -76,12 +76,12 @@ $this->endWidget();
 ?>    
 
 
-
-<script type="text/javascript">
-    $("#btn_show_tag").live('click',function()
+<?php
+Yii::app()->clientScript->registerScript('show_tag',"
+$('#btn_show_tag').live('click',function()
     {
         var templateID = $('#authorityTemplate').val();
-        $("#ajax-status").addClass("ajax_loading");
+        $('#ajax-status').addClass('ajax_loading');
         {jQuery.ajax(
             {'id':'sent',
             type:'POST',
@@ -90,7 +90,7 @@ $this->endWidget();
             cache:false,
             success:function(html)
                 {
-                    $("#ajax-status").removeClass("ajax_loading");
+                    $('#ajax-status').removeClass('ajax_loading');
                     $('#templateDiv div.templateContent').html(html);
                                     
                 }
@@ -101,10 +101,12 @@ $this->endWidget();
          
         
     });
-    
-    
 
-</script>
+");
+
+
+?>
+
 <?php
 	$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
 ?>
