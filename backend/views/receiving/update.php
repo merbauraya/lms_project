@@ -15,7 +15,7 @@ $this->menu=array(
 
 <h1>Update GoodReceive <?php echo $model->id; ?></h1>
 <?php
-	$this->widget('extcommon.LmWidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
+	$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
 ?>
 <?php
 	$summary = $this->renderPartial('_form',array('model'=>$model),true);

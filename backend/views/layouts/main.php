@@ -163,7 +163,7 @@
 					array('label'=>'Bibliography Template','url'=>
 						array('circulationrule/admin')),
                     array('label'=>'Authority Template','url'=>
-						array('authority/authoritytag')),    
+						array('authority/authoritytype')),    
 					)
 				),
 				

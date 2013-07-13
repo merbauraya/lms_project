@@ -19,10 +19,7 @@ class AuthoritySubfield extends BaseAuthoritySubfield
 	}
 	public function getByType($typeId)
 	{
-	    $model=AuthoritySubfield::model()->with(array(
-	      'authorityType'=>array('select'=>'loc_description,repeatable,mandatory'),
-
-	  ))->findAll(array(
+	    $model=AuthoritySubfield::model()->with('authorityType')->findAll(array(
     		'select'=>'*',
     		'condition'=>'t.authority_type_id=:id',
     		'params'=>array(':id'=>$typeId),'order'=>'t.tag,t.subfield',
