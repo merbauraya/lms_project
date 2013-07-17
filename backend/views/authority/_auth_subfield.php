@@ -47,6 +47,7 @@
 			'title'=>$title,
 			'class'=>$class,
             'id'=>$id,
+            'rel'=>'tooltip',
 			'onClick'=>$click,
 		)	);
 		return $buffer;
@@ -56,9 +57,9 @@
 ?>
 <?php
 Yii::app()->clientScript->registerScript('delete_subfield',"
-    window.myCustomState = window.myCustomState || {};
-    if (!window.myCustomState.liveClickHandlerAttached) {
-        window.myCustomState.liveClickHandlerAttached = true;
+    window.deleteSubfield = window.deleteSubfield || {};
+    if (!window.deleteSubfield.liveClickHandlerAttached) {
+        window.deleteSubfield.liveClickHandlerAttached = true;
 
         $('.delete-subfield').live('click',function(event)
         {

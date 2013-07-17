@@ -15,10 +15,14 @@
  * @property string $value_builder
  * @property integer $isurl
  * @property integer $hidden
- * @property string $frameworkcode
+ * @property string $tag_type
  * @property string $link
  * @property string $default_value
  * @property string $link_alt_text
+ *
+ * The followings are the available model relations:
+ * @property MarcTag $tag0
+ * @property MarcTag $tagType
  *
  * @package application.models.base
  * @name BaseMarcSubfield
@@ -32,7 +36,10 @@ abstract class BaseMarcSubfield extends LmActiveRecord
 	{
 		return 'marc_subfield';
 	}
-
+    public function primaryKey()
+    {
+        return 'tag,tag_type,subfield';
+    }
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -47,12 +54,12 @@ abstract class BaseMarcSubfield extends LmActiveRecord
 			array('loc_desc, help_text', 'length', 'max'=>255),
 			array('authorised_value, authtypecode', 'length', 'max'=>20),
 			array('value_builder, link', 'length', 'max'=>80),
-			array('frameworkcode', 'length', 'max'=>4),
+			array('tag_type', 'length', 'max'=>6),
 			array('link_alt_text', 'length', 'max'=>50),
 			array('repeatable, mandatory, default_value', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('tag, subfield, loc_desc, help_text, repeatable, mandatory, authorised_value, authtypecode, value_builder, isurl, hidden, frameworkcode, link, default_value, link_alt_text', 'safe', 'on'=>'search'),
+			array('tag, subfield, loc_desc, help_text, repeatable, mandatory, authorised_value, authtypecode, value_builder, isurl, hidden, tag_type, link, default_value, link_alt_text', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -64,6 +71,8 @@ abstract class BaseMarcSubfield extends LmActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'tag' => array(self::BELONGS_TO, 'MarcTag', 'tag,tag_type'),
+
 		);
 	}
 
@@ -84,7 +93,7 @@ abstract class BaseMarcSubfield extends LmActiveRecord
 			'value_builder' => 'Value Builder',
 			'isurl' => 'Isurl',
 			'hidden' => 'Hidden',
-			'frameworkcode' => 'Frameworkcode',
+			'tag_type' => 'Tag Type',
 			'link' => 'Link',
 			'default_value' => 'Default Value',
 			'link_alt_text' => 'Link Alt Text',
@@ -113,7 +122,7 @@ abstract class BaseMarcSubfield extends LmActiveRecord
 		$criteria->compare('value_builder',$this->value_builder,true);
 		$criteria->compare('isurl',$this->isurl);
 		$criteria->compare('hidden',$this->hidden);
-		$criteria->compare('frameworkcode',$this->frameworkcode,true);
+		$criteria->compare('tag_type',$this->tag_type,true);
 		$criteria->compare('link',$this->link,true);
 		$criteria->compare('default_value',$this->default_value,true);
 		$criteria->compare('link_alt_text',$this->link_alt_text,true);

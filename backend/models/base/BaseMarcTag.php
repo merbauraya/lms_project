@@ -10,6 +10,13 @@
  * @property boolean $repeatable
  * @property boolean $mandatory
  * @property string $default_value
+ * @property boolean $indicator1
+ * @property boolean $indicator2
+ * @property string $tag_type
+ *
+ * The followings are the available model relations:
+ * @property MarcSubfield[] $marcSubfields
+ * @property MarcSubfield[] $marcSubfields1
  *
  * @package application.models.base
  * @name BaseMarcTag
@@ -23,7 +30,10 @@ abstract class BaseMarcTag extends LmActiveRecord
 	{
 		return 'marc_tag';
 	}
-
+    public function primaryKey()
+    {
+        return 'tag,tag_type';
+    }
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -32,13 +42,14 @@ abstract class BaseMarcTag extends LmActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('tag', 'required'),
+			array('tag, tag_type', 'required'),
 			array('tag', 'length', 'max'=>3),
 			array('loc_description, default_value', 'length', 'max'=>255),
-			array('help_text, repeatable, mandatory', 'safe'),
+			array('tag_type', 'length', 'max'=>6),
+			array('help_text, repeatable, mandatory, indicator1, indicator2', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('tag, loc_description, help_text, repeatable, mandatory, default_value', 'safe', 'on'=>'search'),
+			array('tag, loc_description, help_text, repeatable, mandatory, default_value, indicator1, indicator2, tag_type', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -50,6 +61,8 @@ abstract class BaseMarcTag extends LmActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'subfields' => array(self::HAS_MANY, 'MarcSubfield', 'tag,tag_type'),
+
 		);
 	}
 
@@ -65,6 +78,9 @@ abstract class BaseMarcTag extends LmActiveRecord
 			'repeatable' => 'Repeatable',
 			'mandatory' => 'Mandatory',
 			'default_value' => 'Default Value',
+			'indicator1' => 'Indicator1',
+			'indicator2' => 'Indicator2',
+			'tag_type' => 'Tag Type',
 		);
 	}
 
@@ -85,6 +101,9 @@ abstract class BaseMarcTag extends LmActiveRecord
 		$criteria->compare('repeatable',$this->repeatable);
 		$criteria->compare('mandatory',$this->mandatory);
 		$criteria->compare('default_value',$this->default_value,true);
+		$criteria->compare('indicator1',$this->indicator1);
+		$criteria->compare('indicator2',$this->indicator2);
+		$criteria->compare('tag_type',$this->tag_type,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

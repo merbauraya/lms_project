@@ -30,8 +30,9 @@
 	'label' => 'Show Tag',
 	'size' => 'medium',
 	'icon' =>'icon-th-list',
-	'htmlOptions'=>array('class'=>'btn-primary','name'=>'btnpromotell',
+    'htmlOptions'=>array('class'=>'btn-secondary','name'=>'btnpromotell',
 		'id'=>'btn_show_tag',
+        'rel'=>'tooltip',
         )
 )); 
    echo '&nbsp';
@@ -41,7 +42,7 @@
 	'label' => 'Add Authority Type',
 	'size' => 'medium',
 	'icon' =>'icon-plus',
-	'htmlOptions'=>array('class'=>'btn-primary','name'=>'btnpromotell',
+	'htmlOptions'=>array('class'=>'btn-secondary','name'=>'btnpromotell',
 		'id'=>'btn_promote_sugg',
         'onClick'=>'newAuthorityType();')
 )); 
@@ -75,6 +76,25 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
 $this->endWidget(); 
 ?>    
 
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog',array(
+    'id'=>'addTagDialog',
+    // additional javascript options for the dialog plugin
+    'options'=>array(
+        'title'=>'Add Tag',
+        'autoOpen'=>false,
+        'width'=>'600',
+		'height'=>'520',
+        'modal'=>true,
+    ),
+));
+	
+?>
+<div class="divForForm"></div>
+<?php
+$this->endWidget('zii.widgets.jui.CJuiDialog');
+?>
+
 
 <?php
 Yii::app()->clientScript->registerScript('show_tag',"
@@ -86,7 +106,7 @@ $('#btn_show_tag').live('click',function()
             {'id':'sent',
             type:'POST',
             data: {authType: templateID},
-            url:'/authority/rendertemplate/',
+            url:'/authority/rendertemplatetag/',
             cache:false,
             success:function(html)
                 {
@@ -101,6 +121,22 @@ $('#btn_show_tag').live('click',function()
          
         
     });
+    $('.ck-sf').live('change',function()
+    {
+        
+        var parentID = $(this).parent().closest('div[id]').attr('id');
+        //find tag checkbox
+        var tagCK = $(parentID).find('input:checkbox:first');
+        tagCK.prop('checked',true);
+        console.log(tagCK);
+        
+         
+         
+        
+    });
+
+    
+  
 
 ");
 

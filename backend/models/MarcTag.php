@@ -20,21 +20,25 @@ class MarcTag extends BaseMarcTag
 		return parent::model($className);
 	}
 	
-	public static function tag($tag)
+	public static function tag($tag,$tagType='BIBLIO')
     {
-        if(!isset(self::$_items[$tag]))
-            self::loadItems();
-        return isset(self::$_items[$tag]) ? self::$_items[$tag] : false;
+        if(!isset(self::$_items[$tag][$tagType]))
+            self::loadItems($tagType);
+        return isset(self::$_items[$tag][$tagType]) ? self::$_items[$tag][$tagType] : false;
     }
 	
-	private static function loadItems()
+	private static function loadItems($tagType='BIBLIO')
     {
         self::$_items[]=array();
-        $models=self::model()->findAll();
+        $models=self::model()->findAll(array(
+						'order'=>'tag', 
+						'condition'=>'tag_type= :tagType', 
+						'params'=>array(':tagType'=>$tagType))
+        );
         foreach($models as $model)
 		{
 			
-		   self::$_items[$model->tag]=array(
+		   self::$_items[$model->tag][$tagType]=array(
                 'tag'=>$model->tag,
 				'name'=>$model->loc_description,
 				'help'=>$model->help_text,
@@ -47,25 +51,25 @@ class MarcTag extends BaseMarcTag
 			);
 		}
     }
-	public static function subfield($tag,$subfield)
+	public static function subfield($tag,$subfield,$tagType='BIBLIO')
 	{
-		if(!isset(self::$_subfields[$tag][$subfield]))
-            self::loadSubfield($tag);
-        return isset(self::$_subfields[$tag][$subfield]) ? self::$_subfields[$tag][$subfield] : false;
+		if(!isset(self::$_subfields[$tag][$subfield][$tagType]))
+            self::loadSubfield($tag,$tagType);
+        return isset(self::$_subfields[$tag][$subfield][$tagType]) ? self::$_subfields[$tag][$subfield][$tagType] : false;
 	
 	}
-	private static function loadSubfield($tag)
+	private static function loadSubfield($tag,$tagType='BIBLIO')
 	{
 		self::$_subfields[]=array();
         $models=MarcSubfield::model()->findAll(array(
-            'condition'=>'tag=:tag',
-            'params'=>array(':tag'=>$tag),
-             'order'=>'tag,subfield',
+            'condition'=>'tag=:tag and tag_type=:tagType',
+            'params'=>array(':tag'=>$tag,':tagType'=>$tagType),
+            'order'=>'tag,subfield',
         ));
         foreach($models as $model)
 		{
 			
-			self::$_subfields[$model->tag][$model->subfield]=array(
+			self::$_subfields[$model->tag][$model->subfield][$tagType]=array(
 				
                 'name'=>$model->loc_desc,
 				'help'=>$model->help_text,

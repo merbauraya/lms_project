@@ -51,7 +51,7 @@
 													
 				)),
 				
-				array('label'=>'Authorities', 'url'=>array('catalog/authority')),										
+				array('label'=>'Authorities', 'url'=>array('authority/create')),										
 													
 				array('label'=>'Search Catalog', 'url'=>array('catalog/search','q'=>'1')),
 				'___',
