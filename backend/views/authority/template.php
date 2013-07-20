@@ -1,5 +1,6 @@
-
 <?php
+$this->widget('extcommon.loading.LoadingWidget');
+
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(
 		'title' => "Authorities Template",
 		//'headerIcon' => 'icon-user',
@@ -35,17 +36,9 @@
         'rel'=>'tooltip',
         )
 )); 
-   echo '&nbsp';
+
     
-    
-    $this->widget('bootstrap.widgets.TbButton',array(
-	'label' => 'Add Authority Type',
-	'size' => 'medium',
-	'icon' =>'icon-plus',
-	'htmlOptions'=>array('class'=>'btn-secondary','name'=>'btnpromotell',
-		'id'=>'btn_promote_sugg',
-        'onClick'=>'newAuthorityType();')
-)); 
+
     $this->endWidget(); 
 
 		?>
@@ -100,6 +93,7 @@ $this->endWidget('zii.widgets.jui.CJuiDialog');
 Yii::app()->clientScript->registerScript('show_tag',"
 $('#btn_show_tag').live('click',function()
     {
+        Loading.show();
         var templateID = $('#authorityTemplate').val();
         $('#ajax-status').addClass('ajax_loading');
         {jQuery.ajax(
@@ -112,7 +106,7 @@ $('#btn_show_tag').live('click',function()
                 {
                     $('#ajax-status').removeClass('ajax_loading');
                     $('#templateDiv div.templateContent').html(html);
-                                    
+                    Loading.hide();                                    
                 }
             });return false;
             }

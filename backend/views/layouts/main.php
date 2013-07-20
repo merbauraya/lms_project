@@ -52,8 +52,17 @@
 				)),
 				
 				array('label'=>'Authorities', 'url'=>array('authority/create')),										
-													
-				array('label'=>'Search Catalog', 'url'=>array('catalog/search','q'=>'1')),
+				'___',
+                
+                array('label'=>'Import Marc', 'items'=>array(
+                    array('label'=>'Import Bibliography','url'=>array('/catalog/importbiblio')),							
+                    array('label'=>'Import Authority', 'url'=>array(
+                                                '/catalog/importauth')),									
+                    	
+                    ),
+                ),
+				'___',
+                array('label'=>'Search Catalog', 'url'=>array('catalog/search','q'=>'1')),
 				'___',
 				array('label'=>'New Items', 'url'=>array(
 													'/catalogitem/create')),	
@@ -161,7 +170,7 @@
 				array('label'=>'Authorization', 'url'=>array('auth/')),
 				array('label'=>'Cataloging', 'items'=>array(
 					array('label'=>'Bibliography Template','url'=>
-						array('circulationrule/admin')),
+						array('catalogTemplate/catalogtype')),
                     array('label'=>'Authority Template','url'=>
 						array('authority/authoritytype')),    
 					)

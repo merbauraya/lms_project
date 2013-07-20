@@ -4,7 +4,7 @@
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'id'=>'save-marc',
             'type'=>'horizontal',
-            'action'=> array('catalog/CreateByTemplate'),
+            
         )); 
 
 
@@ -62,7 +62,7 @@
 			$subfieldName=$subField['name'];
 			$default_value=$subField['default_value'];
 			//start new subfield
-			$tagHead[$tabKey].=newMarcSubField($rec->tag,$subfieldCode,$subfieldName,$default_value,$n,$subField,$marcTag);
+			$tagHead[$tabKey].=newMarcSubField($rec,$n); //($rec->tag,$subfieldCode,$subfieldName,$default_value,$n,$subField,$marcTag);
 		}
 		$tagHead[$tabKey].=endMarcTag();
 	}
@@ -86,23 +86,27 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 	),
 ));	
 
-    function addIndicator($marcTag,$n,$subfieldCode)
+    //function addIndicator($marcTag,$n,$subfieldCode)
+    function addIndicator($rec,$n)
     {
         $buffer='';
+        $subfieldCode = $rec->subfield;
         $options = array();
         $options['class']='marc-indicator';
         $options['maxlength']=1;
         $options['readonly']=true;
-        if ($marcTag['indi1'])
+        $tagInfo = MarcTag::tag($rec->tag,'BIBLIO'); //grab tag info 
+        
+        if ($tagInfo['indi1'])
             unset ($options['readonly']);
         
-        $buffer .=CHtml::textField('Marc[indi1-'. $marcTag['tag'].'-'.$subfieldCode.'-'.$n.']','',$options);	
+        $buffer .=CHtml::textField('Marc[indi1-'. $rec->tag.'-'.$subfieldCode.'-'.$n.']','',$options);	
 			$buffer .='-';
         unset ($options['readonly']);
-        if (!$marcTag['indi2'])
+        if (!$tagInfo['indi2'])
             $options['readonly']=true;
         
-        $buffer .=CHtml::textField('Marc[indi2-'. $marcTag['tag'].'-'.$subfieldCode.'-'.$n.']','',$options);
+        $buffer .=CHtml::textField('Marc[indi2-'. $rec->tag.'-'.$subfieldCode.'-'.$n.']','',$options);
 			
 			$buffer .='&nbsp;';
         return $buffer;
@@ -110,9 +114,15 @@ $this->widget('bootstrap.widgets.TbTabs', array(
     }
 	
 	//start new Marc Subfield
-	function newMarcSubField($tag,$subfieldCode,$subfieldName,$default_value,$n,$subField,$marcTag)
-	{
-		//set counter to zero for leader
+	//function newMarcSubField($tag,$subfieldCode,$subfieldName,$default_value,$n,$subField,$marcTag)
+	function newMarcSubfield($rec,$n)
+    {
+		
+        $tag = $rec->tag;
+        $subfieldCode = $rec->subfield;
+        $subfieldName = $rec->subfield_name;
+        $default_value = '';
+        //set counter to zero for leader
         if ((int)$tag ==0)
             $n=0;
         
@@ -126,21 +136,9 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 				'class'=>'span4',
                 ),'',false);
 		$buffer .='&nbsp;';
-        /*
-		if ((int)$tag< 10) //control field
-		{
-			$buffer .=CHtml::tag('span',array('style'=>'float:left;padding-top:5px;'),'00',false	);
-		}
-		else
-		{
-			$buffer .=CHtml::tag('span',array('style'=>'float:left;padding-top:5px;'),'',false	);
-		}
-		//label
-		//input name: tag-indi1Indi2-subfield-counter
+    
         
-        
-        
-        $buffer .= CHtml::closeTag('span'); */
+        //$buffer .= CHtml::closeTag('span'); */
         if ((int)$tag>10)
             $inputName = 'Marc['.$tag.'-'.$subfieldCode.'-'.$n.']';
 		else
@@ -153,7 +151,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
         $buffer .=CHtml::closeTag('div'); //span6
         $buffer .=CHtml::tag('div',array('class'=>'span1'),'',false);
         if ((int)$tag> 10) //control field
-            $buffer .= addIndicator($marcTag,$n,$subfieldCode);
+            $buffer .= addIndicator($rec,$n);//($marcTag,$n,$subfieldCode);
         
 		$buffer .=CHtml::closeTag('div'); //span6
         
@@ -166,20 +164,17 @@ $this->widget('bootstrap.widgets.TbTabs', array(
         if ((int)$tag==0) //leader
             $htmlOptions['readOnly'] = true;
         
-		if ($subField['mandatory'])
+		if ($rec->mandatory)
             $htmlOptions['required'] = true;
         
         $buffer .=CHtml::textField($inputName,$default_value,$htmlOptions);
         
 		$buffer.='&nbsp;';
-		if (!empty($subField['link']))
+		if (!empty($rec->link))
 		{
-			$buffer .=generateLink($subField['link_alt_text'],'marc','icon-edit',$subField['link']);
+			$buffer .=generateLink($rec->link_alt_text,'marc','icon-edit',$rec->link);
 		}
-		if ($subField['repeatable'])
-		{
 		
-		}
 		$buffer .=CHtml::closeTag('div'); //span6
 		
 		
@@ -254,6 +249,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 		$buffer = CHtml::link($linkIcon,'#',array(
 			'title'=>$title,
 			'class'=>$class,
+            'rel'=>'tooltip',
 			'onClick'=>$click,
 		)	);
 		return $buffer;
@@ -298,18 +294,13 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 
 <div class="form-actions">
 		<?php $this->widget('bootstrap.widgets.TbButton', array(
-			'buttonType'=>'submit',
+			
 			'type'=>'primary',
 			'label'=>'Save',
-			'id'=>'saveRecord'
+			'id'=>'btn_saveMarc'
 		,'htmlOptions' => array('name'=>'saveMarcRecord'))); ?>
 		
-		<?php $this->widget('bootstrap.widgets.TbButton', array(
-			'buttonType'=>'button',
-			'type'=>'primary',
-			'label'=>'Cancel',
-			'id'=>'cancelSave'
-		,'htmlOptions' => array('name'=>'CancelMarcRecord'))); ?>
+
 	</div>
 <?php
 $this->endWidget(); 

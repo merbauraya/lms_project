@@ -170,6 +170,7 @@ Yii::app()->clientScript->registerScript('tag_subfield',"
                 type:'POST',
                 data: {tag: authTag,authType: templateID},
                 url:'/authority/deletetag/',
+                dataType: 'json',
                 cache:false,
                 success:function(data)
                     {

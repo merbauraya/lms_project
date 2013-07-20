@@ -168,7 +168,7 @@ class CatalogController extends Controller
 		try 
 		{
 			$templateID = $_POST['catalogTemplate'];
-			$catalogTemplate = CatalogTemplateTag::model()->loadByTemplateID($templateID);
+			$catalogTemplate = CatalogTemplateTag::model()->loadWithSubfieldByTemplateId($templateID);//   loadByTemplateID($templateID);
 			$this->renderPartial('_addCatalog',array('templates'=>$catalogTemplate));
 		}
 		catch (CExption $e)
@@ -275,13 +275,13 @@ class CatalogController extends Controller
 							"name" => $model->name,
 							"type" => $model->mime_type,
 							"size" => $model->size,
-							"url" => $publicPath.$filename,
-							"thumbnail_url" => $publicPath."thumbs/$filename",
-							"delete_url" => $this->createUrl( "upload", array(
-								"_method" => "delete",
-								"file" => $filename
-							) ),
-							"delete_type" => "POST"
+							//"url" => $publicPath.$filename,
+							//"thumbnail_url" => $publicPath."thumbs/$filename",
+							//"delete_url" => $this->createUrl( "upload", array(
+							//	"_method" => "delete",
+							//	"file" => $filename
+							//) ),
+							//"delete_type" => "POST"
 						) ) );
 				} else {
 					//If the upload failed for some reason we log some data and let the widget know
@@ -747,6 +747,35 @@ class CatalogController extends Controller
         }
 	
 	}
+    public function actionImportbiblio()
+    {
+        $model = new Catalog;
+		$marc = new XUploadForm;
+		if (isset($_POST['Catalog']))
+		{
+			if( Yii::app( )->user->hasState( 'upload' ) ) 
+			{
+				$userUpload = Yii::app( )->user->getState( 'upload' );
+				foreach( $userUpload as $upload ) 
+				{
+						
+				
+				}
+					
+				
+			}
+		
+		
+		}else
+			$this -> render('upload', array('model' => $model,'marc'=>$marc,'type'=>'BIBLIO' ));
+        
+        
+    }
+    public function actionImportauth()
+    {
+        
+        
+    }
 	/**
 	 * Performs the AJAX validation.
 	 * @param CModel the model to be validated
@@ -759,5 +788,6 @@ class CatalogController extends Controller
 			Yii::app()->end();
 		}
 	}
+    
 	
 }

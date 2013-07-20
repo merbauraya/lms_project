@@ -76,12 +76,12 @@ class AuthorityController extends Controller
         {
             $typeId = $_POST['authType'];
             $tag = $_POST['tag'];
-            $sql = 'delete from authority_subfield where authority_type_id=:id and tag=:tag';
+            $sql = 'delete from authority_template_subfield where authority_type_id=:id and tag=:tag';
             $cmd = Yii::app()->db->createCommand($sql);
             $cmd->bindParam(':id',$typeId,PDO::PARAM_INT);
             $cmd->bindParam(':tag',$tag,PDO::PARAM_STR);
             
-            $sql2 = 'delete from authority_tag where authority_type_id=:id and tag=:tag';
+            $sql2 = 'delete from authority_template_tag where authority_type_id=:id and tag=:tag';
             $cmd2 = Yii::app()->db->createCommand($sql2);
             $cmd2->bindParam(':id',$typeId,PDO::PARAM_INT);
             $cmd2->bindParam(':tag',$tag,PDO::PARAM_STR);
@@ -91,16 +91,24 @@ class AuthorityController extends Controller
                 $cmd->execute();
                 $cmd2->execute();
                 $transaction->commit();
-                echo 'success';
+                echo CJSON::encode(array(
+                    'status'=>'success', 
+                    'message'=>'Tag/subfield successfully added'
+                    ));
             }catch (Exception $ex)
             {
                 $transaction->rollback();
                 LmUtil::logError('DB Error : ' .$ex->getMessage(),$this->id.$this->action->id);
-                echo $ex.getMessage();
+                echo CJSON::encode(array(
+                    'status'=>'error', 
+                    'message'=>'Error deleting tag/subfield'
+                    ));
+                
             }
         }else
         {
-            echo 'not set';
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+            return;
         }
 				
     }
@@ -144,7 +152,7 @@ class AuthorityController extends Controller
         $authType = $_POST['authType'];
         $subfield = $_POST['subfield'];
 
-        $sql = 'delete from authority_subfield 
+        $sql = 'delete from authority_template_subfield 
                 where authority_type_id=:typeId 
                 and tag=:tagId 
                 and subfield=:subfieldId';

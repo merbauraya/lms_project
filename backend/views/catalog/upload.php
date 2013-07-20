@@ -33,7 +33,8 @@ $this->widget('xupload.XUpload', array(
 					'previewImages'=>false,
 					'imageProcessing'=>false,
 					'attribute' => 'file',
-                    'multiple' => true,
+                    'multiple' => false,
+                    'showDelete' => false,
 					'options'=>array(
 						'acceptFileTypes' => "js:/(\.|\/)(xml|mrc|marc|png)$/i",
 					)
