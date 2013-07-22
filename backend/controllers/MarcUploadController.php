@@ -1,6 +1,7 @@
 <?php
 //Yii::import('application.vendors.PEAR.*');
 require_once('File/MARC.php');
+require_once('File/MARCXML.php');
 class MarcUploadController extends Controller
 {
 	/**
@@ -15,47 +16,115 @@ class MarcUploadController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
+			array('auth.filters.AuthFilter - login, logout, restore, captcha, error'),
+            //'accessControl', // perform access control for CRUD operations
 		);
 	}
 
-	/**
-	 * Specifies the access control rules.
-	 * This method is used by the 'accessControl' filter.
-	 * @return array access control rules
-	 */
-	public function accessRules()
-	{
-		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('*'),
-			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
-			),
-		);
-	}
+	
 
-	/**
-	 * Displays a particular model.
-	 * @param integer $id the ID of the model to be displayed
-	 */
-	public function actionView($id)
-	{
-		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+	
+    
+    public function actionUpload()
+    {
+        $model = new MarcUpload();
+        
+        if (isset($_POST['MarcUpload']))
+        {
+            if( Yii::app( )->user->hasState( 'upload' ))
+                $uploaded = Yii::app()->user->getState('upload');
+            else
+                throw new CHttpException(500,'Server error while processing upload');
+            $model->attributes = $_POST['MarcUpload'];
+            $model->library_id = LmUtil::UserLibraryId();
+            $model->uploaded_by = LmUtil::UserId();
+            $model->date_created = LmUtil::dBCurrentDatetime();
+            $model->full_path = $uploaded['path'];
+            $model->file_name = $uploaded['name'];
+            $model->save();
+            
+            if (isset($_POST['processNow']))
+            {
+                $this->actionStagedUploaded($model);
+                $this->redirect(array('ShowUploadSummary','id'=>$model->id));
+            }
+            if (isset($_POST['processLater']))
+                $this->actionStagedUploaded($model);
+                
+            return;
+            
+        }
+        $xupload = new XUploadForm;
+        $this->render( 'upload', array(
+            'model' => $model,
+            'xupload' => $xupload,
+    ) );
+        
+    }
+    public function actionShowUploadSummary($id)
+    {
+        
+        //get upload info
+        $upload = MarcUpload::model()->findByPk($id);
+       // $count = $upload->record_count;
+        //$fileName = $upload->file_name;
+        //$dataUpload = $upload->date_created;
+        
+        $criteria = new CDbCriteria();
+		$criteria->condition = 'marc_upload_id= :id';
+		$criteria->params = array(':id'=>$id);
+		$itemDP=new CActiveDataProvider(
+			'MarcUploadItem',
+			array(
+             'criteria'   => $criteria,
+             'pagination' => array(
+                 'pageSize' => '20',
+				)
+			)
+		);
+               
+		
+		$this->render('uploadsummary',array(
+			'model'=>$upload,'itemDP'=>$itemDP,
 		));
-	}
-
+        
+    }
+    /**
+     * Process uploaded file
+     * @params model - MarcUpload model
+     * 
+     * 
+     */ 
+    
+    private function actionProcessUploadedFile($model)
+    {
+        $file = $model->full_path;
+        
+        $marcFile = new File_MARC($file);
+        
+        $recCount=0;
+        $transaction =  Yii::app()->db->beginTransaction();
+        
+        try
+        {
+            while ($record = $marc->next()) 
+            {
+                $recCount++;
+                $uploadItem = new MarcUploadItem();
+                $uploadItem->marc_upload_id = $model->id;
+                $uploadItem->marc_xml = $record->toXML();
+                $uploadItem->save();
+            }
+            $transaction->commit();
+        }catch (CException $e)
+        {
+            $transaction->rollback();
+        
+        }
+        
+        
+        
+    }
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
@@ -89,86 +158,8 @@ class MarcUploadController extends Controller
 			'model'=>$model,
 		));
 	}
-	private function readMarc($filename)
-	{
-		$authorID=0;
-		$biblioID=0;
-		$importedRecord = 0;
-		$marc_source = new File_MARC($filename);
-		
-		while ($record = $marc_source->next())
-		{
-			//
-			$biblio = new Biblio; //our biblio AR
-			//get title
-			$title_fld = $record->getField('245');			
-			$title_main = $title_fld->getSubFields('a');
-			$title = $title_main[0]->getData();
-			//subtitle
-			$subtitle = $title_fld->getSubfields('b');
-			if (isset($subtitle[0]))					
-				$title = $subtitle[0]->getData();
-			$biblio->title = $title;
-			
-			//ISBN
-			$biblio->isbn_issn = $this->getISBN_ISSN($record);
-			$biblio->date_created = date('Y-m-d H:i:s');
-			$biblio->date_updated = date('Y-m-d H:i:s');
-			if ($biblio->save())
-			{
-				$importedRecord++;
-				$biblioID = $biblio->id;
-			}
-			//get author and create new author record
-			$author = $record->getFields('100');
-			if ($author)
-			{
-				$aname = $author->getSubFields('a');
-				if (isset($aname[0]))
-				{
-					$authorID = ARUtil::getAuthorID($aname[0]);	
-					
-				}
-			}
-
-			//create new biblio_author entry
-			$bib_aut = new BiblioAuthor;
-			$bib_aut->biblio_id = $biblioID;
-			$bib_aut->author_id = $authorID;
-			$bib_aut->date_created = date('Y-m-d H:i:s');
-			$bib_aut->date_updated = date('Y-m-d H:i:s');
-			
-
-		} //marc_source->next
-	}
-	private function getISBN_ISSN($record)
-	{
-		
-		$ISBN_ISSN='';	
-		// Identifier - ISBN
-		        
-		$id_fld = $record->getField('020');
-        if ($id_fld) {
-          $isbn_issn = $id_fld->getSubfields('a');
-          if (isset($isbn_issn[0])) {
-            // echo "\n"; echo 'ISBN/ISSN: '.$isbn_issn[0]->getData();
-            $ISBN_ISSN = $isbn_issn[0]->getData();
-          }
-        }
-
-        // Identifier - ISSN
-        $id_fld = $record->getField('022');
-        if ($id_fld) {
-          echo "\n";
-          $isbn_issn = $id_fld->getSubfields('a');
-          if (isset($isbn_issn[0])) {
-            // echo 'ISBN/ISSN: '.$isbn_issn[0]->getData();
-            $ISBN_ISSN = $isbn_issn[0]->getData();
-          }
-        }
-		return $ISBN_ISSN;
-
-	}
+	
+	
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
@@ -193,53 +184,232 @@ class MarcUploadController extends Controller
 		));
 	}
 
-	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
-	 */
-	public function actionDelete($id)
-	{
-		if(Yii::app()->request->isPostRequest)
-		{
-			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
 
-			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-			if(!isset($_GET['ajax']))
-				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+
+	
+	/*
+     * Handle Marc upload process. After file has been uploaded
+     * it will be moved to a upload folder for later processing.
+     * New record entry in MarcUpload model will also be created
+     */
+	public function actionHandleUpload()
+	{
+		//Here we define the paths where the files will be stored 
+
+		$path = realpath(Yii::getPathOfAlias('uploadMarc'));
+		$path .= DIRECTORY_SEPARATOR;
+		//$publicPath = Yii::app( )->getBaseUrl( )."/images/uploads/tmp/";
+	 
+		//This is for IE which doens't handle 'Content-type: application/json' correctly
+		header( 'Vary: Accept' );
+		if( isset( $_SERVER['HTTP_ACCEPT'] ) 
+			&& (strpos( $_SERVER['HTTP_ACCEPT'], 'application/json' ) !== false) ) {
+			header( 'Content-type: application/json' );
+		} else {
+			header( 'Content-type: text/plain' );
 		}
-		else
-			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        
+		//Here we check if we are deleting and uploaded file
+		if( isset( $_GET["_method"] ) ) {
+			if( $_GET["_method"] == "delete" ) {
+				if( $_GET["file"][0] !== '.' ) {
+					$file = $path.$_GET["file"];
+					if( is_file( $file ) ) {
+						unlink( $file );
+					}
+				}
+				echo json_encode( true );
+			}
+		} else {
+			$model = new XUploadForm;
+			$model->file = CUploadedFile::getInstance( $model, 'file' );
+			//We check that the file was successfully uploaded
+			if( $model->file !== null ) 
+            {
+				//Grab some data
+				$model->mime_type = $model->file->getType( );
+				$model->size = $model->file->getSize( );
+				$model->name = $model->file->getName( );
+				//(optional) Generate a random name for our file
+				$filename = md5( Yii::app( )->user->id.microtime( ).$model->name);
+				$filename .= ".".$model->file->getExtensionName( );
+				if( $model->validate() ) 
+                {
+					//Move our file to our upload folder
+					$model->file->saveAs( $path. $model->name);//$filename );
+					chmod( $path.$model->name, 0777 );
+					
+	 
+					//Now we need to save this path to the user's session
+					/*if( Yii::app( )->user->hasState( 'upload' ) ) {
+						$userImages = Yii::app( )->user->getState( 'upload' );
+					} else {
+						$userImages = array();
+					}*/
+                    //we allow single file upload, always refresh user session
+                    //with current upload info
+					 $userImages = array(
+						"path" => $path.$model->name,// $filename,
+						//the same file or a thumb version that you generated
+						"thumb" => $path.$filename,
+						//"filename" => $filename,
+						'size' => $model->size,
+						'mime' => $model->mime_type,
+						'name' => $model->name,
+						'imported'=>0
+					);
+                    //save our uploaded info
+                    /*
+                    $upload = new MarcUpload();
+                    $upload->file_name = $model->name;
+                    $upload->full_path = $path.$model->name;
+                    $upload->uploaded_by = LmUtil::UserId();
+                    $upload->date_created = LmUtil::dBCurrentDatetime();
+                    $upload->library_id = LmUtil::UserLibraryId();
+                    $upload->upload_type = $uploadType;
+                    $upload->save(true);
+                    */
+					Yii::app( )->user->setState( 'upload', $userImages );
+	 
+					//Now we need to tell our widget that the upload was succesfull
+					//We do so, using the json structure defined in
+					// https://github.com/blueimp/jQuery-File-Upload/wiki/Setup
+					echo json_encode( array( array(
+							"name" => $model->name,
+							"type" => $model->mime_type,
+							"size" => $model->size,
+                            "path" => $path,
+							//"url" => $publicPath.$filename,
+							//"thumbnail_url" => $publicPath."thumbs/$filename",
+							//"delete_url" => $this->createUrl( "upload", array(
+							//	"_method" => "delete",
+							//	"file" => $filename
+							//) ),
+							//"delete_type" => "POST"
+						) ) );
+				} else {
+					//clear upload state
+                    
+                    //If the upload failed for some reason we log some data and let the widget know
+					echo json_encode( array( 
+						array( "error" => $model->getErrors( 'file' ),
+					) ) );
+					Yii::log( "XUploadAction: ".CVarDumper::dumpAsString( $model->getErrors( ) ),
+						CLogger::LEVEL_ERROR, "xupload.actions.XUploadAction" 
+					);
+				}
+			} else {
+				throw new CHttpException( 500, "Could not upload file" );
+			}
+		}
+        
 	}
-
-	/**
-	 * Lists all models.
-	 */
-	public function actionIndex()
-	{
-		$dataProvider=new CActiveDataProvider('MarcUpload');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
-
-	/**
-	 * Manages all models.
-	 */
-	public function actionAdmin()
-	{
-		$model=new MarcUpload('search');
-		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['MarcUpload']))
-			$model->attributes=$_GET['MarcUpload'];
-
-		$this->render('admin',array(
-			'model'=>$model,
-		));
-	}
-
-	/**
+    /*
+     * Staged uploaded file based on record stored in MarcUpload for later processing
+     * 
+     * 
+     * 
+     */
+    public function actionStagedUploaded($model)
+    {
+        
+                
+        $marcFile = new File_MARC($model->full_path);
+        
+        $recCount=0;
+        $transaction =  Yii::app()->db->beginTransaction();
+        
+        try
+        {
+            while ($record = $marcFile->next()) 
+            {
+                $recCount++;
+                $uploadItem = new MarcUploadItem();
+                $uploadItem->marc_upload_id = $model->id;
+                $uploadItem->marc_xml = $record->toXML();
+                $marcInfo = MarcActiveRecord::setMarc($record);
+                //build our header
+                switch ($model->matching_rule)
+                {
+                    case MarcUpload::MATCHING_RULE_ISBN:
+                        $ident = $marcInfo->getISBN();
+                        break;
+                    case MarcUpload::MATCHING_RULE_ISSN:
+                        $ident = $marcInfo->getISSN();
+                        break;
+                    default:
+                        $ident ='';
+                    
+                }
+                switch ($model->upload_type)
+                {
+                    case MarcUpload::MARC_UPLOAD_BIBLIO:
+                        $title = $marcInfo->getTitle();
+                        break;
+                    case MarcUpload::MARC_UPLOAD_AUTH:
+                        $title = $marcInfo->getAuthor();
+                        break;
+                    default:
+                        $title='';
+                    
+                }
+                $header = ($ident=='' ? '' : $ident . ' / ') . $title ;
+                $uploadItem->note = $header;
+                $uploadItem->save();
+            }
+            $model->record_count = $recCount;
+            $model->save();
+            $transaction->commit();
+        }catch (CException $e)
+        {
+            $transaction->rollback();
+        
+        }
+        
+    }
+    /**
+     * Render the view for individual marc uploaded record
+     * 
+     * @param integer the ID of the marc record in MarcUploadItem
+     */ 
+    public function actionViewMarc($id)
+    {
+        $model = MarcUploadItem::model()->findByPk($id);
+        $marc = new File_MARCXML($model->marc_xml, File_MARC::SOURCE_STRING);
+        echo $this->renderPartial('_viewmarc',array('marc'=>$marc),true);
+             
+        
+        
+    }
+    /**
+     * Perform marc import based on uploaded file
+     * 
+     * expect the id of the MarcUpload will be submitted via post
+     */ 
+    public function actionImport()
+    {
+        if (!isset($_POST['MarcUpload']))
+            throw new CHttpException(400,'Invalid request');
+        $id = $_POST['MarcUpload']['id'];
+        $upload = MarcUpload::model()->findByPk($id);
+        $uploadItem = MarcUploadItem::model()->findAllByAttribute(
+                    array(),
+                    'marc_upload_id = :id',
+                    array(':id'=>$id)
+                   
+                    );
+        foreach ($uploadItem as $item)
+        {
+            $marc = new File_MARCXML($item->marc_xml, File_MARC::SOURCE_STRING);
+            $marcRecord = MarcActiveRecord::setMarc($marc);
+            
+            
+        }
+        
+        
+        
+    }
+    /**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
@@ -252,16 +422,4 @@ class MarcUploadController extends Controller
 		return $model;
 	}
 
-	/**
-	 * Performs the AJAX validation.
-	 * @param CModel the model to be validated
-	 */
-	protected function performAjaxValidation($model)
-	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='marc-upload-form')
-		{
-			echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
-	}
 }

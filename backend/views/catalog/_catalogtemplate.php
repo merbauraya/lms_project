@@ -58,6 +58,7 @@
 <?php $this->endWidget(); 
     $this->beginWidget('zii.widgets.jui.CJuiDialog',
        array(   'id'=>'marc-leader-dialog',
+                
                 // additional javascript options for the dialog plugin
                 'options'=>array(
                                 'title'=>Yii::t('app','Marc Leader'),

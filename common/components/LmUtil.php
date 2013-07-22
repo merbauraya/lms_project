@@ -23,6 +23,11 @@ class LmUtil
 		$ret = Yii::app()->user->getId();
 		return $ret;
 	}
+	public static function UserLibraryId()
+	{
+	    return Yii::app()->user->getLibraryId();
+	    
+	}
 	public static function le($controller,$message)
 	{
 		self::logError('DB Error : ' .$message,$controller->id.$controller->action->id);

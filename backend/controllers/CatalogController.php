@@ -202,101 +202,7 @@ class CatalogController extends Controller
 			'model'=>$model,
 		));
 	}
-	public function actionHandleUpload()
-	{
-		//Here we define the paths where the files will be stored 
-
-		$path = realpath(Yii::getPathOfAlias('uploadMarc'));
-		$path .= DIRECTORY_SEPARATOR;
-		//$publicPath = Yii::app( )->getBaseUrl( )."/images/uploads/tmp/";
-	 
-		//This is for IE which doens't handle 'Content-type: application/json' correctly
-		header( 'Vary: Accept' );
-		if( isset( $_SERVER['HTTP_ACCEPT'] ) 
-			&& (strpos( $_SERVER['HTTP_ACCEPT'], 'application/json' ) !== false) ) {
-			header( 'Content-type: application/json' );
-		} else {
-			header( 'Content-type: text/plain' );
-		}
- 
-		//Here we check if we are deleting and uploaded file
-		if( isset( $_GET["_method"] ) ) {
-			if( $_GET["_method"] == "delete" ) {
-				if( $_GET["file"][0] !== '.' ) {
-					$file = $path.$_GET["file"];
-					if( is_file( $file ) ) {
-						unlink( $file );
-					}
-				}
-				echo json_encode( true );
-			}
-		} else {
-			$model = new XUploadForm;
-			$model->file = CUploadedFile::getInstance( $model, 'file' );
-			//We check that the file was successfully uploaded
-			if( $model->file !== null ) {
-				//Grab some data
-				$model->mime_type = $model->file->getType( );
-				$model->size = $model->file->getSize( );
-				$model->name = $model->file->getName( );
-				//(optional) Generate a random name for our file
-				$filename = md5( Yii::app( )->user->id.microtime( ).$model->name);
-				$filename .= ".".$model->file->getExtensionName( );
-				if( $model->validate( ) ) {
-					//Move our file to our temporary dir
-					$model->file->saveAs( $path. $model->name);//$filename );
-					chmod( $path.$model->name, 0777 );
-					//here you can also generate the image versions you need 
-					//using something like PHPThumb
-	 
-	 
-					//Now we need to save this path to the user's session
-					if( Yii::app( )->user->hasState( 'upload' ) ) {
-						$userImages = Yii::app( )->user->getState( 'upload' );
-					} else {
-						$userImages = array();
-					}
-					 $userImages[] = array(
-						"path" => $path.$model->name,// $filename,
-						//the same file or a thumb version that you generated
-						"thumb" => $path.$filename,
-						"filename" => $filename,
-						'size' => $model->size,
-						'mime' => $model->mime_type,
-						'name' => $model->name,
-						'imported'=>0
-					);
-					Yii::app( )->user->setState( 'upload', $userImages );
-	 
-					//Now we need to tell our widget that the upload was succesfull
-					//We do so, using the json structure defined in
-					// https://github.com/blueimp/jQuery-File-Upload/wiki/Setup
-					echo json_encode( array( array(
-							"name" => $model->name,
-							"type" => $model->mime_type,
-							"size" => $model->size,
-							//"url" => $publicPath.$filename,
-							//"thumbnail_url" => $publicPath."thumbs/$filename",
-							//"delete_url" => $this->createUrl( "upload", array(
-							//	"_method" => "delete",
-							//	"file" => $filename
-							//) ),
-							//"delete_type" => "POST"
-						) ) );
-				} else {
-					//If the upload failed for some reason we log some data and let the widget know
-					echo json_encode( array( 
-						array( "error" => $model->getErrors( 'file' ),
-					) ) );
-					Yii::log( "XUploadAction: ".CVarDumper::dumpAsString( $model->getErrors( ) ),
-						CLogger::LEVEL_ERROR, "xupload.actions.XUploadAction" 
-					);
-				}
-			} else {
-				throw new CHttpException( 500, "Could not upload file" );
-			}
-		}
-	}
+    
 	public function actionSruSearch()
 	{
 		if (!isset($_POST['keyword']))
@@ -353,87 +259,9 @@ class CatalogController extends Controller
 		
 		$this->render('z3950sru',array('resource'=>$resource));
 	}
-	public function actionUpload()
-	{
-		$model = new Catalog;
-		$marc = new XUploadForm;
-		if (isset($_POST['Catalog']))
-		{
-			if( Yii::app( )->user->hasState( 'upload' ) ) 
-			{
-				$userUpload = Yii::app( )->user->getState( 'upload' );
-				foreach( $userUpload as $upload ) 
-				{
-						
-				
-				}
-					
-				
-			}
-		
-		
-		}else
-			$this -> render('upload', array('model' => $model,'marc'=>$marc ));
-		
 	
-	}
-	public function actionUploadMarc()
-	{
-	//	print_r($_POST);
-	//	print_r($_FILES);
-		if(isset($_POST['saveMarcRecord']))
-		{
-			$this->actionSaveMarc();
-			$this->redirect(Yii::app()->user->returnUrl);
-		}
-		
-		if (isset($_POST['MarcUpload']))
-		{
-		//			print_r($_POST);
-			//print_r($_FILES);
-			//var_dump($_FILES);
-			$fileName =  $_FILES['MarcUpload']['name'][0];
-			$fileTmpLoc = $_FILES['MarcUpload']['tmp_name'][0];
-			$fullFilePath = Yii::getPathOfAlias('backend.upload.marc').DIRECTORY_SEPARATOR.$fileName;
-			$moveResult = move_uploaded_file($fileTmpLoc,$fullFilePath);
-			if ($moveResult)
-			{
-				//echo "<div id='filename'>$fileName</div>";
-				$fileMarc = new File_MARC($fullFilePath);
-					//$this->readMarc($fullFilePath);
-					
-				$this->renderPartial('_editMarc',array('marc'=>$fileMarc));
-				exit;
-			}
-			
-		
-		}
-		
 	
-	}
-	public function actionParseMarc()
-	{
-		$marc_data='';
-		
-		if(isset($_POST['marcData']))
-		{
-			$marc_data = $_POST['marcData'];
-			$bib = new File_Marc($marc_data, File_MARC::SOURCE_STRING);
-			while ($marc_record = $bib->next()) {
-				
-				print '<p>'.$marc_record->getLeader().'</p>';
-				$fields = $marc_record->getFields();
-  
-				foreach ($fields as $field) {
-					print '<p>'.$field;
-					print "</p>";
     
-				}
-			}
-		}
-	
-	
-	}
 	/**
 	*saveMarc 
 	*
@@ -621,6 +449,7 @@ class CatalogController extends Controller
 		//$this->render('create');
 		
 	}
+    
 	private function addNewCatalog($marc,$source)
 	{
 		$catalog = new Catalog();
@@ -747,35 +576,7 @@ class CatalogController extends Controller
         }
 	
 	}
-    public function actionImportbiblio()
-    {
-        $model = new Catalog;
-		$marc = new XUploadForm;
-		if (isset($_POST['Catalog']))
-		{
-			if( Yii::app( )->user->hasState( 'upload' ) ) 
-			{
-				$userUpload = Yii::app( )->user->getState( 'upload' );
-				foreach( $userUpload as $upload ) 
-				{
-						
-				
-				}
-					
-				
-			}
-		
-		
-		}else
-			$this -> render('upload', array('model' => $model,'marc'=>$marc,'type'=>'BIBLIO' ));
-        
-        
-    }
-    public function actionImportauth()
-    {
-        
-        
-    }
+   
 	/**
 	 * Performs the AJAX validation.
 	 * @param CModel the model to be validated

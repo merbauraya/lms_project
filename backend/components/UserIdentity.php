@@ -11,7 +11,7 @@ class UserIdentity extends CUserIdentity {
 	 * @var integer id of logged user
 	 */
 	private $_id;
-
+    private $_libraryId;
 
 	/**
 	 * Authenticates username and password
@@ -21,14 +21,15 @@ class UserIdentity extends CUserIdentity {
 		$attribute = strpos($this->username, '@') ? 'email' : 'username';
 		$user = Patron::model()->find(array('condition' => $attribute . '=:loginname', 'params' => array(':loginname' => $this->username)));
 
-		if ($user === null) {
+		if ($user === null) 
+		{
 			$this->errorCode = self::ERROR_USERNAME_INVALID;
 		} else if (!$user->verifyPassword($this->password)) {
 			$this->errorCode = self::ERROR_PASSWORD_INVALID;
 		} else {
 			$user->regenerateValidationKey();
 			$this->_id = $user->id;
-			
+		    $this->_libraryId = $user->library_id;	
             
 			$this->username = $user->username;
 			$this->setState('vkey', $user->validation_key);
@@ -59,6 +60,10 @@ class UserIdentity extends CUserIdentity {
 	 */
 	public function getId() {
 		return $this->_id;
+	}
+	public function getLibraryId()
+	{
+	    return $this->_libraryId;
 	}
 	
 }

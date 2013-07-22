@@ -13,8 +13,10 @@
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/style.css" />
 	<!link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css" />
 	
-		<?php
-	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/common.js'); ?>
+	<?php
+        Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/common.js'); 
+        Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/jquery.nicescroll.min.js'); 
+    ?>
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
 
@@ -55,8 +57,8 @@
 				'___',
                 
                 array('label'=>'Import Marc', 'items'=>array(
-                    array('label'=>'Import Bibliography','url'=>array('/catalog/importbiblio')),							
-                    array('label'=>'Import Authority', 'url'=>array(
+                    array('label'=>'Upload Marc Record','url'=>array('/MarcUpload/upload')),							
+                    array('label'=>'Process Uploaded Marc Record', 'url'=>array(
                                                 '/catalog/importauth')),									
                     	
                     ),

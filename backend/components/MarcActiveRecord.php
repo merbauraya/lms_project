@@ -11,7 +11,7 @@ class MarcActiveRecord //extends MarcBase
     private $_attributes = array();
     private $_subfields = array();
     private $_indicator = array();
-    private $_marcId;
+    private $_marcId; //our internal catalog id
     
     const CATALOGING_AGENCY='MARC_CATALOGING_AGENCY';
     
@@ -59,9 +59,13 @@ class MarcActiveRecord //extends MarcBase
 	{
 		return $this->getNRData('020','a');
 	}
-	public function getPublicationDate()
+	public function getISSN()
 	{
-	
+	    return $this->getNRData('022','a');
+	}
+	public function getAuthor()
+	{
+	    return $this->geNRData('100','a');
 	}
 	private function _validMarc()
 	{
@@ -201,7 +205,7 @@ class MarcActiveRecord //extends MarcBase
 		}	
    }
    /*
-   *	Get non repeatble data
+   *	Get non repeatable data
    *
    *
    */
