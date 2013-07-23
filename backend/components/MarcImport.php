@@ -42,8 +42,14 @@ class MarcImport
      */ 
     public function import()
     {
+        
+        //init our import summary;
+        $this->importSummary['tot_added']=0;
+        $this->importSummary['tot_replaced']=0;
+        $this->importSummary['tot_ignored']=0;
+        $this->importSummary['tot_processed']=0;
         //load upload items
-        $items = MarcUploadItem::model()->findAllByAttribute(
+        $items = MarcUploadItem::model()->findAllByAttributes(
                         array(),
                         'marc_upload_id = :id',
                         array(':id'=>$this->uploadBatch->id)
@@ -51,15 +57,20 @@ class MarcImport
                     );
         //loop thru items and grab marcxml stored and process them
         //according to the import rule
+        $transaction = Yii::app()->db->beginTransaction();
         foreach ($items as $item)
         {
             $marc = new File_MARCXML($item->marc_xml, File_MARC::SOURCE_STRING);
             $record = $marc->next();
             $marcRecord = MarcActiveRecord::setMarc($record);
             $this->processRecord($marcRecord);
-            
+            $this->importSummary['tot_processed']++;
             
         }
+        $this->uploadBatch->process_date = LmUtil::dBCurrentDateTime();
+        $this->uploadBatch->save();
+        $transaction->commit();
+        return $this->importSummary;
         
     }
     /**
@@ -72,7 +83,7 @@ class MarcImport
         $exists = false; //our exist flag
         $catalog = new Catalog();
         
-        switch ($this->uploadBatch->matchingRule)
+        switch ($this->uploadBatch->matching_rule)
         {
             case MarcUpload::MATCHING_RULE_NO_MATCHING:
                 $catalog=null;
@@ -80,10 +91,10 @@ class MarcImport
                 
             case MarcUpload::MATCHING_RULE_ISBN:
                 $ident = $marcRecord->getISBN();
-                $catalog = Catalog::model()->findByISBN($ident)
+                $catalog = Catalog::model()->findByISBN($ident);
                 break;
                 
-            case MarcUpload::MATCHING_RULE_ISSN
+            case MarcUpload::MATCHING_RULE_ISSN:
                 $ident = $marcRecord->getISSN();
                 $catalog = Catalog::model()->findByISSN($ident);
                 break;
@@ -104,10 +115,10 @@ class MarcImport
      */ 
     private function processNonMatched($marcRecord)
     {
-        switch ($this->batchUpload->action_if_no_match)
+        switch ($this->uploadBatch->action_if_no_match)
         {
             case MarcUpload::NO_MATCHED_ADD:
-                addNewCatalog($marcRecord);
+                $this->addNewCatalog($marcRecord);
                 break;
                 
             case MarcUpload::NO_MACTHED_IGNORE:
@@ -125,7 +136,7 @@ class MarcImport
      */ 
     private function processMatched($catalog,$marcRecord)
     {
-        switch ($this->batchUpload->action_if_matched)
+        switch ($this->uploadBatch->action_if_matched)
         {
             case MarcUpload::MATCHED_REPLACED_EXISTING: //overwrite/replace existing record
                 $this->replaceCatalog($catalog,$marcRecord);
@@ -136,6 +147,7 @@ class MarcImport
                 break;
                 
             case MarcUpload::MATCHED_IGNORE: //do nothing
+                $this->importSummary['tot_ignored']++;
                 break;
             
             
@@ -146,20 +158,62 @@ class MarcImport
     /**
      * 
      * Add new catalog
-     * @param marcRecord an instance of MarcActiveRecord to be imported/added
+     * @param marcAR an instance of MarcActiveRecord to be imported/added
      * 
      */
-    private function addNewCatalog($marcRecord)
+    private function addNewCatalog($marcAR)
     {
+        // we need to edit marc record to ensure consistencty
+        //and meet our schema requirement
+        //1st. get the id for the catalog
         
+        $catalog = new Catalog();
+        $catalog->date_created = LmUtil::dBCurrentDateTime();
+        $catalog->created_by = LmUtil::UserId();
+        $catalog->save(); //
+        
+        //delete original 001 control field so we replace it with our own
+        $marcAR->Marc->deleteFields('001',false);
+        $mid = new File_MARC_Control_Field('001',$catalog->id);
+        $marcAR->Marc->appendField($mid);
+        
+        $catalog->title_245a = $marcAR->getTitle();
+        $catalog->isbn_10 = $marcAR->getISBN();
+        $catalog->isbn_13 = $marcAR->getISBN();
+        $catalog->author_100a = $marcAR->getAuthor();
+        $catalog->source = Catalog::SOURCE_MARC_IMPORT;
+        $catalog->marc_xml = $marcAR->Marc->toXML();
+        $catalog->save();
+        $this->importSummary['tot_added']++;
         
         
     }
-    private function replaceCatalog($catalog,$marcRecord)
+    /**
+     * Replace existing catalog with new one. Take note that there could be more than one
+     * catalog with same ISBN/ISSN. Therefore, we need to replace all of them
+     * @param catalogs array of Catalog
+     * @marcAR marcRecord instance of MarcActiveRecord
+     * 
+     */ 
+    private function replaceCatalog($catalogs,$marcAR)
     {
         
-        
+        foreach ($catalogs as $catalog)
+        {
+            $catalog->date_modified = LmUtil::dBCurrentDateTime();
+            $catalog->modified_by = LmUtil::UserId();
+            //modified marc
+             $marcAR->Marc->deleteFields('001',false);
+            
+            $mid = new File_MARC_Control_Field('001',$catalog->id);
+            $marcAR->Marc->appendField($mid);
+            $catalog->marc_xml = $marcAR->Marc->toXML();
+            $catalog->save();
+            $this->importSummary['tot_replaced']++;
+        }
     }
+    
+    
 }
 
 

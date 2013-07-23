@@ -59,12 +59,18 @@
                 array('label'=>'Import Marc', 'items'=>array(
                     array('label'=>'Upload Marc Record','url'=>array('/MarcUpload/upload')),							
                     array('label'=>'Process Uploaded Marc Record', 'url'=>array(
-                                                '/catalog/importauth')),									
+                                                '/MarcUpload/BatchUploadSummary')),									
                     	
                     ),
                 ),
 				'___',
-                array('label'=>'Search Catalog', 'url'=>array('catalog/search','q'=>'1')),
+                array('label'=>'View Catalog', 'items'=>array(
+                    array('label'=>'View Non Indexed Catalog','url'=>array('/Catalog/NonIndex')),							
+                    array('label'=>'Process Uploaded Marc Record', 'url'=>array(
+                                                '/MarcUpload/BatchUploadSummary')),									
+                    	
+                    ),
+                ),
 				'___',
 				array('label'=>'New Items', 'url'=>array(
 													'/catalogitem/create')),	

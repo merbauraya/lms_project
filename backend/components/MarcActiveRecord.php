@@ -65,7 +65,7 @@ class MarcActiveRecord //extends MarcBase
 	}
 	public function getAuthor()
 	{
-	    return $this->geNRData('100','a');
+	    return $this->getNRData('100','a');
 	}
 	private function _validMarc()
 	{

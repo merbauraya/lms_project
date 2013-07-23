@@ -495,27 +495,7 @@ class CatalogController extends Controller
 		$fullData = $data +$topicalTerm;
 		$this->renderPartial('_marcFullView',array('data'=>$fullData,'tpCount'=>$tpCount));
 	}
-	public function actionParseMarcBrief()
-	{
-		$marc_data='';
-		
-		if(isset($_POST['marcData']))
-		{
-			$marc_data = $_POST['marcData'];
-			$bib = new File_Marc($marc_data, File_MARC::SOURCE_STRING);
-			while ($marc_record = $bib->next()) {
-				$ldr = $marc_record->getLeader();
-				$fields = $marc_record->getFields();
-  
-				foreach ($fields as $field) {
-					print '<p>'.$field;
-					print "</p>";
-    
-				}
-			}
-		}
 	
-	}
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
@@ -576,7 +556,24 @@ class CatalogController extends Controller
         }
 	
 	}
-   
+    public function actionNonIndex()
+    {
+        
+        $criteria = new CDbCriteria();
+		$criteria->select = 'id,title_245a,date_created,author_100a,isbn_10,source';
+        $criteria->condition = 'indexed = false';
+		$itemDP=new CActiveDataProvider(
+			'Catalog',
+			array(
+             'criteria'   => $criteria,
+             'pagination' => array(
+                 'pageSize' => '20',
+				)
+			)
+		);
+        $this->render('nonindex',array('itemDP'=>$itemDP));
+        
+    }
 	/**
 	 * Performs the AJAX validation.
 	 * @param CModel the model to be validated

@@ -392,20 +392,45 @@ class MarcUploadController extends Controller
             throw new CHttpException(400,'Invalid request');
         $id = $_POST['MarcUpload']['id'];
         $upload = MarcUpload::model()->findByPk($id);
-        $uploadItem = MarcUploadItem::model()->findAllByAttribute(
-                    array(),
-                    'marc_upload_id = :id',
-                    array(':id'=>$id)
-                   
-                    );
-        foreach ($uploadItem as $item)
-        {
-            $marc = new File_MARCXML($item->marc_xml, File_MARC::SOURCE_STRING);
-            $marcRecord = MarcActiveRecord::setMarc($marc);
-            
-            
-        }
         
+        $batchImport = new MarcImport($upload);
+        $result = $batchImport->import();
+        
+        echo CJSON::encode(array(
+                'status'=>'success', 
+                'div'=>$this->renderPartial('_importsummary',array('result'=>$result),true))
+                
+                
+        );
+        
+        
+        
+    }
+    
+    /**
+     * Render upload summary which are not already imported to the catalog
+     * 
+     * 
+     * 
+     */ 
+    public function actionBatchUploadSummary()
+    {
+        $criteria = new CDbCriteria();
+		$criteria->select = 'id,file_name,date_created,record_count,uploaded_by';
+        $criteria->condition = 'process_date is null';
+        $criteria->with = array('uploadedBy');
+		
+		$itemDP=new CActiveDataProvider(
+			'MarcUpload',
+			array(
+             'criteria'   => $criteria,
+             'pagination' => array(
+                 'pageSize' => '20',
+				)
+			)
+		);
+        
+        $this->render('batchuploadsummary',array('itemDP'=>$itemDP));
         
         
     }
