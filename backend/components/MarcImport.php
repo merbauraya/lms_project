@@ -63,6 +63,7 @@ class MarcImport
             $marc = new File_MARCXML($item->marc_xml, File_MARC::SOURCE_STRING);
             $record = $marc->next();
             $marcRecord = MarcActiveRecord::setMarc($record);
+            $marcRecord->setRecordSource = Catalog::SOURCE_MARC_IMPORT;
             $this->processRecord($marcRecord);
             $this->importSummary['tot_processed']++;
             
@@ -167,24 +168,10 @@ class MarcImport
         //and meet our schema requirement
         //1st. get the id for the catalog
         
-        $catalog = new Catalog();
-        $catalog->date_created = LmUtil::dBCurrentDateTime();
-        $catalog->created_by = LmUtil::UserId();
-        $catalog->save(); //
+        $catalog = $marcAR->saveAsNewCatalog();
         
-        //delete original 001 control field so we replace it with our own
-        $marcAR->Marc->deleteFields('001',false);
-        $mid = new File_MARC_Control_Field('001',$catalog->id);
-        $marcAR->Marc->appendField($mid);
-        
-        $catalog->title_245a = $marcAR->getTitle();
-        $catalog->isbn_10 = $marcAR->getISBN();
-        $catalog->isbn_13 = $marcAR->getISBN();
-        $catalog->author_100a = $marcAR->getAuthor();
-        $catalog->source = Catalog::SOURCE_MARC_IMPORT;
-        $catalog->marc_xml = $marcAR->Marc->toXML();
-        $catalog->save();
-        $this->importSummary['tot_added']++;
+        if ($catalog)
+            $this->importSummary['tot_added']++;
         
         
     }

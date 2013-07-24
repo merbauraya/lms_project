@@ -2,9 +2,9 @@
 <?php
 
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-            'id'=>'save-marc',
+            'id'=>'marc-form',
             'type'=>'horizontal',
-            
+            'action'=>Yii::app()->createUrl('catalog/SaveMarc'),
         )); 
 
 
@@ -293,12 +293,38 @@ $this->widget('bootstrap.widgets.TbTabs', array(
 
 
 <div class="form-actions">
-		<?php $this->widget('bootstrap.widgets.TbButton', array(
-			
+<?php 
+    $this->widget('bootstrap.widgets.TbButton', array(
 			'type'=>'primary',
+            'buttonType'=>'submit',
 			'label'=>'Save',
-			'id'=>'btn_saveMarc'
-		,'htmlOptions' => array('name'=>'saveMarcRecord'))); ?>
+            'icon'=>'icon-ok icon-white',
+			
+            'htmlOptions' => array('class'=>'btnsaveMarc','name'=>'saveAddAnoter'))); 
+    echo '&nbsp;';
+    $this->widget('bootstrap.widgets.TbButton', array(
+			'type'=>'primary',
+			'buttonType'=>'submit',
+            'label'=>'Save and view Catalog',
+            'icon'=>'icon-ok icon-white',
+			
+            'htmlOptions' => array('class'=>'btnsaveMarc','name'=>'saveViewCatalog'))); 
+
+
+
+    echo '&nbsp;';
+    $this->widget('bootstrap.widgets.TbButton', array(
+			'type'=>'primary',
+			'buttonType'=>'submit',
+            'label'=>'Save and add Item',
+            'icon'=>'icon-ok icon-white',
+			
+            'htmlOptions' => array('class'=>'btnsaveMarc','name'=>'saveAddItem'))); 
+        
+
+
+
+?>
 		
 
 	</div>

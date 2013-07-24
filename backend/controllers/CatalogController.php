@@ -152,14 +152,50 @@ class CatalogController extends Controller
 		else
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
-	public function actionRenderCatalogTemplate()
-	{
-		//user attempts to save edited marc
-		if(isset($_POST['saveMarcRecord']))
+    /**
+     * Save Marc record submitted
+     * If successful, user will be redirected according to the submitted action
+     * 
+     * 
+     * 
+     * 
+     */ 
+    public function actionSaveMarc()
+    {
+        //user attempts to save edited marc
+		if(isset($_POST['Marc']))
 		{
+            $atts = $_POST['Marc'];
+            $marcAr = new MarcActiveRecord($atts);
+            $marcAr->setRecordSource = Catalog::SOURCE_MANUAL_ENTRY;
+            try
+            {
+                $catalog = $marcAr->saveAsNewCatalog();
+                if (isset($_POST['saveAddAnoter']))
+                    $this->redirect(array('createbytemplate'));
+                if (isset($_POST['saveViewCatalog']))
+                    $this->redirect(array('view','id'=>$catalog->id));
+                if (isset($_POST['saveAddItem']))
+                    $this->redirect(array('CatalogItem/create','id'=>$catalog->id));
             
+            }catch (CException $ex)
+            {
+                echo $ex->getMessage();
+            }
             
         }
+        
+    }
+    /**
+     * Render catalog template based on the requested biblio templace
+     * This is an ajax and post only method
+     * 
+     * 
+     * 
+     */ 
+	public function actionRenderCatalogTemplate()
+	{
+		
         
         
         if (!isset($_POST['catalogTemplate']))
@@ -267,7 +303,7 @@ class CatalogController extends Controller
 	*
 	*  
 	*/
-	public function actionSaveMarc($source=Catalog::SOURCE_MARC_IMPORT)
+	public function actionSaveMarcOLD($source=Catalog::SOURCE_MARC_IMPORT)
 	{
 		//if form is not submitted we render detail form
 		//with marc data

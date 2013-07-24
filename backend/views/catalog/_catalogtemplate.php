@@ -46,7 +46,7 @@
                     )
             )); 
                 
-		$this->endWidget(); 
+		$this->endWidget('bootstrap.widgets.TbActiveForm'); 
 
 		?>
 			</div>
@@ -120,17 +120,18 @@ Yii::app()->clientScript->registerScript('save_Marc',"
     window.saveMarc = window.saveMarc || {};
     if (!window.saveMarc.liveClickHandlerAttached) {
         window.saveMarc.liveClickHandlerAttached = true;
-    $(document).on('click', '#btn_saveMarc', function(event)
+    $(document).on('click', '.btnsaveMarc', function(elem)
         
         {
-                    
-            if (!validateMarc())
-                return false;
+            //var _name  = $(elem).attr('name');           
+            return validateMarc();
+                
+            
             {jQuery.ajax(
                 {
                     type:'POST',
-                    data: $('#form-marc-record').serialize(),
-                    url:'/catalog/SaveMarc/',
+                    data: $('#marc-form').serialize() + '&'+ _name + '=1',
+                    url: '/catalog/SaveMarc/',
                     cache:false,
                     dataType: 'json',
                     success:function(data)
@@ -164,14 +165,15 @@ Yii::app()->clientScript->registerScript('save_Marc',"
                 var tag = _id.substring(5,8);
                 var sf = _id.substring(9,10);
                 msg += '    Tag ' + tag + ' subfield ['+ sf + ']\\n'; 
-                console.log(tag);
+                
                 ret = false;
             }
             if (!ret)
-                alert(msg);
+                bootbox.alert(msg);
             return ret;
         
         })
+        
     
     }
 
