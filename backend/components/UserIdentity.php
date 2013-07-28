@@ -24,7 +24,7 @@ class UserIdentity extends CUserIdentity {
 		if ($user === null) 
 		{
 			$this->errorCode = self::ERROR_USERNAME_INVALID;
-		} else if (!$user->verifyPassword($this->password)) {
+		} else if (!$user->validatePassword($this->password,$user->password)) {
 			$this->errorCode = self::ERROR_PASSWORD_INVALID;
 		} else {
 			$user->regenerateValidationKey();

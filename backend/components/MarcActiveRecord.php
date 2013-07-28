@@ -13,7 +13,8 @@ class MarcActiveRecord //extends MarcBase
     private $_indicator = array();
     private $_marcId; //our internal catalog id
     private $_source ; //source for our marc record 
-    
+    private $_isbn10;
+    private $_isbn13;
     const CATALOGING_AGENCY='MARC_CATALOGING_AGENCY';
     
     public $Marc;
@@ -64,7 +65,37 @@ class MarcActiveRecord //extends MarcBase
 	public function getISBN()
 	{
 		return $this->getNRData('020','a');
+        
 	}
+    public function getISBN_10()
+    {
+        if (!isset($this->_isbn10))
+            $this->parseISBN();
+        return $this->_isbn10;
+    }
+    public function getISBN_13()
+    {
+        if (!isset($this->_isbn13))
+            $this->parseISBN();
+        return $this->_isbn13;
+    }
+    private function parseISBN()
+    {
+        $data = $this->getData('020','a');
+        if (count($data) == 0)
+            return;
+        foreach($data as $key=>$value)
+        {
+            
+            $val = LmUtil::stripNonNumeric($value);
+            if (strlen($val) == 13)
+                $this->_isbn13 = $value;
+            if (strlen($val) == 10)
+                $this->_isbn10 = $value;
+        }
+        
+    }
+    
 	public function getISSN()
 	{
 	    return $this->getNRData('022','a');
@@ -283,8 +314,8 @@ class MarcActiveRecord //extends MarcBase
             $catalog->control_number = DocumentIdSetting::formatID(0,DocumentIdSetting::DOC_CATALOG_CONTROL_NO,$catalog->id);
 				
             $catalog->title_245a = $this->getTitle();
-            $catalog->isbn_10 = $this->getISBN();
-            $catalog->isbn_13 = $this->getISBN();
+            $catalog->isbn_10 = $this->getISBN_10();
+            $catalog->isbn_13 = $this->getISBN_13();
             $catalog->author_100a = $this->getAuthor();
             $catalog->source = $this->_source ;//Catalog::SOURCE_MARC_IMPORT;
             $catalog->marc_xml = $this->Marc->toXML();

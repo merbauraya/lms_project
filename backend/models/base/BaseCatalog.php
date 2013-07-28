@@ -14,7 +14,6 @@
  * @property integer $approved_by
  * @property integer $source
  * @property string $title_245a
- * @property string $marc_data
  * @property string $publisher
  * @property string $edition
  * @property string $year_publish
@@ -72,10 +71,10 @@ abstract class BaseCatalog extends LmActiveRecord
 			array('publisher, edition, year_publish, author_100a', 'length', 'max'=>200),
 			array('control_number, isbn_10, isbn_13', 'length', 'max'=>50),
 			array('issn', 'length', 'max'=>20),
-			array('date_created, date_modified, approved_on, title_245a, marc_data, title_245c, marc_xml, released, opac_released, indexed, indexed_on', 'safe'),
+			array('date_created, date_modified, approved_on, title_245a, title_245c, marc_xml, released, opac_released, indexed, indexed_on', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, desc, date_created, date_modified, material_type_id, approved_on, created_by, approved_by, source, title_245a, marc_data, publisher, edition, year_publish, personal_name_id, meeting_name_id, corporate_name_id, author_100a, title_245c, marc_xml, control_number, released, isbn_10, isbn_13, opac_released, issn, indexed, indexed_on, modified_by', 'safe', 'on'=>'search'),
+			array('id, desc, date_created, date_modified, material_type_id, approved_on, created_by, approved_by, source, title_245a, publisher, edition, year_publish, personal_name_id, meeting_name_id, corporate_name_id, author_100a, title_245c, marc_xml, control_number, released, isbn_10, isbn_13, opac_released, issn, indexed, indexed_on, modified_by', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -116,7 +115,6 @@ abstract class BaseCatalog extends LmActiveRecord
 			'approved_by' => 'Approved By',
 			'source' => 'Source',
 			'title_245a' => 'Title 245a',
-			'marc_data' => 'Marc Data',
 			'publisher' => 'Publisher',
 			'edition' => 'Edition',
 			'year_publish' => 'Year Publish',
@@ -159,7 +157,6 @@ abstract class BaseCatalog extends LmActiveRecord
 		$criteria->compare('approved_by',$this->approved_by);
 		$criteria->compare('source',$this->source);
 		$criteria->compare('title_245a',$this->title_245a,true);
-		$criteria->compare('marc_data',$this->marc_data,true);
 		$criteria->compare('publisher',$this->publisher,true);
 		$criteria->compare('edition',$this->edition,true);
 		$criteria->compare('year_publish',$this->year_publish,true);
@@ -173,7 +170,6 @@ abstract class BaseCatalog extends LmActiveRecord
 		$criteria->compare('released',$this->released);
 		$criteria->compare('isbn_10',$this->isbn_10,true);
 		$criteria->compare('isbn_13',$this->isbn_13,true);
-		$criteria->compare('opac_released',$this->opac_released);
 		$criteria->compare('issn',$this->issn,true);
 		$criteria->compare('indexed',$this->indexed);
 		$criteria->compare('indexed_on',$this->indexed_on,true);

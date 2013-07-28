@@ -65,8 +65,8 @@
 				'___',
                 array('label'=>'View Catalog', 'items'=>array(
                     array('label'=>'View Non Indexed Catalog','url'=>array('/Catalog/NonIndex')),							
-                    array('label'=>'Process Uploaded Marc Record', 'url'=>array(
-                                                '/MarcUpload/BatchUploadSummary')),									
+                    array('label'=>'Manage Catalog', 'url'=>array(
+                                                '/catalog/admin')),									
                     	
                     ),
                 ),
@@ -210,7 +210,13 @@
 				
 					)
 				),
-				array('label'=>'Authorization', 'url'=>array('auth/')),
+                array('label'=>'Catalog', 'items'=>array(
+					array('label'=>'Analysis','url'=>
+						array('budgetaccount/admin')),
+				
+				
+					)
+				),
 				)
 			),				 
 			array('label'=>'Login', 'url'=>array(

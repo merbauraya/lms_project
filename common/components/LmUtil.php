@@ -94,7 +94,17 @@ class LmUtil
 		return new CDbExpression('NOW()');	
 		
 	}
-        	
+    /**
+     * Remove all characters except numbers
+     * 
+     * @param string $string
+     * @return string
+     */ 
+    public static function stripNonNumeric($string)
+    {
+        return preg_replace( "/[^0-9]/", "", $string );
+        
+    }    	
 	
 
 

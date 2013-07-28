@@ -42,16 +42,11 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
-		'id',
-		'desc',
-		'date_created',
-		'date_modified',
-		'material_type_id',
-		'approved_on',
-		/*
-		'created_by',
-		'approved_by',
-		*/
+		'control_number',
+		array('name'=>'title_245a','header'=>'Title'),
+		array('name'=>'author_100a','header'=>'Author'),
+		array('value'=>'$data->isbn_10."/" .$data->isbn_13','header'=>'ISBN'),
+		
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
 		),

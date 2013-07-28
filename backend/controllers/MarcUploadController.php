@@ -66,10 +66,11 @@ class MarcUploadController extends Controller
         
         //get upload info
         $upload = MarcUpload::model()->findByPk($id);
-       // $count = $upload->record_count;
-        //$fileName = $upload->file_name;
-        //$dataUpload = $upload->date_created;
-        
+        if (!$upload)
+            throw new CHttpException(404,'Requested document cannot be found');
+        if ($upload->process_date != null)
+            throw new CHttpException(404,'Requested document cannot be found');
+                
         $criteria = new CDbCriteria();
 		$criteria->condition = 'marc_upload_id= :id';
 		$criteria->params = array(':id'=>$id);
