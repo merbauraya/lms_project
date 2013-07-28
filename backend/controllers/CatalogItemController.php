@@ -13,8 +13,12 @@ class CatalogItemController extends Controller
 	 */
 	public function filters()
 	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
+		//return array(
+		//	'accessControl', // perform access control for CRUD operations
+		//);
+        return array(
+			array('auth.filters.AuthFilter - login, logout, restore, captcha, error'),
+            //'accessControl', // perform access control for CRUD operations
 		);
 	}
 
@@ -54,7 +58,7 @@ class CatalogItemController extends Controller
 		$criteria = new CDbCriteria();
 		$criteria->condition = 't.id = :id';
 		$criteria->params = array(':id'=>$id);
-		$criteria->with = array('category','catalog','location');
+		$criteria->with = array('category','catalog','location','smd');
 		$model = CatalogItem::model()->find($criteria);
 		
 		
@@ -94,11 +98,12 @@ class CatalogItemController extends Controller
 				{
 					$transaction->rollback();
 					LmUtil::logError('DB Error : ' .$ex->getMessage(),$this->id.$this->action->id);
-				
+                    Yii::app()->user->setFlash('error','Error Creating accession.');
 				}
 			}else
 			{
-				
+				 //Yii::app()->user->setFlash('error',$model->getErrors());
+                 
 			}
 		}
 
@@ -119,9 +124,9 @@ class CatalogItemController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['BiblioItem']))
+		if(isset($_POST['CatalogItem']))
 		{
-			$model->attributes=$_POST['BiblioItem'];
+			$model->attributes=$_POST['CatalogItem'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -190,10 +195,10 @@ class CatalogItemController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new BiblioItem('search');
+		$model=new CatalogItem('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['BiblioItem']))
-			$model->attributes=$_GET['BiblioItem'];
+		if(isset($_GET['CatalogItem']))
+			$model->attributes=$_GET['CatalogItem'];
 
 		$this->render('admin',array(
 			'model'=>$model,
@@ -212,7 +217,38 @@ class CatalogItemController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
-
+    /**
+     * Render related copy for a given catalog 
+     * If not accession is given, it will render all accession for that catalog
+     * otherwise, it will render all except given accession
+     * 
+     */ 
+    public function actionRelatedCopy()
+    {
+        if (!isset($_REQUEST['cn'])) //control number
+            throw new CHttpException(4004,'Invalid request');
+        $cn = $_REQUEST['cn'];
+        $criteria = new CDbCriteria();
+        $criteria->select = 'accession_number,id,checkout_count,date_last_seen';
+        $criteria->condition = 'control_number = :cn';
+        $criteria->params = array(':cn'=>$cn);
+        if (isset($_REQUEST['aid']))
+            $criteria->addNotInCondition('id',array($_REQUEST['aid']));
+        
+		
+                  
+        $itemDP=new CActiveDataProvider(
+			'CatalogItem',
+			array(
+             'criteria'   => $criteria,
+             'pagination' => array(
+                 'pageSize' => '20',
+				)
+			)
+		);
+        echo $this->renderPartial('_viewrelatedcopy',array('itemDP'=>$itemDP),true);
+        
+    }
 	/**
 	 * Performs the AJAX validation.
 	 * @param CModel the model to be validated

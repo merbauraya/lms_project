@@ -63,9 +63,13 @@ abstract class BaseCatalogItem extends LmActiveRecord
 			array('control_number,owner_library,location_id,smd_id,category_id', 'required'),
             array('price,local_price, replacement_price', 'length', 'max'=>12),
             array('price,local_price,replacement_price', 'type', 'type'=>'float'),
+            array('price,local_price,replacement_price','default','setOnEmpty'=>true,'value'=>0),
 			array('call_number', 'length', 'max'=>255),
 			array('accession_number, control_number', 'length', 'max'=>30),
-			array('date_acquired, currency_id,reserved, date_last_checked_out, date_last_seen, date_last_checked_in, check_out_date', 'safe'),
+            array('date_last_seen','default',
+              'value'=>LmUtil::dBCurrentDateTime(),
+              'setOnEmpty'=>false,'on'=>'insert'),
+			array('date_acquired, currency_id,reserved, date_last_checked_out, check_out_date', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, catalog_id, catalog_info_id, barcode, owner_library, date_acquired, price, replacement_price, 
@@ -90,6 +94,8 @@ abstract class BaseCatalogItem extends LmActiveRecord
 			'category' =>array(self::BELONGS_TO,'Lookup','category_id','condition'=>'category.category='. "'". Lookup::ITEM_CATEGORY.
             "'"),
             'location' =>array(self::BELONGS_TO,'Location','location_id','condition'=>'location.library_id=t.owner_library'),
+            'smd' =>array(self::BELONGS_TO,'Lookup','smd_id','condition'=>'smd.category='. "'". Lookup::ITEM_SMD.
+            "'"),
 		);
 	}
 

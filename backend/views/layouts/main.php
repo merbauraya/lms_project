@@ -22,16 +22,15 @@
 
 <body>
 
-<div id="page">
 
 	
 
-	<div class="row" id="mainmenu">
+	
 		<?php $this->widget('bootstrap.widgets.TbNavbar', array(
 	
 	'collapse'=>true, // requires bootstrap-responsive.css
 	'brand'=>'Home',
-    'fixed' => false,
+    'fixed' => 'top',
 	'items' => array(
 	 array(
 	  'class' => 'bootstrap.widgets.TbMenu',
@@ -72,6 +71,13 @@
                     ),
                 ),
 				'___',
+                  array('label'=>'Accessions', 'items'=>array(
+                    array('label'=>'Create Accession','url'=>array('/CatalogItem/create')),							
+                    array('label'=>'Manage Accession', 'url'=>array(
+                                                '/CatalogItem/admin')),									
+                    	
+                    ),
+                ),
 				array('label'=>'New Items', 'url'=>array(
 													'/catalogitem/create')),	
 				
@@ -223,18 +229,32 @@
 )); 
 
 ?>
-	</div><!-- mainmenu -->
-	<div class="span12">
 
-	</div> <!--span12-->
-	<section class="main-body">
-		<div class="container">
+<!-- close any jui dialog when click elsewhere -->
+<script type="text/javascript">	
+	$(document).ready(function()
+{
+    $(document.body).on("click", ".ui-widget-overlay", function()
+    {
+        $.each($(".ui-dialog"), function()
+        {
+            var $dialog;
+            $dialog = $(this).children(".ui-dialog-content");
+            if($dialog.dialog("option", "modal"))
+            {
+                $dialog.dialog("close");
+            }
+        });
+    });;
+});
+</script>	
+		<div class="container main-content">
 			<div class="row-fluid">
 				<?php echo $content; ?>
 			</div> <!--row-fluid-->
-		</div>
-	</section>
-<div class="clear"></div>
+		
+	
+
 <div class="row-fluid">
 	<div id="footer">
 		Copyright &copy; <?php echo date('Y'); ?> by Merbau LMS Sdn. Bhd.<br/>
@@ -242,7 +262,7 @@
 		<?php //echo Yii::powered(); ?>
 	</div><!-- footer -->
 	</div> <!--row-->
-</div><!-- page container -->
+  </div>  
 
 </body>
 </html>

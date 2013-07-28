@@ -63,7 +63,7 @@
 			'placeholder' => 'Select Accession',
 			'allowClear' => false,
 			'ajax' => array(
-				'url' => CController::createUrl('catalogitem/AjaxGetItem'),
+				'url' => CController::createUrl('CatalogItem/AjaxGetItem'),
 				'dataType' => 'json',
 				'data' => 'js:function(term,page) 
 							{ return {

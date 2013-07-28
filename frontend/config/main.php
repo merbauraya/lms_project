@@ -17,6 +17,7 @@ $params = require_once($frontendConfigDir . DIRECTORY_SEPARATOR . 'params.php');
 // Setup some default path aliases. These alias may vary from projects.
 Yii::setPathOfAlias('root', $root);
 Yii::setPathOfAlias('common', $root . DIRECTORY_SEPARATOR . 'common');
+Yii::setPathOfAlias('backend', $root . DIRECTORY_SEPARATOR . 'backend');
 Yii::setPathOfAlias('frontend', $root . DIRECTORY_SEPARATOR . 'frontend');
 Yii::setPathOfAlias('www', $root. DIRECTORY_SEPARATOR . 'frontend' . DIRECTORY_SEPARATOR . 'www');
 
@@ -45,6 +46,7 @@ return CMap::mergeArray(
 			'common.components.*',
 			'common.extensions.*',
 			'common.models.*',
+            'backend.models.base.*',
 			'common.vendor.*',
 			'common.modules.*',
 			'common.controllers.*',
@@ -72,22 +74,27 @@ return CMap::mergeArray(
 			),
 			'user'=>array(
 			// enable cookie-based authentication
-			'allowAutoLogin'=>true,
-		),
-//			'db' => array(
-//				'connectionString' => $params['db.connectionString'],
-//				'username' => $params['db.username'],
-//				'password' => $params['db.password'],
-//				'schemaCachingDuration' => YII_DEBUG ? 0 : 86400000, // 1000 days
-//				'enableParamLogging' => YII_DEBUG,
-//				'charset' => 'utf8'
-//			),
+                'allowAutoLogin'=>true,
+            ),
+
 			'urlManager' => array(
 				'urlFormat' => 'path',
 				'showScriptName' => false,
 				'urlSuffix' => '/',
 				'rules' => $params['url.rules']
 			),
+               'solarium' => array(
+            'class' => 'common.extensions.YiiSolarium.Solarium',
+                'clientOptions' => array(
+                    'endpoint' => array(
+                        'localhost' => array(
+                            'host' => '127.0.0.1',
+                            'port' => '8080',
+                            'path' => '/solr/biblio/',
+                        )
+                    )
+                )
+            )
 			/* make sure you have your cache set correctly before uncommenting */
 			/* 'cache' => $params['cache.core'], */
 			/* 'contentCache' => $params['cache.content'] */

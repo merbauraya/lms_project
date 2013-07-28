@@ -78,7 +78,15 @@ class MarcActiveRecord //extends MarcBase
 		if ($this->Marc == null)
 			throw new Exception('Marc Object is not set');
 	}
-	
+	public function getSubject650_a()
+    {
+        return $this->getData('650','a');
+        
+    }
+    public function getSubject630_a()
+    {
+        return $this->getData('630','a');
+    }
     private function parse()
     {
         $this->Marc = new File_MARC_Record;
@@ -190,8 +198,15 @@ class MarcActiveRecord //extends MarcBase
             $this->_indicator[$arrKey] = array($meta[0]=>$value);
         
     }
-   public function getData($tag,$subField)
-   {
+    /**
+     * 
+     * Return marc data for the given subfield and tag
+     * If successful(e.g. tag & subfield exists), an array of data will be returned, else null is returned
+     * It is caller resposibility to browse the returned array to get the data
+     * 
+     */ 
+    public function getData($tag,$subField)
+    {
    		if ($this->Marc == null)
 			throw new Exception('Marc Object is not set');
 		

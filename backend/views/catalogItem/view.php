@@ -1,41 +1,39 @@
-<?php
-$this->breadcrumbs=array(
-	'Biblio Items'=>array('index'),
-	$model->id,
-);
 
-$this->menu=array(
-	array('label'=>'List BiblioItem','url'=>array('index')),
-	array('label'=>'Create BiblioItem','url'=>array('create')),
-	array('label'=>'Update BiblioItem','url'=>array('update','id'=>$model->id)),
-	array('label'=>'Delete BiblioItem','url'=>'#','linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
-	array('label'=>'Manage BiblioItem','url'=>array('admin')),
-);
-?>
 <?php  
 
 
-$this->widget('extcommon.LmWidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
+$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
 
 ?>
 
-<div class="generic_widget">
-	<div class="form-wrapper">
-		<header role=""><h6>View Accession</h6>
-		</header>
-		<div style="display:block">
+<?php
+	$this->beginWidget('extcommon.lmwidget.LmBox', array(
+		'title' => "View Accession",
+		//'headerIcon' => 'icon-user',
+		'content' => '',
+		'btnHeaderDivClass' =>'lmboxBtn',
+	
+	));
+	
 
-<?php $this->widget('bootstrap.widgets.TbDetailView',array(
-	'data'=>$model,
-	'attributes'=>array(
-		'accession_number',
-		'control_number',
+
+    $this->widget('extcommon.lmwidget.AjaxTabs', array(
+					'type'=>'tabs', // 'tabs' or 'pills'
+					'tabs'=>array(
+						array('label'=>'Acession Info', 
+							  'content'=>$this->renderPartial('_viewaccession',array('model'=>$model),true),'active'=>true),
+						array('label'=>'Accounting', 
+							  'content'=>$this->renderPartial('_viewaccounting',array('model'=>$model),true)),
+						array('label'=>'Related Copies','content'=>'loading...',
+                              'linkOptions' => array('data-tab-url' => Yii::app()->createUrl('CatalogItem/RelatedCopy',array('cn'=>$model->control_number,'aid'=>$model->id)))
+                        ),
 		
-		array('label'=>'Category','name'=>'category.name'),
-		array('label'=>'Location','name'=>'location.name'),
+					),
+				));	
+
+
+
+
+$this->endWidget('extcommon.lmwidget.LmBox');
+?>
 		
-	),
-)); ?>
-		</div>
-	</div>
-</div>	

@@ -82,8 +82,7 @@ class CirculationController extends Controller
 		$sql = "update catalog_item
 					set date_last_seen = :co_date,
 					date_last_checked_in = :co_date,
-					check_out_date = null,
-					reserved = false
+					check_out_date = null
 					where accession_number = :accession";
 		
 		$sql2 = "update cir_transaction
@@ -151,6 +150,7 @@ class CirculationController extends Controller
 			$sql = "update catalog_item
 					set date_last_checked_out = :co_date,
 					check_out_date = :co_date,
+                    date_last_seen = :co_date,
 					reserved = false,
 					checkout_count = checkout_count+1
 					where accession_number = :accession";

@@ -106,6 +106,9 @@ return CMap::mergeArray(
 				'userIdColumn' => 'id', // the name of the user id column.
                 'class'=>'common.modules.auth.AuthModule', 
 			),
+            'usermgmt'=>array(
+                'class'=>'common.modules.usermgmt.UsermgmtModule',
+            ),
 		), 
 		'components' => array(
 			'user' => array(

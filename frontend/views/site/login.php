@@ -16,7 +16,7 @@ $this->breadcrumbs = array(
 
 <?php $form = $this->beginWidget('CActiveForm', array(
 	'id' => 'login-form',
-	'action'=>Yii::app()->createUrl('//site/login'),
+	'action'=>Yii::app()->createUrl('site/login'),
 	'enableAjaxValidation' => false,
 	'enableClientValidation' => true,
 	'clientOptions' => array(

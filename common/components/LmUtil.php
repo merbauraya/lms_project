@@ -2,7 +2,15 @@
 
 class LmUtil
 {
-	/**
+	
+    /**
+     * List of settings
+     * 
+     */
+     
+     const PASSWORD_HASH_ALGO = 'PASSWORD_HASH_ALGO';
+    
+    /**
 	* Return current date in a format that can used during DB operation
 	*
 	*/

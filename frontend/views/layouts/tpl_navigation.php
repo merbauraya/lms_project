@@ -86,10 +86,11 @@
 			array('label'=>'Login', 'url'=>array(
 							 		'/site/login'), 
 									'visible'=>Yii::app()->user->isGuest),
-		    	array('label'=>'Logout ('.Yii::app()->user->name.')', 
+            array('label'=>'Logout ('.Yii::app()->user->name.')', 
 							 		'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest),
-					 
-			)
+		 
+			  
+            )
 		),
 		'<form class="navbar-search pull-right" action="/index.php/opac/index" method="get">
         <input name="q" type="text" class="search-query" placeholder="search">

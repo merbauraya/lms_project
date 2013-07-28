@@ -58,6 +58,22 @@ class OpacController extends Controller
 		$q = $_GET['q'];
 		//$cat = $_GET['cat'];
 		//echo $q.$cat;
+		$client = Yii::app()->solarium->getClient();
+
+        $query = $client->createSelect();
+        $query->setFields('*');
+        //$query->setQuery('name:%p1%', array('Bob'));
+        $query->setQuery('*.*');//, array('Bob'));
+        $query->setRows(3);
+    $result = $client->select($query);
+var_dump($result);
+return;
+		
+		
+		
+		
+		
+		
 		if (!$q)
 		{
 			Yii::app()->user->setFlash('info', "You did not enter search word!");

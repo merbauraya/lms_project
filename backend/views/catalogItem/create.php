@@ -1,18 +1,7 @@
-<?php
-$this->breadcrumbs=array(
-	'Biblio Items'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List BiblioItem','url'=>array('index')),
-	array('label'=>'Manage BiblioItem','url'=>array('admin')),
-);
-?>
 <?php  
 
 
-$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
+$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model)); 
 
 ?>
 <?php
@@ -59,5 +48,99 @@ $this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => 
 <?php $this->endWidget(); //form
 		$this->endWidget(); //lmbox
 ?>
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog',array(
+    'id'=>'ctlLookupDialog',
+    // additional javascript options for the dialog plugin
+    'options'=>array(
+        'title'=>'',
+        'autoOpen'=>false,
+        'width'=>'500',
+		'height'=>'300',
+        
+        'position'=>array('my'=>'right top','at'=>'right bottom','of'=>'#ctl_lookup'),
+        'modal'=>true,
+        'closeOnEscape'=>true,
+        'resizable'=>false,
+    ),
+));
+
+    $this->renderPartial('_catalogsearch');
+	
+?>
+<div class="divForForm"></div>
+<?php
+$this->endWidget('zii.widgets.jui.CJuiDialog');
+?>
 
 
+
+<script type="text/javascript">
+  $(document).ready(function()
+    {
+         
+       // $('#ctlLookupDialog').niceScroll('#ctlLookupDialog .divForForm',{boxzoom:true,cursorwidth:10});  // hw acceleration enabled when using wrapper
+       
+        
+    });
+    function searchCatalog()
+	{
+		
+        {jQuery.ajax(
+            {'id':'sent',
+            type:'POST',
+            dataType : 'json',
+            data: $('#searchCatalogForm').serialize(),
+            url:'/catalog/search/',
+            cache:false,
+            success:function(data)
+                {
+
+                    $('#ctlLookupDialog div.divForForm').html(data.div);
+					
+                }
+                
+            }
+            );
+            
+            return false;}
+
+        
+        
+        
+		
+	}
+  
+    
+    
+   
+  
+   
+    
+</script>
+
+<?php
+Yii::app()->clientScript->registerScript('selCat',"
+ 
+    window.selCatalog = window.selCatalog || {};
+    if (!window.selCatalog.liveClickHandlerAttached) 
+    {
+        window.selCatalog.liveClickHandlerAttached = true;
+        $(document).on('click', '.selectCatalog', function(event)
+        {
+            event.preventDefault();
+            var cn = $(this).attr('href');
+            
+            $('#CatalogItem_control_number').val(cn);
+            $('#ctlLookupDialog').dialog('close');   
+            return false;
+            
+       
+             
+        });
+    }
+    
+");
+
+
+?>

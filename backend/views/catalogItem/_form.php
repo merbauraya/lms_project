@@ -9,76 +9,51 @@
 	<p class="help-block">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
-	<?php echo $form->select2row($model, 'control_number', array(
-		'asDropDownList' => false,
-		'attribute'=>'control_number',
-		'options' => array(
-			'delay'=>300,
-			'minimumInputLength'=>3,
-			'width' => '50%',
-			'closeOnSelect' => false,
-			'placeholder' => 'Select Control Number',
-			'allowClear' => false,
-			'ajax' => array(
-				'url' => CController::createUrl('catalog/ajaxGetCatalog'),
-				'dataType' => 'json',
-				'data' => 'js:function(term,page) { return {q: term, page_limit: 10, page: page}; }',
-				'results' => 'js:function(data,page) { return {results: data}; }',
-			),
-			'initSelection'=>'js:function(element,callback)
-							  {var data={id:element.val(),text:element.val()};
-							  callback(data);
-							  }',
-			
-		),
-		'events'=>array('change'=>'js:function(e)
-			{
-				var theID=e.val;
-				
-			}'				 
-		)
-		
-	));
+    <div class="control-group">
+        <label class="control-label">Control Number</label>
+        <div class="controls">
+            <?php 
+                echo CHtml::activeTextField($model,'control_number',array('append'=>'<i class="icon-search"></i>')) ;
+                echo '&nbsp;';
+                $this->widget('bootstrap.widgets.TbButton',array(
+                    'label' => 'Secondary',
+                    'size' => 'small',
+                    'id'=>'ctl_lookup',
+                    'htmlOptions'=>array('onClick' =>'controlLookup()'),
+                ));
+            
+            ?>
+        </div>
+    
+    </div>
 	
-	?>
-	
-	<?php echo $form->dropDownListRow($model, 'owner_library',
-		CHtml::listData(Library::model()->findAll(), 'id', 'name'),
-			
-			array('empty'=>'Select Library',
-			'ajax' => array(
-				'type'=>'POST', //request type
-				'url'=>CController::createUrl('lookup/GetLocationByLibrary'), //url to call.
-				'data'=>array('library'=>'js:this.value'),
-				'update'=>'#CatalogItem_location_id',
-			),
-			'class'=>'span5',
-		)); 
-	?>
-	<?php echo $form->dropDownListRow($model, 'location_id',array('Select Location'),array('class'=>'span5'));
-	
+	<?php 
+    
+        
+            echo $form->dropDownListRow($model, 'owner_library',
+                CHtml::listData(Library::model()->findAll(), 'id', 'name'),
+                
+                array('empty'=>'Select Library',
+                'ajax' => array(
+                    'type'=>'POST', //request type
+                    'url'=>CController::createUrl('lookup/GetLocationByLibrary'), //url to call.
+                    'data'=>array('library'=>'js:this.value'),
+                    'update'=>'#CatalogItem_location_id',
+                ),
+                'class'=>'span5',
+            )); 
+    if ($model->isNewRecord){    
+            echo $form->dropDownListRow($model, 'location_id',array('Select Location'),array('class'=>'span5'));
+    }else
+    {
+        //echo $form->dropDownListRow($model, 'owner_library',CHtml::listData(Library::model()->findAll(), 'id', 'name'),array('class'=>'span5'));
+        echo $form->dropDownListRow($model, 'location_id',CHtml::listData(Location::model()->findAll('library_id=:lid',array(':lid'=>$model->owner_library)),'id','name'),array('class'=>'span5'));
+    }
 	?>
 	
 
 	<?php echo $form->textFieldRow($model,'barcode',array('class'=>'span5','maxlength'=>25)); ?>
 
-	
-
-	
-
-	<?php //echo $form->textFieldRow($model,'call_number',array('class'=>'span5','maxlength'=>255)); ?>
-
-
-
-	<?php //echo $form->textFieldRow($model,'date_last_checked_out',array('class'=>'span5')); ?>
-
-	<?php //echo $form->textFieldRow($model,'date_last_seen',array('class'=>'span5')); ?>
-
-	<?php //echo $form->textFieldRow($model,'checkout_count',array('class'=>'span5')); ?>
-
-	<?php //echo $form->textFieldRow($model,'renewal_count',array('class'=>'span5')); ?>
-
-	<?php //echo $form->textFieldRow($model,'date_last_checked_in',array('class'=>'span5')); ?>
 	<?php echo $form->dropDownListRow($model, 'smd_id',
 		Lookup::getLookupOptions(Lookup::ITEM_SMD),array('class'=>'span5'));
 	?>
@@ -103,4 +78,12 @@
 		Lookup::getLookupOptions(Lookup::ITEM_NOTFORLOAN),array('class'=>'span5'));
 	?>
 
+<script type="text/javascript">
+function controlLookup()
+{
+ 
+    $("#ctlLookupDialog").dialog("open");
+    $(".ui-dialog-titlebar").hide();
+}
 
+</script>

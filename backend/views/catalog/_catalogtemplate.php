@@ -62,8 +62,10 @@
                 // additional javascript options for the dialog plugin
                 'options'=>array(
                                 'title'=>Yii::t('app','Marc Leader'),
-                                'width'=>'auto',
+                                'width'=>'500',
+                                'height'=>'690',
                                 'autoOpen'=>false,
+                                'position'=>'center',
                                 'modal'=>true,
 								 
                                 ),

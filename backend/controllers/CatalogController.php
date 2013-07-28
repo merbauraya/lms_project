@@ -592,6 +592,13 @@ class CatalogController extends Controller
         }
 	
 	}
+    /**
+     * Return list of non indexed catalog
+     * 
+     * 
+     * 
+     * 
+     */ 
     public function actionNonIndex()
     {
         
@@ -608,6 +615,73 @@ class CatalogController extends Controller
 			)
 		);
         $this->render('nonindex',array('itemDP'=>$itemDP));
+        
+    }
+    /**
+     * Perform catalog search based on submitted form
+     * The form must contain the following field:
+     *      1. q - Search query
+     *      2. qtype - Query type, e.g. what field to be searched. Refer to Catalog class for options
+     *      
+     * 
+     * If successful, a dataprovider containing list of matched result will be returned
+     * 
+     */ 
+    public function actionSearch()
+    {
+        //if ((!isset($_REQUEST['q']) or (!isset($_REQUEST['qtype'])))
+         //   throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        if(!isset($_REQUEST['q']) or !isset($_REQUEST['qtype']))
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        $q = $_REQUEST['q'];
+        $qtype = $_REQUEST['qtype'];
+        $catalog = new Catalog();
+        $criteria = new CDbCriteria();
+		$criteria->select = 'control_number,id,title_245a,date_created,author_100a,isbn_10,isbn_13,source';
+        
+		
+        
+        switch ($qtype)
+        {
+            case Catalog::SEARCH_TITLE:
+                $criteria->compare('title_245a',$q,true);// = 'title_245a like= false';
+                
+                break;
+            case Catalog::SEARCH_AUTHOR:
+                
+                $criteria->compare('author_100a',$q,true);
+                break;
+            case Catalog::SEARCH_ISBN:
+                $criteria->condition('isbn_10',$q,true);// = 'indexed = false';
+                $criteria->condition('isbn_13',$q,true,'OR');// = 'indexed = false';
+                
+                break;
+            case Catalog::SEARCH_CONTROL_NUMBER:
+                $criteria->condition('control_number',$q,true);// = 'indexed = false';
+                break;
+            
+        }    
+        $itemDP=new CActiveDataProvider(
+			'Catalog',
+			array(
+             'criteria'   => $criteria,
+             'pagination' => array(
+                 'pageSize' => '20',
+				)
+			)
+		);
+
+        if (Yii::app()->request->isAjaxRequest)
+        {
+            echo CJSON::encode(array(
+                'status'=>'search', 
+                'div'=>$this->renderPartial('_searchresult',array('itemDP'=>$itemDP),true),
+                )
+                
+                
+            );            
+            
+        }
         
     }
 	/**

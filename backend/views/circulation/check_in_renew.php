@@ -1,5 +1,5 @@
 <?php  
-	$this->widget('extcommon.LmWidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
+	$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
 
 ?>
 
@@ -7,7 +7,7 @@
 <?php
 
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(
-		'title' => $title,
+		'title' => 'Renew ',
 		//'headerIcon' => 'icon-user',
 		'content' => $this->renderPartial('_checkinform',array('model'=>$model,'action'=>$action),true),
 	));
