@@ -16,7 +16,7 @@ $this->menu=array(
 
 
 <?php
-	$this->widget('extcommon.LmWidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
+	$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
 ?>
 
 <?php

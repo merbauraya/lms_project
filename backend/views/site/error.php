@@ -1,15 +1,22 @@
-<?php
-/* @var $this SiteController */
-/* @var $error array */
 
-$this->pageTitle=Yii::app()->name . ' - Error';
-$this->breadcrumbs=array(
-	'Error',
-);
-?>
 
-<h2>Error <?php echo $code; ?></h2>
+<div class="alert in alert-block alert-error">
 
-<div class="error">
-<?php echo CHtml::encode($message); ?>
+    <strong>Error <?php echo $code; ?></strong>
+    <?php echo CHtml::encode($message); 
+            echo nl2br('<br>');
+    
+    ?>
+    
+    <?php
+        if ($code==401)
+        {
+            
+            echo 'If you believe you should have access to the requested resource,
+                please contact Sytem Administrator';
+            
+            
+        }
+    
+    ?>    
 </div>

@@ -16,7 +16,7 @@ class MarcUploadController extends Controller
 	public function filters()
 	{
 		return array(
-			array('auth.filters.AuthFilter - login, logout, restore, captcha, error'),
+			array('auth.filters.AuthFilter'),
             //'accessControl', // perform access control for CRUD operations
 		);
 	}

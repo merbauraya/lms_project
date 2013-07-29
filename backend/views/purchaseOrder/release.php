@@ -1,7 +1,7 @@
 <div class="grid-title"><h5>Purchase Order Ready for release</h5> </div>
 <?php  
 
-$this->widget('extcommon.LmWidget.LmJgrowl', array('form' => null, 'flash' => '', 'caption' => '')); 
+$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => null, 'flash' => '', 'caption' => '')); 
 
 ?>
 

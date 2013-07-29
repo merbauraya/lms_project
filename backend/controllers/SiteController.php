@@ -14,7 +14,11 @@ class SiteController extends Controller
 	 */
 	public function filters()
 	{
-		return array('accessControl');
+		//return array('accessControl');
+        return array(
+			array('auth.filters.AuthFilter - login, logout, restore, captcha, error'),
+            //'accessControl', // perform access control for CRUD operations
+		);
 	}
 
 	/**
