@@ -12,14 +12,14 @@ $this->menu=array(
 	array('label'=>'Manage CirculationRule','url'=>array('admin')),
 );
 ?>
-
+<div class="clearfix"></div>
 
 <?php
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(
 		'title' => "Update Patron Category",
 		//'headerIcon' => 'icon-user',
 		'content' => '',
-			'btnHeaderDivClass' =>'lmboxBtn',
+        'btnHeaderDivClass' =>'lmboxBtn',
 		'headerButtons'=>array(
 			 array(
 	           'class' => 'bootstrap.widgets.TbButton',
@@ -38,5 +38,5 @@ $this->menu=array(
 	
 ?>
 
-<?php echo $this->renderPartial('_form',array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form2',array('model'=>$model)); ?>
 <?php $this->endWidget();?>

@@ -131,15 +131,23 @@ return CMap::mergeArray(
 						'class'=>'CFileLogRoute',//'class'=>'CDbLogRoute',
 						//'connectionID' => 'db',
 						'levels'=>'error, warning',
-				),
-				// uncomment the following to show log messages on web pages
-				/*
-				array(
-					'class'=>'CWebLogRoute',
-				),
-				*/
+                        ),
+				
 			       ),
 		      ),
+            'solarium' => array(
+                'class' => 'common.extensions.YiiSolarium.Solarium',
+                'clientOptions' => array(
+                        'endpoint' => array(
+                            'biblio' => array(
+                                'host' => 'localhost',
+                                'port' => '8080',
+                                'path' => '/solr/',
+                                'core' => 'biblio',
+                        )
+                    )
+                )
+            ),
 		      'config' => array(
 		               'class'=>'common.extensions.EConfig',
 		      ),
@@ -154,14 +162,6 @@ return CMap::mergeArray(
 						),
 					),
 				),
-//			'db'=> array(
-//				'connectionString' => $params['db.connectionString'],
-//				'username' => $params['db.username'],
-//				'password' => $params['db.password'],
-//				'schemaCachingDuration' => YII_DEBUG ? 0 : 86400000, // 1000 days
-//				'enableParamLogging' => YII_DEBUG,
-//				'charset' => 'utf8'
-//			),
 			'urlManager' => array(
 				'urlFormat' => 'path',
 				'showScriptName' => false,
@@ -174,8 +174,8 @@ return CMap::mergeArray(
 		),
 		'params'=>array(
 		// this is used in contact page
-		'adminEmail'=>'webmaster@example.com',
-		'dateFormat'=>'dd/mm/yyyy'
+            'adminEmail'=>'webmaster@example.com',
+            'dateFormat'=>'dd/mm/yyyy'
         )		
 	),
 	CMap::mergeArray($mainEnvConfiguration, $mainLocalConfiguration)

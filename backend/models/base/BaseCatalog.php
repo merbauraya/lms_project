@@ -32,17 +32,21 @@
  * @property boolean $indexed
  * @property string $indexed_on
  * @property integer $modified_by
+ * @property string $call_number
+ * @property integer $catalog_format_id
+ * @property string $bibliographic_level
  *
  * The followings are the available model relations:
  * @property CatalogSubject[] $catalogSubjects
- * @property CatalogItem[] $catalogItems
- * @property CatalogItem[] $catalogItems1
  * @property CatalogItemInfo[] $catalogItemInfos
  * @property Subscription[] $subscriptions
  * @property AcqPurchaseOrderItem[] $acqPurchaseOrderItems
  * @property AcqSuggestionItem[] $acqSuggestionItems
- * @property Serial[] $serials
+ * @property CatalogFormat $catalogFormat
  * @property MarcTypeOfRecord $materialType
+ * @property Serial[] $serials
+ * @property CatalogItem[] $catalogItems
+ * @property CatalogItem[] $catalogItems1
  * @property MarcUploadItem[] $marcUploadItems
  *
  * @package application.models.base
@@ -66,15 +70,16 @@ abstract class BaseCatalog extends LmActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('material_type_id, created_by, approved_by, source, personal_name_id, meeting_name_id, corporate_name_id, modified_by', 'numerical', 'integerOnly'=>true),
+			array('material_type_id, created_by, approved_by, source, personal_name_id, meeting_name_id, corporate_name_id, modified_by, catalog_format_id', 'numerical', 'integerOnly'=>true),
 			array('desc', 'length', 'max'=>100),
 			array('publisher, edition, year_publish, author_100a', 'length', 'max'=>200),
-			array('control_number, isbn_10, isbn_13', 'length', 'max'=>50),
+			array('control_number, isbn_10, isbn_13, call_number', 'length', 'max'=>50),
 			array('issn', 'length', 'max'=>20),
+			array('bibliographic_level', 'length', 'max'=>1),
 			array('date_created, date_modified, approved_on, title_245a, title_245c, marc_xml, released, opac_released, indexed, indexed_on', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, desc, date_created, date_modified, material_type_id, approved_on, created_by, approved_by, source, title_245a, publisher, edition, year_publish, personal_name_id, meeting_name_id, corporate_name_id, author_100a, title_245c, marc_xml, control_number, released, isbn_10, isbn_13, opac_released, issn, indexed, indexed_on, modified_by', 'safe', 'on'=>'search'),
+			array('id, desc, date_created, date_modified, material_type_id, approved_on, created_by, approved_by, source, title_245a, publisher, edition, year_publish, personal_name_id, meeting_name_id, corporate_name_id, author_100a, title_245c, marc_xml, control_number, released, isbn_10, isbn_13, opac_released, issn, indexed, indexed_on, modified_by, call_number, catalog_format_id, bibliographic_level', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -87,14 +92,15 @@ abstract class BaseCatalog extends LmActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'catalogSubjects' => array(self::HAS_MANY, 'CatalogSubject', 'catalog_id'),
-			'catalogItems' => array(self::HAS_MANY, 'CatalogItem', 'catalog_id'),
-			'catalogItems1' => array(self::HAS_MANY, 'CatalogItem', 'control_number'),
 			'catalogItemInfos' => array(self::HAS_MANY, 'CatalogItemInfo', 'catalog_id'),
 			'subscriptions' => array(self::HAS_MANY, 'Subscription', 'catalog_id'),
 			'acqPurchaseOrderItems' => array(self::HAS_MANY, 'AcqPurchaseOrderItem', 'catalog_id'),
 			'acqSuggestionItems' => array(self::HAS_MANY, 'AcqSuggestionItem', 'catalog_id'),
-			'serials' => array(self::HAS_MANY, 'Serial', 'catalog_id'),
+			'catalogFormat' => array(self::BELONGS_TO, 'CatalogFormat', 'catalog_format_id'),
 			'materialType' => array(self::BELONGS_TO, 'MarcTypeOfRecord', 'material_type_id'),
+			'serials' => array(self::HAS_MANY, 'Serial', 'catalog_id'),
+			'catalogItems' => array(self::HAS_MANY, 'CatalogItem', 'catalog_id'),
+			'catalogItems1' => array(self::HAS_MANY, 'CatalogItem', 'control_number'),
 			'marcUploadItems' => array(self::HAS_MANY, 'MarcUploadItem', 'catalog_id'),
 		);
 	}
@@ -133,6 +139,9 @@ abstract class BaseCatalog extends LmActiveRecord
 			'indexed' => 'Indexed',
 			'indexed_on' => 'Indexed On',
 			'modified_by' => 'Modified By',
+			'call_number' => 'Call Number',
+			'catalog_format_id' => 'Catalog Format',
+			'bibliographic_level' => 'Bibliographic Level',
 		);
 	}
 
@@ -170,10 +179,14 @@ abstract class BaseCatalog extends LmActiveRecord
 		$criteria->compare('released',$this->released);
 		$criteria->compare('isbn_10',$this->isbn_10,true);
 		$criteria->compare('isbn_13',$this->isbn_13,true);
+		$criteria->compare('opac_released',$this->opac_released);
 		$criteria->compare('issn',$this->issn,true);
 		$criteria->compare('indexed',$this->indexed);
 		$criteria->compare('indexed_on',$this->indexed_on,true);
 		$criteria->compare('modified_by',$this->modified_by);
+		$criteria->compare('call_number',$this->call_number,true);
+		$criteria->compare('catalog_format_id',$this->catalog_format_id);
+		$criteria->compare('bibliographic_level',$this->bibliographic_level,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

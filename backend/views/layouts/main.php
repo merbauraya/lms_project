@@ -178,7 +178,7 @@
 				),
 				array('label'=>'Circulation', 'items'=>array(
 					array('label'=>'Circulation Rule','url'=>
-						array('circulationrule/admin')),
+						array('CirculationRule/admin')),
 					)
 				),
 				array('label'=>'Authorization', 'url'=>array('auth/')),

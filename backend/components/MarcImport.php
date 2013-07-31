@@ -199,6 +199,18 @@ class MarcImport
             $this->importSummary['tot_replaced']++;
         }
     }
+    /**
+     * Get catalog format - correspond to vufind format field in solr
+     * 
+     * 
+     * 
+     */ 
+    private function getCatalogFormat()
+    {
+        
+        
+        
+    }
     
     
 }

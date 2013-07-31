@@ -23,7 +23,7 @@
 
 	<?php echo $form->textFieldRow($model,'loan_period',array('class'=>'span3')); ?>
 	<?php echo $form->dropDownListRow($model, 'period_type',
-       array('1'=>'Day','2'=>'Hour'),array('class'=>'span3')); 
+       array(CirculationRule::PERIOD_DAY=>'Day',CirculationRule::PERIOD_HOUR=>'Hour'),array('class'=>'span3')); 
 ?>
 	<?php echo $form->textFieldRow($model,'fine_per_period',array('class'=>'span3','maxlength'=>10)); ?>
 

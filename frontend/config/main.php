@@ -83,11 +83,11 @@ return CMap::mergeArray(
 				'urlSuffix' => '/',
 				'rules' => $params['url.rules']
 			),
-               'solarium' => array(
-            'class' => 'common.extensions.YiiSolarium.Solarium',
-                'clientOptions' => array(
-                    'endpoint' => array(
-                        'localhost' => array(
+            'solarium' => array(
+                'class' => 'common.extensions.YiiSolarium.Solarium',
+                    'clientOptions' => array(
+                        'endpoint' => array(
+                            'localhost' => array(
                             'host' => '127.0.0.1',
                             'port' => '8080',
                             'path' => '/solr/biblio/',

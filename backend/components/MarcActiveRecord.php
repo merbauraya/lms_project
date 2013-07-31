@@ -12,12 +12,12 @@ class MarcActiveRecord //extends MarcBase
     private $_subfields = array();
     private $_indicator = array();
     private $_marcId; //our internal catalog id
-    private $_source ; //source for our marc record 
+    private $_source = Catalog::SOURCE_MARC_IMPORT; //source for our marc record 
     private $_isbn10;
     private $_isbn13;
     const CATALOGING_AGENCY='MARC_CATALOGING_AGENCY';
     
-    public $Marc;
+    public $Marc;  //MarcRecord instance
     
   
     
@@ -81,6 +81,7 @@ class MarcActiveRecord //extends MarcBase
     }
     private function parseISBN()
     {
+        
         $data = $this->getData('020','a');
         if (count($data) == 0)
             return;
@@ -242,8 +243,20 @@ class MarcActiveRecord //extends MarcBase
 			throw new Exception('Marc Object is not set');
 		
 		$_data = array();
-		$_tag = $this->Marc->getField($tag);
-		if (isset($_tag))
+		$_tags = $this->Marc->getFields($tag);
+		foreach ($_tags as $_tag)
+        {
+            $_subfield = $_tag->getSubFields($subField);
+			foreach($_subfield as $key=>$value)
+			{
+				$_data[] = $value->getData();
+			}
+            
+        }
+        return $_data;
+        /*
+        
+        if ($_tag)
 		{
 			$_subfield = $_tag->getSubFields($subField);
 			foreach($_subfield as $key=>$value)
@@ -254,7 +267,7 @@ class MarcActiveRecord //extends MarcBase
 		}else
 		{
 			return array(NULL);
-		}	
+		}*/	
    }
    /*
    *	Get non repeatable data
@@ -316,9 +329,13 @@ class MarcActiveRecord //extends MarcBase
             $catalog->title_245a = $this->getTitle();
             $catalog->isbn_10 = $this->getISBN_10();
             $catalog->isbn_13 = $this->getISBN_13();
+            $catalog->issn = $this->getISSN();
             $catalog->author_100a = $this->getAuthor();
             $catalog->source = $this->_source ;//Catalog::SOURCE_MARC_IMPORT;
             $catalog->marc_xml = $this->Marc->toXML();
+            $leaderParser = new MarcLeaderParser($this->Marc);
+            $catalog->catalog_format_id = $leaderParser->getFormat();
+            $catalog->bibliographic_level = $leaderParser->getBibliographicLevel();
             $catalog->save();
             return $catalog;
         } catch (CException $ex)

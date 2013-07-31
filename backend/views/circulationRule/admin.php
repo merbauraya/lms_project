@@ -63,13 +63,13 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
-		'id',
-		'library_id',
-		'patron_category_id',
-		'smd_id',
-		'item_category_id',
-		'loan_period',
-		/*
+		//'id',
+		//'library_id',
+		array('name'=>'patron_category_name','header'=>'Patron Category'),
+		array('name'=>'smd_name','header'=>'SMD'),
+		array('name'=>'item_category_name','header'=>'Item Category'),
+		/*'loan_period',
+		
 		'item_count_limit',
 		'period_type',
 		'fine_per_period',

@@ -9,7 +9,10 @@
  */
 class CirculationRule extends BaseCirculationRule
 {
-	/**
+	
+    const PERIOD_DAY=1;
+    const PERIOD_HOUR=2;
+    /**
 	 * Returns the static model of the specified AR class.
 	 * @return CirculationRule the static model class
 	 */
