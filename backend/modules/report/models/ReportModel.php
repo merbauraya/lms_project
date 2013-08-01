@@ -5,10 +5,29 @@ class ReportModel extends CModel
     private $library_id;
     private $daterange;
     
+    
+    /**
+	 * @return array validation rules for model attributes.
+	 */
+	public function rules()
+	{
+		// NOTE: you should only define rules for those attributes that
+		// will receive user inputs.
+		return array(
+			array('library_id', 'numerical', 'integerOnly'=>true),
+			array('daterange', 'safe'),
+			// The following rule is used by search().
+			// Please remove those attributes that should not be searched.
+			//array('id, authority_type_id, date_created, date_modified, created_by, last_modified_by, marc_xml', 'safe', 'on'=>'search'),
+		);
+	}
+    
+    
     /**
 	 * @return array customized attribute labels (name=>label)
 	 */
-	public function attributeLabels()
+	
+    public function attributeLabels()
 	{
 		return array(
 			'id' => 'ID',

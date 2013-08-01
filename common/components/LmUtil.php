@@ -8,8 +8,8 @@ class LmUtil
      * 
      */
      
-     const PASSWORD_HASH_ALGO = 'PASSWORD_HASH_ALGO';
-    
+    const PASSWORD_HASH_ALGO = 'PASSWORD_HASH_ALGO';
+    const DB_DATEFORMAT = 'Y-m-d H:i:s' ; 
     /**
 	* Return current date in a format that can used during DB operation
 	*
@@ -80,6 +80,15 @@ class LmUtil
 			
 	
 	}
+    /*
+     * Return date format as specified in main configuration
+     * 
+     */ 
+    public static function getDateFormat()
+    {
+        return Yii::app()->params['dateFormat'];
+        
+    }
 	/*
 	 * return current date safe for sql 
 	 **/
@@ -105,7 +114,12 @@ class LmUtil
         return preg_replace( "/[^0-9]/", "", $string );
         
     }    	
-	
+	public static function formatDate($value,$inFormat,$outFormat)
+    {
+        
+        return Yii::app()->dateFormatter->format($outFormat,  CDateTimeParser::parse($value,$inFormat));
+        
+    }
 
 
 }

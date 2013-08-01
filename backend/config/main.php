@@ -161,7 +161,7 @@ return CMap::mergeArray(
 				'behaviors' => array(
 					'auth'=>array(
 						'class'=>'common.modules.auth.components.AuthBehavior',
-						'admins'=>array('admin'),
+						'admins'=>array('admin','sa'),
 						),
 					),
 				),
