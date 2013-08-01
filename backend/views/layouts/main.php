@@ -191,34 +191,9 @@
 				),
 				
 			)),
-			array('label'=>'Report', 'items'=>array(
-			 	array('label'=>'Budget','items'=>array(
-					array('label'=>'Budget Summary','url'=>
-						array('budgetaccount/admin')),
-					array('label'=>'Budget Comparison','url'=>
-						array('budgettransactionType/admin')),
-					array('label'=>'Budget Utilisation','url'=>
-						array('budgetsource/admin')),
-					array('label'=>'Budget Transaction','url'=>
-						array('budgettransaction/admin')),
-					
-					)),
-				array('label'=>'Expenditure', 'items'=>array(
-					array('label'=>'Analysis','url'=>
-						array('budgetaccount/admin')),
-				
-				
-					)
-				),
-                array('label'=>'Catalog', 'items'=>array(
-					array('label'=>'Analysis','url'=>
-						array('budgetaccount/admin')),
-				
-				
-					)
-				),
-				)
-			),				 
+			array('label'=>'Report','url'=>array('/report'),'itemOptions'=>array('icon'=>'icon-ok')
+            
+            ),				 
 			array('label'=>'Login', 'url'=>array(
 							 		'/site/login'), 
 									'visible'=>Yii::app()->user->isGuest),

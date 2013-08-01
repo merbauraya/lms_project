@@ -109,6 +109,9 @@ return CMap::mergeArray(
             'usermgmt'=>array(
                 'class'=>'common.modules.usermgmt.UsermgmtModule',
             ),
+            'report'=>array(
+                'class'=>'backend.modules.report.ReportModule',
+            ),
 		), 
 		'components' => array(
 			'user' => array(

@@ -27,7 +27,8 @@ echo '<h3>'.$event->sender->getStepLabel($event->step).'</h3>';
 	<?php echo $form->errorSummary($model); ?>
 	<?php echo $form->dropDownListRow($model, 'owner_library',
 		CHtml::listData(Library::model()->findAll(), 'id', 'name'),
-			
+        array('class'=>'span4')
+        );
 			array('empty'=>'Select Library',
 			'ajax' => array(
 				'type'=>'POST', //request type

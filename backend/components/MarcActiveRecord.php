@@ -254,20 +254,7 @@ class MarcActiveRecord //extends MarcBase
             
         }
         return $_data;
-        /*
-        
-        if ($_tag)
-		{
-			$_subfield = $_tag->getSubFields($subField);
-			foreach($_subfield as $key=>$value)
-			{
-				$_data[] = $value->getData();
-			}
-			return $_data;
-		}else
-		{
-			return array(NULL);
-		}*/	
+      
    }
    /*
    *	Get non repeatable data

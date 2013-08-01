@@ -17,7 +17,7 @@ $(document).ready(function(){
 		$.jGrowl(data.message,
 		{
 			theme : 'lm-'+ data.status,
-			life  : 5000,
+			life  : 4000,
 			sticky : _sticky
 		
 		});
