@@ -7,7 +7,7 @@
  * @property integer $id
  * @property string $name
  * @property integer $library_id
- * @property integer $category_id
+ * @property integer $patron_category_id
  * @property string $username
  * @property string $password
  * @property string $email
@@ -25,23 +25,25 @@
  * @property string $last_login_time
  *
  * The followings are the available model relations:
- * @property BudgetSource[] $budgetSources
  * @property AcqSuggestion[] $acqSuggestions
+ * @property AcqSuggestionItem[] $acqSuggestionItems
+ * @property AcqPurchaseOrder[] $acqPurchaseOrders
+ * @property AcqPurchaseOrder[] $acqPurchaseOrders1
+ * @property BudgetSource[] $budgetSources
  * @property CirTransaction[] $cirTransactions
  * @property Department[] $departments
+ * @property CirTransactionHistory[] $cirTransactionHistories
  * @property Course[] $courses
- * @property PatronStatus $status
  * @property MarcUpload[] $marcUploads
+ * @property MarcImport[] $marcImports
  * @property PatronAddress[] $patronAddresses
  * @property Subscription[] $subscriptions
  * @property AcqGoodReceive[] $acqGoodReceives
- * @property AcqPurchaseOrder[] $acqPurchaseOrders
- * @property AcqPurchaseOrder[] $acqPurchaseOrders1
  * @property AcqRequestItem[] $acqRequestItems
  * @property AcqRequestItem[] $acqRequestItems1
- * @property AcqSuggestionItem[] $acqSuggestionItems
- * @property CirTransactionHistory[] $cirTransactionHistories
- * @property MarcImport[] $marcImports
+ * @property PatronStatus $status
+ * @property PatronCategory $patronCategory
+ * @property Department $department
  *
  * @package application.models.base
  * @name BasePatron
@@ -65,17 +67,17 @@ abstract class BasePatron extends LmActiveRecord
 		// will receive user inputs.
 		return array(
 			array('name, library_id, username, password,password_repeat', 'required'),
-			array('library_id, category_id, login_attempts, created_by, department_id, status_id', 'numerical', 'integerOnly'=>true),
+			array('library_id, patron_category_id, login_attempts, created_by, department_id, status_id', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>100),
 			array('username, phone1, phone2, mobile_no', 'length', 'max'=>15),
-			array('password,password_repeat', 'length', 'max'=>125),
-            array('email', 'length', 'max'=>125),
+			array('password', 'length', 'max'=>255),
+			array('email', 'length', 'max'=>125),
 			array('staff_no', 'length', 'max'=>20),
-			array('expiry_date,password_repeat,password, date_created, date_modified, last_login_time', 'safe'),
-			 array('password_repeat', 'compare', 'compareAttribute'=>'password'),
-            // The following rule is used by search().
+			array('expiry_date, password_repeat,password,date_created, date_modified, last_login_time', 'safe'),
+             array('password_repeat', 'compare', 'compareAttribute'=>'password'),
+			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, name, library_id, category_id, username, password, email, phone1, phone2, login_attempts, expiry_date, date_created, date_modified, created_by, department_id, mobile_no, staff_no, status_id, last_login_time', 'safe', 'on'=>'search'),
+			array('id, name, library_id, patron_category_id, username, password, email, phone1, phone2, login_attempts, expiry_date, date_created, date_modified, created_by, department_id, mobile_no, staff_no, status_id, last_login_time', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -87,23 +89,25 @@ abstract class BasePatron extends LmActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'budgetSources' => array(self::HAS_MANY, 'BudgetSource', 'created_by'),
 			'acqSuggestions' => array(self::HAS_MANY, 'AcqSuggestion', 'suggested_by'),
+			'acqSuggestionItems' => array(self::HAS_MANY, 'AcqSuggestionItem', 'status_update_by'),
+			'acqPurchaseOrders' => array(self::HAS_MANY, 'AcqPurchaseOrder', 'created_by'),
+			'acqPurchaseOrders1' => array(self::HAS_MANY, 'AcqPurchaseOrder', 'modified_by'),
+			'budgetSources' => array(self::HAS_MANY, 'BudgetSource', 'created_by'),
 			'cirTransactions' => array(self::HAS_MANY, 'CirTransaction', 'patron_username'),
 			'departments' => array(self::HAS_MANY, 'Department', 'created_by'),
+			'cirTransactionHistories' => array(self::HAS_MANY, 'CirTransactionHistory', 'patron_username'),
 			'courses' => array(self::HAS_MANY, 'Course', 'created_by'),
-			'status' => array(self::BELONGS_TO, 'PatronStatus', 'status_id'),
 			'marcUploads' => array(self::HAS_MANY, 'MarcUpload', 'uploaded_by'),
+			'marcImports' => array(self::HAS_MANY, 'MarcImport', 'import_by'),
 			'patronAddresses' => array(self::HAS_MANY, 'PatronAddress', 'patron_id'),
 			'subscriptions' => array(self::HAS_MANY, 'Subscription', 'created_by'),
 			'acqGoodReceives' => array(self::HAS_MANY, 'AcqGoodReceive', 'created_by'),
-			'acqPurchaseOrders' => array(self::HAS_MANY, 'AcqPurchaseOrder', 'created_by'),
-			'acqPurchaseOrders1' => array(self::HAS_MANY, 'AcqPurchaseOrder', 'modified_by'),
 			'acqRequestItems' => array(self::HAS_MANY, 'AcqRequestItem', 'created_by'),
 			'acqRequestItems1' => array(self::HAS_MANY, 'AcqRequestItem', 'modified_by'),
-			'acqSuggestionItems' => array(self::HAS_MANY, 'AcqSuggestionItem', 'status_update_by'),
-			'cirTransactionHistories' => array(self::HAS_MANY, 'CirTransactionHistory', 'patron_username'),
-			'marcImports' => array(self::HAS_MANY, 'MarcImport', 'import_by'),
+			'status' => array(self::BELONGS_TO, 'PatronStatus', 'status_id'),
+			'patronCategory' => array(self::BELONGS_TO, 'PatronCategory', 'patron_category_id'),
+			'department' => array(self::BELONGS_TO, 'Department', 'department_id'),
 		);
 	}
 
@@ -116,7 +120,7 @@ abstract class BasePatron extends LmActiveRecord
 			'id' => 'ID',
 			'name' => 'Name',
 			'library_id' => 'Library',
-			'category_id' => 'Category',
+			'patron_category_id' => 'Patron Category',
 			'username' => 'Username',
 			'password' => 'Password',
 			'email' => 'Email',
@@ -149,7 +153,7 @@ abstract class BasePatron extends LmActiveRecord
 		$criteria->compare('id',$this->id);
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('library_id',$this->library_id);
-		$criteria->compare('category_id',$this->category_id);
+		$criteria->compare('patron_category_id',$this->patron_category_id);
 		$criteria->compare('username',$this->username,true);
 		$criteria->compare('password',$this->password,true);
 		$criteria->compare('email',$this->email,true);

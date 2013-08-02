@@ -10,7 +10,50 @@ class LmUtil
      
     const PASSWORD_HASH_ALGO = 'PASSWORD_HASH_ALGO';
     const DB_DATEFORMAT = 'Y-m-d H:i:s' ; 
-    /**
+    const YII_DISPLAY_DATEFORMAT = 'dd/MM/yyyy'; //yii equivalent date format 
+    
+    public static function getDBDateFormat()
+    {
+		return 'yyyy-MM-dd HH:mm:ss';
+		
+	}
+    public static function displayDateFormat()
+    {
+		return self::YII_DISPLAY_DATEFORMAT;
+	}
+	/**
+	 * Parse date range as entered by user and return range which are safe for DB comparison
+	 * @range array/string for the date to be parsed
+	 * 
+	 */
+	public static function ConvertToDBDate($range)
+	{
+		if (is_array($range))
+		{
+			$val = array();
+			foreach ($range as $value)
+				$val[] = self::ToDbDate($value);
+				
+			return $val;
+			
+		}else
+		{
+			return self::ToDbDate($range);
+		}
+		
+	}
+	/*
+	 * Convert date to format which is Database safe
+	 * 
+	 */
+	private static function ToDbDate($value)
+	{
+		$val= CDateTimeParser::parse(trim($value),self::displayDateFormat());
+        return Yii::app()->dateFormatter->format(LmUtil::getDBDateFormat(),$val); 
+		
+	}
+	
+	/**
 	* Return current date in a format that can used during DB operation
 	*
 	*/

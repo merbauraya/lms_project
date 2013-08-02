@@ -4,7 +4,7 @@ class ReportModel extends CModel
 {
     private $library_id;
     private $daterange;
-    
+    private $patron_category_id;
     
     /**
 	 * @return array validation rules for model attributes.
@@ -14,7 +14,7 @@ class ReportModel extends CModel
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('library_id', 'numerical', 'integerOnly'=>true),
+			array('library_id,patron_category_id', 'numerical', 'integerOnly'=>true),
 			array('daterange', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -36,7 +36,7 @@ class ReportModel extends CModel
 			'date_modified' => 'Date Modified',
 			'created_by' => 'Created By',
 			'last_modified_by' => 'Last Modified By',
-			'marc_xml' => 'Marc Xml',
+			'patron_category_id' => 'Category',
 		);
 	}
     /**

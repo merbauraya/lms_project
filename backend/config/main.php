@@ -102,7 +102,7 @@ return CMap::mergeArray(
 			),
 			'auth'=>array(
 				'userClass' => 'Patron', // the name of the user model class.
-				'userNameColumn' => 'username', // the name of the user name column.
+				'userNameColumn' => 'name', // the name of the user name column.
 				'userIdColumn' => 'id', // the name of the user id column.
                 'class'=>'common.modules.auth.AuthModule', 
 			),

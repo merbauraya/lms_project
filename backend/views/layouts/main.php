@@ -153,13 +153,13 @@
 			 	array('label'=>'Systems', 'url'=>array('/setting/update')),
 				array('label'=>'Budget','items'=>array(
 					array('label'=>'Budget Account','url'=>
-						array('budgetaccount/admin')),
+						array('budgetAccount/admin')),
 					array('label'=>'Budget Transaction Type','url'=>
-						array('budgettransactionType/admin')),
+						array('budgetTransactionType/admin')),
 					array('label'=>'Budget Source','url'=>
-						array('budgetsource/admin')),
+						array('budgetSource/admin')),
 					array('label'=>'Budget Transaction','url'=>
-						array('budgettransaction/admin')),
+						array('budgetTransaction/admin')),
 					
 					)),
 				array('label'=>'Patron Management', 'items'=>array(
