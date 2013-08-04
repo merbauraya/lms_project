@@ -1,13 +1,5 @@
 <?php
-$this->breadcrumbs=array(
-	'Circulation Rules'=>array('index'),
-	'Manage',
-);
 
-$this->menu=array(
-	array('label'=>'List CirculationRule','url'=>array('index')),
-	array('label'=>'Create CirculationRule','url'=>array('create')),
-);
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -46,35 +38,29 @@ $('.search-form form').submit(function(){
 	
 ?>
 
-<p>
-You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>
-or <b>=</b>) at the beginning of each of your search values to specify how the comparison should be done.
-</p>
-
-<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn')); ?>
-<div class="search-form" style="display:none">
-<?php $this->renderPartial('_search',array(
-	'model'=>$model,
-)); ?>
-</div><!-- search-form -->
-
 <?php $this->widget('bootstrap.widgets.TbGridView',array(
 	'id'=>'circulation-rule-grid',
-	'dataProvider'=>$model->search(),
-	'filter'=>$model,
+	'dataProvider'=>$model->getAdminView(),
+	//'filter'=>$model,
 	'columns'=>array(
 		//'id',
 		//'library_id',
-		array('name'=>'patron_category_name','header'=>'Patron Category'),
 		array('name'=>'smd_name','header'=>'SMD'),
+        array('name'=>'patron_category_name','header'=>'Patron Category'),
+		
 		array('name'=>'item_category_name','header'=>'Item Category'),
-		/*'loan_period',
+		array('header'=>'Loan Period','value'=>array($this,'renderLoadPeriod')),
 		
 		'item_count_limit',
-		'period_type',
-		'fine_per_period',
+		
 		'max_renewal_count',
-		*/
+        'max_reservation_count',
+        'grace_period',
+        'fine_per_period',
+        'max_fine',
+        array('header'=>'Allow Reserve','value'=>'$data->allow_reserve ? "Yes" : "No"'),
+        array('header'=>'Hard Due','value'=>array($this,'renderHardDue')),
+	
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
 		),

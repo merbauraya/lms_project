@@ -42,7 +42,11 @@ abstract class BaseCirculationTrans extends LmActiveRecord
 			array('library_id', 'numerical', 'integerOnly'=>true),
 			array('accession_number', 'length', 'max'=>20),
 			array('library_id,accession_number,patron_username','required'),
-			array('patron_username, checkout_date, due_date, checkin_date, last_renewed_date', 'safe'),
+            array('patron_username','exist','allowEmpty' => false, 'attributeName' => 'username', 'className' => 'Patron','message'=>'Patron does not exist'),
+            array('accession_number','exist','allowEmpty' => false, 'attributeName' => 'accession_number', 'className' => 'CatalogItem','message'=>'Invalid accession number'),
+            
+		
+			array('patron_username, accession_number,checkout_date, due_date, checkin_date, last_renewed_date', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, library_id, patron_username, accession_number, checkout_date, due_date, checkin_date, last_renewed_date', 'safe', 'on'=>'search'),

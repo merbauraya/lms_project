@@ -6,7 +6,8 @@ class PatronController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl',
+			array('auth.filters.AuthFilter'),
+            //'accessControl', // perform access control for CRUD operations
 		);
 	}
 	public function accessRules()
@@ -40,7 +41,7 @@ class PatronController extends Controller
 	*	Return list of users based on given params.
 	*   Note that this should only be called via ajax
 	*   Params get are:
-	*   1. q - The search term
+	*   1. term - The search term
 	*   2. lib - Library to search for
 	*   3. ret - What will be returned as id. If value is uname, username will be returned, 
 	*            otherwise ID will be returned instead.
@@ -48,19 +49,20 @@ class PatronController extends Controller
 	*/
 	public function actionAjaxGetPatron()
 	{
-		if (isset($_GET['q'])) {
+		if (isset($_GET['term'])) {
 			
 			$vdr = Patron::model()->findAll(array('order'=>'username', 
 												'condition'=>'username LIKE :username and library_id=:library', 
-												'params'=>array(':username'=>$_GET['q'].'%',
-															    ':library'=>$_GET['lib']),
+												'params'=>array(':username'=>$_GET['term'].'%',
+															    ':library'=>LmUtil::UserLibraryId()),
 												'limit'=>$_GET['page_limit']
 												));
 			$data = array();
 			foreach ($vdr as $value) {
 				$data[] = array(
 				'id' => $_GET['ret']=='uname' ? $value->username : $value->id,
-				'text' => $value->username. '::' .$value->name,
+				'label' => $value->username,//. ' - ' .$value->name,
+                'name' => $value->name,
 				'status' => $value->status_id,
 				);
 			}
@@ -70,6 +72,19 @@ class PatronController extends Controller
 	
 	
 	}
+    public function actionViewByUsername()
+    {
+        if (!isset($_GET['username']))
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        $username = $_GET['username'];
+        $model = Patron::model()->with('department','patronCategory')->findByAttributes(array('username'=>$username));
+        if (Yii::app()->request->isAjaxRequest)
+            $this->renderPartial('view',array('model'=>$model));
+        else
+            $this->render();
+        
+    }
+   
 	// Uncomment the following methods and override them if needed
 	/*
 	public function filters()

@@ -144,7 +144,11 @@ class CirculationController extends Controller
 	*/
 	public function actionCheckOut()
 	{
-		$model = new CirculationTrans;
+		$this->layout='//layouts/column1';
+        $model = new CirculationTrans;
+        $this->performAjaxValidation($model);
+        
+                
 		if (isset($_POST['CirculationTrans']))
 		{
 			$model->attributes = $_POST['CirculationTrans'];
@@ -169,11 +173,12 @@ class CirculationController extends Controller
 				$model->save();
 				$cmd->execute();
 				$trans->commit();
-				echo CJSON::encode(array(
+			/*	echo CJSON::encode(array(
 					'status'=>'success', 
 					'message'=>'Item checkout successfully'
-				));
+				)); */
 				Yii::app()->user->setFlash('success','Item checkout successfully');
+                $model->unsetAttributes();
 			}catch (Exception $ex)
 			{
 				$trans->rollback();
@@ -181,9 +186,82 @@ class CirculationController extends Controller
 				Yii::app()->user->setFlash('error','Error checking out item');
 			}
 		}
-		
-		$this->render('checkout',array('model'=>$model));
+        $this->render('checkout',array('model'=>$model));
 	}
+     /**
+     * Get patron status and holding information
+     * 
+     * 
+     */ 
+    public function actionGetStatusAndHolding()
+    {
+        
+        //echo $_REQEUST['username'];
+        
+        if (isset($_REQUEST['username']) && isset($_REQUEST['library']))
+        {
+        
+            $username = $_REQUEST['username'];
+            $library = $_REQUEST['library'];
+            $returntype = '';
+            if (isset($_REQUEST['ret']))
+                $returnType = $_REQUEST['ret'];
+            $sql = 'select 
+                    a.id,a.name,a.username,d.name as status_name,d.allow_checkout,
+                    b.accession_number,b.checkout_date,b.due_date
+                    from patron a
+                    left outer join cir_transaction b on a.username = b.patron_username 
+                    left outer join catalog_item c on b.accession_number  = c.accession_number
+                    ,patron_status d
+                    where username = :username
+                    and a.library_id = :library
+                    and d.id = a.status_id ';
+
+            $cmd = Yii::app()->db->createCommand($sql);
+            $cmd->bindValue(':username',$username,PDO::PARAM_STR);
+            $cmd->bindValue(':library',$library,PDO::PARAM_INT);
+            
+            $results = $cmd->queryAll(); //return all rows
+            $result = $cmd->execute() ; //exec update insert delete stmt
+            
+            $buffer = array();
+            if (count($results)>0)
+            {
+                $msg='';
+                if (!$results[0]['allow_checkout'] )
+                    $msg = '<strong>Checkout not allowed </strong><br>' . $results[0]['status_name'];
+                
+                $buffer['user'] = array('name'=> $results[0]['name'],
+                                      'allowcheckout'=>$results[0]['allow_checkout'],
+                                      'statusname'=>$results[0]['status_name'],
+                                      'msg'=>$msg,
+                                      'id'=>'username',
+                
+                );
+            }else
+            {
+                $buffer['user']= array('allowcheckout'=>false,
+                                        'msg'=>'Patron does not exist');
+            }
+            //$buffer['user'] = null;
+            foreach ($results as $result)
+            {
+                $buffer['holding'][] = array('accession'=>'accession_number',
+                                            'checkoutdate'=>'checkout_date',
+                                            'duedate'=>'due_date'); 
+                
+            }
+            
+            if ($returnType == 'json')
+                echo CJSON::encode($buffer);
+            else
+                echo $buffer;
+            //echo CJSON::encode(array(
+			//'status'=>'failure', 
+			//'div'=>$this->renderPartial('_receiveDialog',array('model'=>$model,'rID'=>$rID),true)));
+            //exit;   
+        }
+    }
 	public function actionRenewal()
 	{
 		$model = new CirculationTrans();
@@ -194,30 +272,67 @@ class CirculationController extends Controller
 		$patron = Patron::model()->findByAttribute('username',$patron)->with('PatronCategory');	
 		
 	}
-	// Uncomment the following methods and override them if needed
-	/*
-	public function filters()
+    /**
+     * Render list of holding currently checked out by user
+     * This is a get method function
+     * Expect param username
+     * 
+     */
+    public function actionViewUserHolding()
+    {
+        if (!isset($_GET['username']))
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        
+        $username = $_GET['username'];
+        $sql =  'select count(*) as total
+                 from cir_transaction a,catalog_item b,"catalog" c,lookup_table d
+                 where patron_username=:username
+                 and a.accession_number = b.accession_number
+                 and b.control_number = c.control_number
+                 and d.category=\'ITEM_SMD\'
+                 and b.smd_id = d.id';
+        $cmd = Yii::app()->db->createCommand($sql);
+        $cmd->bindValue(':username',$username,PDO::PARAM_STR);
+        $count = $cmd->queryScalar();
+        
+        $sql =  'select a.id,a.accession_number,a.checkout_date,a.due_date,c.title_245a as title,d.name as smd_name
+                 from cir_transaction a,catalog_item b,"catalog" c,lookup_table d
+                 where patron_username=:username
+                 and a.accession_number = b.accession_number
+                 and b.control_number = c.control_number
+                 and d.category=\'ITEM_SMD\'
+                 and b.smd_id = d.id';
+        
+        //$cmd = Yii::app()->db->createCommand($sql);
+        //$cmd->bindValue(':username',$username,PDO::PARAM_STR);
+        $itemDP=new CSqlDataProvider($sql, array(
+            'totalItemCount'=>$count,
+            'params'=>array(':username'=>$username),
+            'sort'=>array(
+                'attributes'=>array(
+                     'due_date',
+                ),
+            ),
+            'pagination'=>array(
+            'pageSize'=>10,
+            ),
+        ));
+         if (Yii::app()->request->isAjaxRequest)
+            $this->renderPartial('_userholding',array('itemDP'=>$itemDP));
+        
+    }
+    
+    /**
+	 * Performs the AJAX validation.
+	 * @param CModel the model to be validated
+	 */
+	protected function performAjaxValidation($model)
 	{
-		// return the filter configuration for this controller, e.g.:
-		return array(
-			'inlineFilterName',
-			array(
-				'class'=>'path.to.FilterClass',
-				'propertyName'=>'propertyValue',
-			),
-		);
+		if(isset($_POST['ajax']) && $_POST['ajax']==='checkout-form')
+		{
+			echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
 	}
-
-	public function actions()
-	{
-		// return external action classes, e.g.:
-		return array(
-			'action1'=>'path.to.ActionClass',
-			'action2'=>array(
-				'class'=>'path.to.AnotherActionClass',
-				'propertyName'=>'propertyValue',
-			),
-		);
-	}
-	*/
+	
 }

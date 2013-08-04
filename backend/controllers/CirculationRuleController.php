@@ -6,7 +6,7 @@ class CirculationRuleController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column2';
+	public $layout='//layouts/column1';
 
 	/**
 	 * @return array action filters
@@ -69,6 +69,10 @@ class CirculationRuleController extends Controller
 		if(isset($_POST['CirculationRule']))
 		{
 			$model->attributes=$_POST['CirculationRule'];
+            if ($model->patron_category_id ==0)
+                unset($model->patron_category_id);
+            if ($model->item_category_id ==0)
+                unset($model->item_category_id);
 			if($model->validate() && $model->save())
 			{
 				$this->redirect(array('view','id'=>$model->id));
@@ -169,10 +173,50 @@ class CirculationRuleController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='circulation-rule-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='checkout-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
 	}
+    /**
+     * Render Loan Period in admin grid
+     * 
+     * 
+     */ 
+    protected function renderLoadPeriod($data,$row)
+    {
+        $buf = $data->loan_period;
+        switch ($data->period_type)
+        {
+            case CirculationRule::PERIOD_DAY:
+                $buf .= ' (days)';
+                break;
+            case CirculationRule::PERIOD_HOUR:
+                $buf .= ' (hours)';
+                break;
+        }
+        echo $buf;
+    }
+    /**
+     * Render hard due in admin grid
+     * 
+     */
+     protected function renderHardDue($data,$row)
+     {
+         switch ($data->hard_due)
+         {
+            case CirculationRule::HARD_DUE_NA:
+                echo 'N/A';
+                break;
+            case CirculationRule::HARD_DUE_BEFORE_LIBRARY_CLOSE:
+                echo 'Before closing';
+                break;
+            case CirculationRule::HARD_DUE_AFTER_LIBRARY_OPEN:
+                echo 'After re-opening';
+                break;
+         }
+                
+         
+     }
 }

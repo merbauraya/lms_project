@@ -31,11 +31,25 @@
  * @property integer $lost_status
  * @property integer $not_for_loan_status
  * @property string $check_out_date
+ * @property integer $vendor_id
+ * @property string $invoice_number
+ * @property integer $currency_id
+ * @property string $local_price
+ * @property integer $current_library
  *
  * The followings are the available model relations:
+ * @property CirTransactionHistory[] $cirTransactionHistories
+ * @property SerialItem[] $serialItems
+ * @property CirTransaction[] $cirTransactions
  * @property Catalog $catalog
- * @property Library $ownerLibrary
  * @property CatalogItemInfo $catalogInfo
+ * @property CatalogItemCategory $category
+ * @property CatalogItemCondition $condition
+ * @property Catalog $controlNumber
+ * @property Library $ownerLibrary
+ * @property CatalogItemSmd $smd
+ * @property Vendor $vendor
+ * @property Location $location
  *
  * @package application.models.base
  * @name BaseCatalogItem
@@ -58,25 +72,16 @@ abstract class BaseCatalogItem extends LmActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('catalog_id, catalog_info_id, owner_library, checkout_count, renewal_count, damage_status, withdrawn_status, location_id, condition_id, claim_count, category_id, smd_id, lost_status, not_for_loan_status', 'numerical', 'integerOnly'=>true),
+			array('catalog_id, catalog_info_id, owner_library, checkout_count, renewal_count, damage_status, withdrawn_status, location_id, condition_id, claim_count, category_id, smd_id, lost_status, not_for_loan_status, vendor_id, currency_id, current_library', 'numerical', 'integerOnly'=>true),
 			array('barcode', 'length', 'max'=>25),
-			array('control_number,owner_library,location_id,smd_id,category_id', 'required'),
-            array('price,local_price, replacement_price', 'length', 'max'=>12),
-            array('price,local_price,replacement_price', 'type', 'type'=>'float'),
-            array('price,local_price,replacement_price','default','setOnEmpty'=>true,'value'=>0),
+			array('price, replacement_price, local_price', 'default', 'setOnEmpty'=>true,'value'=>0),
 			array('call_number', 'length', 'max'=>255),
 			array('accession_number, control_number', 'length', 'max'=>30),
-            array('date_last_seen','default',
-              'value'=>LmUtil::dBCurrentDateTime(),
-              'setOnEmpty'=>false,'on'=>'insert'),
-			array('date_acquired, currency_id,reserved, date_last_checked_out, check_out_date', 'safe'),
+			array('invoice_number', 'length', 'max'=>20),
+			array('date_acquired, reserved, date_last_checked_out, date_last_seen, date_last_checked_in, check_out_date', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, catalog_id, catalog_info_id, barcode, owner_library, date_acquired, price, replacement_price, 
-			call_number, reserved, date_last_checked_out, date_last_seen, checkout_count, renewal_count, 
-			date_last_checked_in, accession_number, control_number, damage_status, withdrawn_status, 
-			location_id, condition_id, claim_count, category_id, smd_id, lost_status, invoice_number,
-			not_for_loan_status, check_out_date,vendor_id', 'safe', 'on'=>'search'),
+			array('id, catalog_id, catalog_info_id, barcode, owner_library, date_acquired, price, replacement_price, call_number, reserved, date_last_checked_out, date_last_seen, checkout_count, renewal_count, date_last_checked_in, accession_number, control_number, damage_status, withdrawn_status, location_id, condition_id, claim_count, category_id, smd_id, lost_status, not_for_loan_status, check_out_date, vendor_id, invoice_number, currency_id, local_price, current_library', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -88,14 +93,18 @@ abstract class BaseCatalogItem extends LmActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'cirTransactionHistories' => array(self::HAS_MANY, 'CirTransactionHistory', 'accession_number'),
+			'serialItems' => array(self::HAS_MANY, 'SerialItem', 'catalog_item_id'),
+			'cirTransactions' => array(self::HAS_MANY, 'CirTransaction', 'accession_number'),
 			'catalog' => array(self::BELONGS_TO, 'Catalog', 'control_number'),
-			'ownerLibrary' => array(self::BELONGS_TO, 'Library', 'owner_library'),
 			'catalogInfo' => array(self::BELONGS_TO, 'CatalogItemInfo', 'catalog_info_id'),
-			'category' =>array(self::BELONGS_TO,'Lookup','category_id','condition'=>'category.category='. "'". Lookup::ITEM_CATEGORY.
-            "'"),
-            'location' =>array(self::BELONGS_TO,'Location','location_id','condition'=>'location.library_id=t.owner_library'),
-            'smd' =>array(self::BELONGS_TO,'Lookup','smd_id','condition'=>'smd.category='. "'". Lookup::ITEM_SMD.
-            "'"),
+			'category' => array(self::BELONGS_TO, 'CatalogItemCategory', 'category_id'),
+			'condition' => array(self::BELONGS_TO, 'CatalogItemCondition', 'condition_id'),
+			'controlNumber' => array(self::BELONGS_TO, 'Catalog', 'control_number'),
+			'ownerLibrary' => array(self::BELONGS_TO, 'Library', 'owner_library'),
+			'smd' => array(self::BELONGS_TO, 'CatalogItemSmd', 'smd_id'),
+			'vendor' => array(self::BELONGS_TO, 'Vendor', 'vendor_id'),
+			'location' => array(self::BELONGS_TO, 'Location', 'location_id'),
 		);
 	}
 
@@ -132,6 +141,11 @@ abstract class BaseCatalogItem extends LmActiveRecord
 			'lost_status' => 'Lost Status',
 			'not_for_loan_status' => 'Not For Loan Status',
 			'check_out_date' => 'Check Out Date',
+			'vendor_id' => 'Vendor',
+			'invoice_number' => 'Invoice Number',
+			'currency_id' => 'Currency',
+			'local_price' => 'Local Price',
+			'current_library' => 'Current Library',
 		);
 	}
 
@@ -173,6 +187,11 @@ abstract class BaseCatalogItem extends LmActiveRecord
 		$criteria->compare('lost_status',$this->lost_status);
 		$criteria->compare('not_for_loan_status',$this->not_for_loan_status);
 		$criteria->compare('check_out_date',$this->check_out_date,true);
+		$criteria->compare('vendor_id',$this->vendor_id);
+		$criteria->compare('invoice_number',$this->invoice_number,true);
+		$criteria->compare('currency_id',$this->currency_id);
+		$criteria->compare('local_price',$this->local_price,true);
+		$criteria->compare('current_library',$this->current_library);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -16,7 +16,7 @@ $this->menu=array(
 
 <?php
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(
-		'title' => "Update Patron Category",
+		'title' => "Update Circulation Rule",
 		//'headerIcon' => 'icon-user',
 		'content' => '',
         'btnHeaderDivClass' =>'lmboxBtn',
@@ -38,5 +38,5 @@ $this->menu=array(
 	
 ?>
 
-<?php echo $this->renderPartial('_form2',array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form',array('model'=>$model)); ?>
 <?php $this->endWidget();?>

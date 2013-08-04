@@ -9,7 +9,8 @@
 
 class SiteController extends Controller
 {
-	/**
+	
+    /**
 	 * @return array list of action filters (See CController::filter)
 	 */
 	public function filters()
@@ -113,7 +114,8 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
-		$model = new LoginForm();
+		$this->layout = 'login';
+        $model = new LoginForm();
 
 		if (isset($_POST['ajax']) && $_POST['ajax'] === 'login-form')
 		{

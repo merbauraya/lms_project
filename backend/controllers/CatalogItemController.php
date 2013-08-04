@@ -58,7 +58,7 @@ class CatalogItemController extends Controller
 		$criteria = new CDbCriteria();
 		$criteria->condition = 't.id = :id';
 		$criteria->params = array(':id'=>$id);
-		$criteria->with = array('category','catalog','location','smd');
+		$criteria->with = array('category','condition','location','smd');
 		$model = CatalogItem::model()->find($criteria);
 		
 		
@@ -83,6 +83,8 @@ class CatalogItemController extends Controller
 			
 			$model->attributes=$_POST['CatalogItem'];
 			$model->date_acquired = LmUtil::dBCurrentDateTime();
+            $model->owner_library = LmUtil::UserLibraryId();
+            $model->current_library = LmUtil::UserLibraryId();
 			if ($model->validate())
 			{
 				$transaction = Yii::app()->db->beginTransaction();
@@ -157,12 +159,13 @@ class CatalogItemController extends Controller
 	}
 	public function actionAjaxGetItem()
 	{
-		if (isset($_GET['q'])) {
+		if (isset($_GET['term'])) {
 			
+            $library = LmUtil::UserLibraryId();
 			$vdr = CatalogItem::model()->findAll(array('order'=>'accession_number', 
 												'condition'=>'owner_library=:library and accession_number LIKE :accession', 
-												'params'=>array(':accession'=>$_GET['q'].'%',
-															    ':library'=>$_GET['lib']),
+												'params'=>array(':accession'=>$_GET['term'].'%',
+															    ':library'=>$library),
 												'with'=>array('catalog'),				
 												'limit'=>$_GET['page_limit']
 												));
@@ -170,7 +173,8 @@ class CatalogItemController extends Controller
 			foreach ($vdr as $value) {
 				$data[] = array(
 				'id' => $_GET['ret']=='accession' ? $value->accession_number : $value->id,
-				'text' => $value->accession_number. '::' .$value->catalog->title_245a,
+				'label' => $value->accession_number,
+                'name'=>$value->catalog->title_245a,
 				);
 			}
 			echo CJSON::encode($data);

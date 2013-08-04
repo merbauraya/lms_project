@@ -1,119 +1,149 @@
-<div class="row-fluid">
-	
-	<div class="span8">
+
 <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
-	'id'=>'circulation-rule-form',
-	'enableAjaxValidation'=>false,
+	'id'=>'checkout-form',
+	'enableAjaxValidation'=>true,
 	'type'=>'horizontal',
+    	'clientOptions'=>array(
+		'validateOnSubmit'=>true,
+        'validateOnChange'=>true,
+        
+	),
 )); ?>
 
+   
+    <div id="checkout-msg" class="alert in alert-block fade alert-error invisible">
+  
+</div>
 <p class="help-block">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
-	<?php echo CHtml::hiddenField('allow-checkout','0') ?>
+	<?php echo CHtml::hiddenField('patron_name') ?>
 
-<?php echo $form->dropDownListRow($model, 'library_id',
-       CHtml::listData(Library::model()->findAll(), 'id', 'name'),array('class'=>'span7')); 
- echo $form->select2row($model, 'patron_username', array(
-		'asDropDownList' => false,
-		'attribute'=>'patron_username',
-		'options' => array(
-			'delay'=>300,
-			'minimumInputLength'=>3,
-			'width' => '60%',
-			'closeOnSelect' => false,
-			'placeholder' => 'Select Patron',
-			'allowClear' => false,
-			'ajax' => array(
-				'url' => CController::createUrl('patron/AjaxGetPatron'),
-				'dataType' => 'json',
-				'data' => 'js:function(term,page) 
-							{ return {
-								q: term, 
-								page_limit: 10, 
-								page: page,
-								ret: "uname",
-								lib: $("#CirculationTrans_library_id").val()}; }',
-				'results' => 'js:function(data,page) { return {results: data}; }',
-			),
-			'initSelection'=>'js:function(element,callback)
-							  {var data={id:element.val(),text:element.val()};
-							  callback(data);
-							  }',
-			
-		),
-		'events'=>array('change'=>'js:function(e)
-			{
-				var theID=e.val;
-				console.log(e);
-				
-			}'				 
-		)
-		
-	));
-	
- echo $form->select2row($model, 'accession_number', array(
-		'asDropDownList' => false,
-		'attribute'=>'accession_number',
-		'options' => array(
-			'delay'=>300,
-			'minimumInputLength'=>3,
-			'width' => '40%',
-			'closeOnSelect' => false,
-			'placeholder' => 'Select Accession',
-			'allowClear' => false,
-			'ajax' => array(
-				'url' => CController::createUrl('CatalogItem/AjaxGetItem'),
-				'dataType' => 'json',
-				'data' => 'js:function(term,page) 
-							{ return {
-								q: term, 
-								page_limit: 10, 
-								page: page,
-								ret: "accession",
-								lib: $("#CirculationTrans_library_id").val()}; }',
-				'results' => 'js:function(data,page) { return {results: data}; }',
-			),
-			'initSelection'=>'js:function(element,callback)
-							  {var data={id:element.val(),text:element.val()};
-							  callback(data);
-							  }',
-			
-		),
-		'events'=>array('change'=>'js:function(e)
-			{
-				var theID=e.val;
-				
-			}'				 
-		)
-		
-	));
+<?php 
+    echo $form->dropDownListRow($model, 'library_id',
+        CHtml::listData(Library::model()->findAll(), 'id', 'name'),array('class'=>'span7')); 
+    //echo CHtml::activeHiddenField($model,'patron_username');
+    //echo $form->textFieldRow($model,'patron_username');
+
+    echo $form->autocompleteRow($model,'patron_username',array(
+            
+            'source'=>$this->createUrl('patron/AjaxGetPatron',array('ret'=>'uname','page_limit'=>10)),
+            'options'=>array(
+                'minLength'=>'4',
+                'delay'=>300,
+                'showAnim'=>'fold',
+                'select'=>"js:function(event,ui)
+                    {
+                        $('#username').html(ui.item.name);
+                        $('#CirculationTrans_patron_username_em_').html(ui.item.name);
+                        $('#CirculationTrans_patron_username_em_').toggle();
+                      
+                    }"
+            ),
+            //'htmlOptions'=>array(
+            //    'class'=>'span2',
+            //),
+    ));
+     echo $form->autocompleteRow($model,'accession_number',array(
+            
+            'source'=>$this->createUrl('CatalogItem/AjaxGetItem',array('ret'=>'accession','page_limit'=>10)),
+            'options'=>array(
+                'minLength'=>'4',
+                'delay'=>300,
+                'showAnim'=>'fold',
+                'select'=>"js:function(event,ui)
+                    {
+                      //  $('#username').html(ui.item.name);
+                      //  $('#CirculationTrans_patron_username_em_').html(ui.item.name);
+                      //  $('#CirculationTrans_patron_username_em_').toggle();
+                      
+                    }"
+            ),
+            //'htmlOptions'=>array(
+            //    'class'=>'span2',
+            //),
+    ));
+
+ 
+
 	
 	?>
-<div class="form-actions">
+<div class="form-actions noColorNoBorder">
 		<?php $this->widget('bootstrap.widgets.TbButton', array(
 			'buttonType'=>'submit',
 			'type'=>'primary',
 			'label'=>'Checkout',
+            'id'=>'btnCheckout'
 		)); ?>
 	</div>
 <?php $this->endWidget(); ?>
-	</div> <!--span10-->
-	<div class="span4 no-left-margin no-right-margin">
-		<?php
-			$this->beginWidget('bootstrap.widgets.TbTabs', array(
-				'type'=>'tabs', // 'tabs' or 'pills'
-				'tabs'=>array(
-		array('label'=>'Patron', 'content'=>'Patron Status', 'active'=>true),
-		array('label'=>'Accession', 'content'=>'Accession Info'),
-		array('label'=>'Item Entry', 'content'=>'Content'),
-		
-	),
-));
 
-$this->endWidget();
 
-		?>
-	
-	</div> <!--span2-->
-</div> <!--row-fluid-->
+<?php
+Yii::app()->clientScript->registerScript('lookup', "
+    $('#CirculationTrans_patron_username').focusin(function(){
+        console.log('int');
+    
+    
+    });
+       $('#CirculationTrans_patron_username').blur(function(){
+            jQuery.ajax({
+                'id' : 'loadPatron',
+                'type' : 'POST',
+                'dataType': 'json',
+                'data': {username: $('#CirculationTrans_patron_username').val(),
+                        library:$('#CirculationTrans_library_id').val(),
+                        ret:'json'
+                        },
+                'url' : '/circulation/getStatusAndHolding',
+                'cache' : false,
+                'success' : function(data)
+                  {
+                    console.log(data.user.allowcheckout);
+                  
+                    if (!data.user.allowcheckout)
+                    {
+                        
+                         
+                         $('#checkout-msg').html(data.user.msg);
+                         $('#checkout-msg').removeClass('invisible alert-info');
+                         $('#checkout-msg').addClass('alert-error');
+                    
+                    }else
+                    {
+                        $('#checkout-msg').removeClass('invisible alert-error');
+                        $('#checkout-msg').addClass('alert-info');
+                        $('#checkout-msg').html(data.user.name)
+                    
+                    }
+                    $('#checkout-msg').html(data.message);
+                    if (data.status == 'fail')
+                    {
+                      $('#checkin-msg').removeClass('alert-success alert-error invisible');
+                      $('#checkin-msg').addClass('alert-error');
+                    } else
+                    {
+                      $('#checkin-msg').removeClass('alert-success alert-error invisible');
+                      $('#checkin-msg').addClass('alert-success'); 
+                   
+                    }
+                   
+                 
+                  }
+                });
+        
+    
+    });
+    
+    $( '#btnCheckout').click(function() 
+    {
+        
+        $('#checkout-msg').addClass('invisible');
+        return true;
+    })
+    
+
+
+");
+ 
+?>

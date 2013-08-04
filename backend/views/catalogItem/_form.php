@@ -29,36 +29,23 @@
 	
 	<?php 
     
-        
-            echo $form->dropDownListRow($model, 'owner_library',
-                CHtml::listData(Library::model()->findAll(), 'id', 'name'),
-                
-                array('empty'=>'Select Library',
-                'ajax' => array(
-                    'type'=>'POST', //request type
-                    'url'=>CController::createUrl('lookup/GetLocationByLibrary'), //url to call.
-                    'data'=>array('library'=>'js:this.value'),
-                    'update'=>'#CatalogItem_location_id',
-                ),
-                'class'=>'span5',
-            )); 
-    if ($model->isNewRecord){    
-            echo $form->dropDownListRow($model, 'location_id',array('Select Location'),array('class'=>'span5'));
-    }else
-    {
-        //echo $form->dropDownListRow($model, 'owner_library',CHtml::listData(Library::model()->findAll(), 'id', 'name'),array('class'=>'span5'));
-        echo $form->dropDownListRow($model, 'location_id',CHtml::listData(Location::model()->findAll('library_id=:lid',array(':lid'=>$model->owner_library)),'id','name'),array('class'=>'span5'));
-    }
+        echo CHtml::activeHiddenField($model,'owner_library');
+         echo $form->dropDownListRow($model, 'location_id',
+            CHtml::listData(Location::model()->findAll('library_id=:lid',array(':lid'=>LmUtil::UserLibraryId())),'id','name'),
+            array('class'=>'span5'));
+  
 	?>
 	
 
 	<?php echo $form->textFieldRow($model,'barcode',array('class'=>'span5','maxlength'=>25)); ?>
 
 	<?php echo $form->dropDownListRow($model, 'smd_id',
-		Lookup::getLookupOptions(Lookup::ITEM_SMD),array('class'=>'span5'));
+        CHtml::listData(CatalogItemSmd::model()->findAll(),'id','name'),
+		array('class'=>'span5'));
 	?>
 	<?php echo $form->dropDownListRow($model, 'category_id',
-		Lookup::getLookupOptions(Lookup::ITEM_CATEGORY),array('class'=>'span5'));
+        CHtml::listData(CatalogItemCategory::model()->findAll(),'id','name')
+		,array('class'=>'span5'));
 	?>
 	<?php echo $form->textFieldRow($model,'accession_number',array('class'=>'span5','maxlength'=>30)); ?>
 
@@ -67,7 +54,8 @@
 	?>
 	
 	<?php echo $form->dropDownListRow($model, 'condition_id',
-		Lookup::getLookupOptions(Lookup::ITEM_CONDITION_STATUS),array('class'=>'span5'));
+        CHtml::listData(CatalogItemCondition::model()->findAll(),'id','name'),
+		array('class'=>'span5'));
 	?>
 	
 	

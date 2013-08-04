@@ -14,7 +14,8 @@ class AcquisitionSuggestionController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
+			array('auth.filters.AuthFilter'),
+            //'accessControl', // perform access control for CRUD operations
 		);
 	}
 
@@ -58,7 +59,7 @@ class AcquisitionSuggestionController extends Controller
 	}
 	public function actionCreate()
 	{
-		$operation = 'addSuggestion';
+		
 		$model = new AcquisitionSuggestion;
 		
 	
