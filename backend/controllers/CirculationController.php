@@ -161,15 +161,16 @@ class CirculationController extends Controller
 					where accession_number = :accession";
 			
 			$cmd = Yii::app()->db->createCommand($sql);
-			$tstamp = LmUtil::dBCurrentDateTime();
+
 			$accession = $model->accession_number;
-			$cmd->bindParam(':co_date',$tstamp,PDO::PARAM_STR);
-			$cmd->bindParam(':accession',$accession,PDO::PARAM_STR);
+			$cmd->bindValue(':co_date',LmUtil::dBCurrentDateTime(),PDO::PARAM_STR);
+			$cmd->bindValue(':accession',$accession,PDO::PARAM_STR);
 			
 			$trans = Yii::app()->db->beginTransaction();
 			try
 			{
 				$model->checkout_date = LmUtil::dBCurrentDateTime();
+                $model->due_date = $this->getDueDate($model->patron_username,$model->accession_number);
 				$model->save();
 				$cmd->execute();
 				$trans->commit();
@@ -267,9 +268,49 @@ class CirculationController extends Controller
 		$model = new CirculationTrans();
 		$this->render('check_in_renew',array('model'=>$model));
 	}
+    /**
+     * 
+     * 
+     * 
+     * 
+     * 
+     */
 	private function getDueDate($accession,$patron)
 	{
-		$patron = Patron::model()->findByAttribute('username',$patron)->with('PatronCategory');	
+		
+        $rules = CirculationRule::getRule($patron,$accession);
+        //we could have default rule and/or the exact rule
+        $due='';
+        $periodType='';
+        foreach ($rules as $row)
+        {
+            
+            $due = $row['loan_period'];
+            $periodType = $row['period_type'];
+            if ($row['ruletype'] == 'exact') //we found exact rule, use it and get out
+                break;
+            
+        }
+        $date = new DateTime();
+        if ($periodType == CirculationRule::PERIOD_DAY)
+        {
+            $date->modify('+ '.$due . ' day');
+            if (LmUtil::isWeekend($date))
+            {
+                //check if we are on saturday or sunday
+                $day = date('N', strtotime($date));
+                $date->modify('+ '. 8-$day .' day');
+                
+            }
+            
+        }else //hourly due
+        {
+            $date->modify('+ ' .$due . ' hour' );
+            
+            
+        }
+        return $date->format('Y-m-d H:i:s');
+        	
 		
 	}
     /**

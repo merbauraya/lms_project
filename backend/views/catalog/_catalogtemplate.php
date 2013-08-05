@@ -57,16 +57,18 @@
 	
 <?php $this->endWidget(); 
     $this->beginWidget('zii.widgets.jui.CJuiDialog',
-       array(   'id'=>'marc-leader-dialog',
+       array(   'id'=>'marc-leader-lmDialog',
                 
                 // additional javascript options for the dialog plugin
                 'options'=>array(
                                 'title'=>Yii::t('app','Marc Leader'),
                                 'width'=>'500',
-                                'height'=>'690',
+                                'height'=>'520',
                                 'autoOpen'=>false,
-                                'position'=>'center',
+                                'position'=>array('my'=>'top+60','at'=>'center','of'=>'.navbar'),
                                 'modal'=>true,
+                                'resizable'=>false,
+                                'draggable'=>true,
 								 
                                 ),
                         ));

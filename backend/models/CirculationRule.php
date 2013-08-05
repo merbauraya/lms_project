@@ -39,6 +39,43 @@ class CirculationRule extends BaseCirculationRule
             
         );
     }
+    /**
+     * Get Rule for specific patron/accession
+     * It will also return default rule as  a fallback
+     *       
+     */
+    public static function getRule($patron,$accession)
+    {
+        //$patron = Patron::model()->findByAttribute('username',$patron)->with('PatronCategory');
+        //we find the default rule and the exact rule based on patron/accession
+        $sql = 'select a.*,d.username,b.id as itemcategory,c.id as itemsmd,\'exact\' as ruletype
+                from cir_rule a, catalog_item b,catalog_item_smd c,patron d, catalog_item_category e
+                where a.library_id=:library
+                and c.id = b.smd_id
+                and a.smd_id = b.smd_id
+                and b.accession_number=:accession
+                and d.username=:patron
+                and d.patron_category_id = a.patron_category_id
+                and e.id = a.item_category_id
+                union 
+                select a.*,null,null,null,\'default\' as ruleType
+                from cir_rule a
+                where library_id=:library
+                and a.smd_id is null
+                and a.patron_category_id is null
+                and a.item_category_id is null';
+        
+        $cmd = LmUtil::createDbCommand($sql);
+        $cmd->bindValue(':library',LmUtil::UserLibraryId(),PDO::PARAM_INT);
+        $cmd->bindValue(':accession',$accession,PDO::PARAM_STR);
+        $cmd->bindValue(':patron',$patron,PDO::PARAM_STR);
+        
+        return $cmd->queryAll();
+        
+        
+    }
+    
+    
     public function getAdminView()
     {
         $criteria=new CDbCriteria;

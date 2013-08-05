@@ -76,7 +76,7 @@ function generateRow($label,$for,$controlType,$data=array(),$selectedValue=null)
 	{
 		case 'dropdown':
 			$buffer .= CHtml::dropdownList('Marc['.$for.']',$selectedValue,$data,array(
-				'class'=>'span3',
+				'class'=>'span2',
 			
 			));
 			break;

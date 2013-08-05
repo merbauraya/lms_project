@@ -1,4 +1,3 @@
-<?php /* @var $this Controller */ ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -21,7 +20,24 @@
 </head>
 
 <body>
-
+<!-- close any jui dialog when click elsewhere -->
+<script type="text/javascript">	
+	$(document).ready(function()
+{
+    $(document.body).on("click", ".ui-widget-overlay", function()
+    {
+        $.each($(".ui-dialog"), function()
+        {
+            var $dialog;
+            $dialog = $(this).children(".ui-dialog-content");
+            if($dialog.dialog("option", "modal"))
+            {
+                $dialog.dialog("close");
+            }
+        });
+    });;
+});
+</script>
 
 	
 
@@ -211,25 +227,8 @@
 
 ?>
 
-<!-- close any jui dialog when click elsewhere -->
-<script type="text/javascript">	
-	$(document).ready(function()
-{
-    $(document.body).on("click", ".ui-widget-overlay", function()
-    {
-        $.each($(".ui-dialog"), function()
-        {
-            var $dialog;
-            $dialog = $(this).children(".ui-dialog-content");
-            if($dialog.dialog("option", "modal"))
-            {
-                $dialog.dialog("close");
-            }
-        });
-    });;
-});
-</script>	
-		<div class="container main-content">
+	
+		<div class="container-fluid main-content">
 			<div class="row-fluid">
 				<?php echo $content; ?>
 			</div> <!--row-fluid-->

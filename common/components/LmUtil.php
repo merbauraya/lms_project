@@ -163,7 +163,21 @@ class LmUtil
         return Yii::app()->dateFormatter->format($outFormat,  CDateTimeParser::parse($value,$inFormat));
         
     }
-
+    public static function createDbCommand($sql)
+    {
+        return Yii::app()->db->createCommand($sql);
+        
+    }
+    /*
+     * Check whether date is on weekend
+     * 
+     * ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0)
+     * 1 (for Monday) through 7 (for Sunday)
+     */
+    public static function isWeekend($date) 
+    {
+        return (date('N', $date->getTimestamp()) >= 6);
+    }
 
 }
 

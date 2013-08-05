@@ -347,20 +347,25 @@ $this->endWidget();
                 switch(data.status)
                 {
                     case 'failure':
-                        $('#marc-leader-dialog div.divForForm').html(data.div);
-                        $('#marc-leader-dialog div.divForForm form').submit(editLeader);
+                        $('#marc-leader-lmDialog div.divForForm').html(data.div);
+                        $('#marc-leader-lmDialog div.divForForm form').submit(editLeader);
                         break;
                         
                     case 'leader':
                         $('#Marc_000-0').val(data.div);
-                        $('#marc-leader-dialog').dialog('close');
+                        $('#marc-leader-lmDialog').dialog('close');
                         break;
                         
                 }
                 
-        } ",
+        } 
+        
+        ",
     ))?>;
-		return false;
+		$(".ui-dialog-titlebar").hide();
+        $('#marc-leader-lmDialog').dialog('open');
+        
+        return false;
 	}
 	
 	$(".deleteTag").live('click',function()

@@ -41,6 +41,7 @@ $mainLocalConfiguration = file_exists($mainLocalFile)? require($mainLocalFile): 
 $mainEnvFile = $backendConfigDir . DIRECTORY_SEPARATOR . 'main-env.php';
 $mainEnvConfiguration = file_exists($mainEnvFile) ? require($mainEnvFile) : array();
 
+$components = require 'component.php';
 return CMap::mergeArray(
 	array(
 		'name' => 'LMS Admin Site',
@@ -55,8 +56,6 @@ return CMap::mergeArray(
 		'language' => 'en',
         'timeZone' => 'Asia/Kuala_Lumpur',
 
-		// using bootstrap theme ? not needed with extension
-//		'theme' => 'bootstrap',
 		// setup import paths aliases
 		// @see http://www.yiiframework.com/doc/api/1.1/YiiBase#import-detail
 		'import' => array(
@@ -66,16 +65,10 @@ return CMap::mergeArray(
 			'common.modules.auth.*',
 			'common.modules.auth.components.*',
 			'backend.components.z3950.*',
-			/* uncomment if required */
-			/* 'common.extensions.behaviors.*', */
-			/* 'common.extensions.validators.*', */
+
 			'common.models.*',
 			'common.lib.vendor.*',
-			// uncomment if behaviors are required
-			// you can also import a specific one
-			/* 'common.extensions.behaviors.*', */
-			// uncomment if validators on common folder are required
-			/* 'common.extensions.validators.*', */
+
 			'application.components.*',
 			'application.controllers.*',
 			'application.models.*',
@@ -114,76 +107,13 @@ return CMap::mergeArray(
                 'class'=>'backend.modules.report.ReportModule',
             ),
 		), 
-		'components' => array(
-			'user' => array(
-				'allowAutoLogin'=>true,
-                'class' => 'auth.components.AuthWebUser',
-			),
-			/* load bootstrap components */
-			'bootstrap' => array(
-				'class' => 'common.extensions.bootstrap.components.Bootstrap',
-				'responsiveCss' => true,
-			),
-			'errorHandler' => array(
-				// @see http://www.yiiframework.com/doc/api/1.1/CErrorHandler#errorAction-detail
-				'errorAction'=>'site/error'
-			),
-			'log'=>array(
-				'class'=>'CLogRouter',
-				'routes'=>array(
-					array(
-						'class'=>'CFileLogRoute',//'class'=>'CDbLogRoute',
-						//'connectionID' => 'db',
-						'levels'=>'error, warning',
-                        ),
-				
-			       ),
-		      ),
-            'solarium' => array(
-                'class' => 'common.extensions.YiiSolarium.Solarium',
-                'clientOptions' => array(
-                        'endpoint' => array(
-                            'biblio' => array(
-                                'host' => 'localhost',
-                                'port' => '8080',
-                                'path' => '/solr/',
-                                'core' => 'biblio',
-                        )
-                    )
-                )
-            ),
-		      'config' => array(
-		               'class'=>'common.extensions.EConfig',
-		      ),
-              'chartjs' => array(
-                'class' => 'common.extensions.chartjs.components.ChartJs',
-            ),
-			  'authManager'=>array(
-				'class'=> 'auth.components.CachedDbAuthManager',//  'CDbAuthManager',
-				'cachingDuration'=>3600,
-				'connectionID'=>'db',
-				'behaviors' => array(
-					'auth'=>array(
-						'class'=>'common.modules.auth.components.AuthBehavior',
-						'admins'=>array('admin','sa'),
-						),
-					),
-				),
-			'urlManager' => array(
-				'urlFormat' => 'path',
-				'showScriptName' => false,
-				'urlSuffix' => '/',
-				'rules' => $params['url.rules']
-			),
-			/* make sure you have your cache set correctly before uncommenting */
-			/* 'cache' => $params['cache.core'], */
-			/* 'contentCache' => $params['cache.content'] */
-		),
+		'components'=>array(),
+			
 		'params'=>array(
 		// this is used in contact page
             'adminEmail'=>'webmaster@example.com',
             'dateFormat'=>'dd/mm/yyyy'
         )		
 	),
-	CMap::mergeArray($mainEnvConfiguration, $mainLocalConfiguration)
+	CMap::mergeArray($mainEnvConfiguration, $mainLocalConfiguration,$components)
 );

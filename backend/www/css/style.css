@@ -1,23 +1,18 @@
-html, body {
-		
-		/*color:#5F5F5F !important;*/
-		color:#FFF;
-	}
+html 
+{
 
+}
 body
 {
-/*background-image: url('../img/white_wall_hash.png') ;*/
+
 	background-color:#FFFFFF !important; 
 	min-height: 100%;
-    font-size:13px !important;
-
+    font-size:13px !important; 
+    padding-top: 55px;
+background-image: url('../img/white_wall_hash.png') ;
 	
 }
-.main-content
-{
-    padding: 60px 0;
 
-}
 .main-body .container
 {
 	background-color: #fff !important;
@@ -29,12 +24,7 @@ body
     background-color:#fff !important;
     border:none !important;
 }
-/*
-.container
-{
-	padding-left: 20px;
-    padding-right: 20px;
-}*/
+
 #page_content
 {
 	/*background: url('../img/white_wall_hash.png') ;*/
@@ -51,69 +41,7 @@ aside {
   padding:0 15px 20px;
   width:200px;
 }
-/*
-div.grid-title {
 
-
-
--moz-border-radius: 3px 3px 0px 0px;
--khtml-border-radius: 3px 3px 0px 0px;
--webkit-border-radius: 3px 3px 0px 0px;
-border-radius: 3px 3px 0px 0px;
-
-padding: 8px 35px 8px 14px;
-border: 1px solid #C2C2C2;
-	background: #fafafa;
-	background: -moz-linear-gradient(top, #fafafa 0%, #efefef 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fafafa), color-stop(100%,#efefef));
-	background: -webkit-linear-gradient(top, #fafafa 0%,#efefef 100%);
-	background: -o-linear-gradient(top, #fafafa 0%,#efefef 100%);
-	background: -ms-linear-gradient(top, #fafafa 0%,#efefef 100%);
-	background: linear-gradient(to bottom, #fafafa 0%,#efefef 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fafafa', endColorstr='#efefef',GradientType=0 );
-	color: #FFF;
-}
-.grid-title > h5
-{
-height: 100%;
-width: auto;
-font-size: 14px;
-position: relative;
-margin: 0;
-color: #333;
-
-}
-
-div.form-wrapper {
-padding-top:0 0  30px 0;
-	border-radius: 3px;
-	position: relative;
-	box-shadow: 0 1px 1px #E6E6E6;
-	-webkit-box-shadow: 0 1px 1px #E6E6E6;
-	
-    
-}
-.generic_widget .form-wrapper > div
-{
-	
-	margin:0;
-	border-width: 1px;
-	border-style: solid;
-	-moz-border-radius: 0px 0px 3px 3px;
-	-khtml-border-radius: 0px 0px 3px 3px;
-	-webkit-border-radius: 0px 0px 3px 3px;
-	border-radius: 0px 0px 3px 3px;
-	border-top: none;
-	border-right-color: #C8C8C8 !important;
-	border-bottom-color: #C8C8C8 !important;
-	border-left-color: #C8C8C8 !important;
-}
-.partial_form
-{
-	padding: 5px;
-}
-
-*/
 div.popup > .grid-view
 {
 	padding-top:0;
@@ -136,14 +64,6 @@ div.tb_input
 	line-height: 15px !important;
 }
 
-div.tb_input > input[type="text"]
-{
-	font-size: 0.95em !important;
-	line-height: 25px !important;
-	height: 25px !important;
-	margin-bottom: 0 !important;
-	
-}
 
 header h6
 {
@@ -261,6 +181,60 @@ z-index:-1;
     margin-bottom:10px !important;
 }
 
+.lmcompact select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input 
+ {
+  /* height: 14px !important;
+   font-size: 12px !important;
+   line-height: 14px !important;*/
+}
+.w12 {
+  width: 100%;
+  *width: 99.94680851063829%;
+}
+.w11 {
+  width: 91.48936170212765%;
+  *width: 91.43617021276594%;
+}
+.w10 {
+  width: 82.97872340425532%;
+  *width: 82.92553191489361%;
+}
+.w9 {
+  width: 74.46808510638297%;
+  *width: 74.41489361702126%;
+}
+.w8 {
+  width: 65.95744680851064%;
+  *width: 65.90425531914893%;
+}
+.w7 {
+  width: 57.44680851063829%;
+  *width: 57.39361702127659%;
+}
+.w6 {
+  width: 48.93617021276595%;
+  *width: 48.88297872340425%;
+}
+.w5 {
+  width: 40.42553191489362%;
+  *width: 40.37234042553192%;
+}
+.w4 {
+  width: 31.914893617021278%;
+  *width: 31.861702127659576%;
+}
+.w3 {
+  width: 23.404255319148934%;
+  *width: 23.351063829787233%;
+}
+.w2 {
+  width: 14.893617021276595%;
+  *width: 14.840425531914894%;
+}
+.w1 {
+  width: 6.382978723404255%;
+  *width: 6.329787234042553%;
+}
 
 form
 {
@@ -301,12 +275,20 @@ background: none repeat scroll 0 0 transparent;
 /* for cjuidialog form */
 div[id*="lmDialog"] .control-label
 {
-        width:120px !important;
+        width:180px !important;
 }
-
+div[id*="lmDialog"].ui-dialog-content
+{
+    padding:1px !important;
+}
+/* hide title bar in our lmdialog */
+div[id*="lmDialog"].ui-dialog-titlebar
+{
+    display:none !important;
+}
 div[id*="lmDialog"] .controls
 {
-        margin-left:140px        !important;
+        margin-left:190px        !important;
 }
 div#itemDialog .controls
 {
@@ -324,6 +306,7 @@ div[id*="lmDialog"] .form-actions
 {
 	margin-top: 1px !important;
 	margin-bottom: 1px !important;
+    padding: 5px 5px 5px 190px;
 }
 div#itemDialog .form-actions
 {

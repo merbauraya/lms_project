@@ -5,36 +5,25 @@
 )); ?>
 
 	<p class="help-block">Fields with <span class="required">*</span> are required.</p>
+    <?php
+        $this->beginWidget('bootstrap.widgets.TbTabs', array(
+				'type'=>'tabs', // 'tabs' or 'pills'
+				'tabs'=>array(
+                    array('id'=>'tabCategory','label'=>'Category', 'content'=>$this->renderPartial('_formcategory',array('model'=>$model,'form'=>$form),true), 'active'=>true),
+                    array('id'=>'tabRule','label'=>'Rule', 'content'=>$this->renderPartial('_formrule',array('model'=>$model,'form'=>$form),true)),
+                    array('id'=>'tabDefault','label'=>'Default Rule', 'content'=>$this->renderPartial('_formdefault',array('model'=>$model,'form'=>$form),true)),
+		
+                ),
+                'events'=>array('shown'=>'js:loadDefaultRule'),
+));
+    
+    
+    $this->endWidget('bootstrap.widgets.TbTabs');
 
-	<?php echo $form->errorSummary($model); ?>
-
-	<?php echo $form->dropDownListRow($model, 'library_id',
-       CHtml::listData(Library::model()->findAll(), 'id', 'name'),array('class'=>'span5')); 
+    echo $form->errorSummary($model); 
+    echo CHtml::activeHiddenField($model,'library_id');
+ 
 ?>
-<?php 
-    echo $form->dropDownListRow($model, 'smd_id',
-       CatalogItemSmd::getList(),array('class'=>'span5')); 
-    
-    echo $form->dropDownListRow($model, 'patron_category_id',PatronCategory::getList(true),
-        array('class'=>'span5')); 
-    
-    echo $form->dropDownListRow($model, 'item_category_id',CatalogItemCategory::getList(true),array('class'=>'span5')); 
-    echo $form->textFieldRow($model,'loan_period',array('class'=>'span3')); 
-    echo $form->dropDownListRow($model, 'period_type',
-       array(CirculationRule::PERIOD_DAY=>'Day',CirculationRule::PERIOD_HOUR=>'Hour'),array('class'=>'span3')); 
-    
-    echo $form->textFieldRow($model,'item_count_limit',array('class'=>'span3')); ?>
-
-	
-	<?php echo $form->textFieldRow($model,'max_renewal_count',array('class'=>'span3')); ?>
-	<?php echo $form->textFieldRow($model,'max_reservation_count',array('class'=>'span3')); ?>
-    <?php echo $form->textFieldRow($model,'grace_period',array('class'=>'span3')); ?>
-    <?php echo $form->textFieldRow($model,'fine_per_period',array('class'=>'span3')); ?>
-    <?php echo $form->textFieldRow($model,'max_fine',array('class'=>'span3')); ?>
-    <?php echo $form->checkBoxRow($model,'allow_reserve',array('class'=>'span3')); ?>
-    <?php echo $form->dropDownListRow($model,'hard_due',
-        CirculationRule::getHardDue(),
-    array('class'=>'span3')); ?>
 	<div class="form-actions">
 		<?php $this->widget('bootstrap.widgets.TbButton', array(
 			'buttonType'=>'submit',
@@ -44,3 +33,39 @@
 	</div>
 
 <?php $this->endWidget(); ?>
+<?php
+Yii::app()->clientScript->registerScript('_cirrule', "
+   
+    function loadDefaultRule(e)
+    {
+        if (e.target.getAttribute('href') != '#tabDefault')
+            return;
+        
+        jQuery.ajax({
+        'id' : 'loadPoItem',
+        'type' : 'GET',
+        'dataType': 'json',
+        'data': {ret: 'json'},
+        'url' : '/circulationRule/getDefault/',
+        'cache' : false,
+        'success' : function(data)
+          {
+            console.log(data);
+            if (data.exist == false)
+                return;
+            for (var key in data.default)
+            {
+                jQuery.each(data.default[key], function(id, value) {
+                    $('#Default_'+ id).val(value);
+                    console.log (id +'-' + value);
+                });
+            }
+           
+         
+          }
+        });
+    } 
+    
+");
+ 
+?>

@@ -14,7 +14,8 @@ class CirculationRuleController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
+			array('auth.filters.AuthFilter'),
+            //'accessControl', // perform access control for CRUD operations
 		);
 	}
 
@@ -62,6 +63,7 @@ class CirculationRuleController extends Controller
 	public function actionCreate()
 	{
 		$model=new CirculationRule;
+        $model->library_id = LmUtil::UserLibraryId();
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -217,6 +219,48 @@ class CirculationRuleController extends Controller
                 break;
          }
                 
+         
+     }
+     /*
+      * Return default rule based on the request type
+      * If it's an ajax request, check the "ret" parameter to determine data format to return
+      * 
+      */ 
+     public function actionGetDefault()
+     {
+         $sql = 'select * from cir_rule
+                 where library_id=:id
+                 and smd_id is null
+                 and patron_category_id is null
+                 and item_category_id is null';
+         
+         $result = Yii::app()->db->createCommand($sql)->query(array(':id'=>LmUtil::UserLibraryId()))->readAll();
+         
+         
+         //$cmd->bindValue(':id',LmUtil::UserLibraryId(),PDO_PARAM_INT);
+         /*
+         $rule = CirculationRule::model()->find(
+                    'library_id=:id and smd_id is null
+                     and patron_category_id is null
+                     and item_category_id is null',
+                     array(':id'=>LmUtil::UserLibraryId())
+         
+         );*/
+         //$data = array();
+     
+         if (Yii::app()->request->isAjaxRequest)
+         {
+             $ret = isset($_GET['ret']) ? $_GET['ret'] : 'json';
+             if ($ret == 'json')
+             {
+                 $buffer = array();
+                 $buffer['exist']= count($result)>0 ;
+                 $buffer['default'] = $result;
+                 echo CJSON::encode($buffer);
+             }
+             
+         }
+         
          
      }
 }
