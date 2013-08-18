@@ -11,7 +11,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
 	'dataProvider'=>$model->search(),
 	'template'=>"{items}\n{pager}",
 	'columns'=>array(
-		array('name'=>'suggested_by','header'=>'Suggested By','value'=>'$data->patron->name'),
+		array('name'=>'suggested_by','header'=>'Suggested By','value'=>'$data->suggestedBy->name'),
 		array('name'=>'suggest_date','header'=>'Date'),
 		
 		array('name'=>'budget_id','header'=>'Budget','value'=>'$data->budget->name'),

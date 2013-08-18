@@ -1,26 +1,61 @@
 <?php
+
+$newItemUrl = Yii::app()->createUrl("acquisitionSuggestion/createItem") . $sID;
 $this->widget('bootstrap.widgets.TbButton',array(
-	'label' => 'Delete',
+	'label' => 'New',
 	'size' => 'medium',
-	'icon' =>'icon-trash',
-	'htmlOptions'=>array('class'=>'deleteall-button','name'=>'btndeleteall')
-));  ?>
+	'icon' => 'icon-plus-sign',
+	'htmlOptions' =>array(
+        'class' =>'item_new',
+        'onclick'=>'{
+              updateItem._updateItem_url="' .$newItemUrl .'";
+              updateItem();
+              $("#item-lmDialog").dialog("open");
+          
+        }'
+        )
+));
+
+echo '&nbsp;';
+?>
 <div id="statusMsg"></div>
 
 <?php 
-  $this->widget('bootstrap.widgets.TbGridView', array(
+  $this->widget('bootstrap.widgets.TbExtendedGridView', array(
 	'type'=>'striped bordered condensed',
 	'id'=>'acq_suggestion_item',
 	'selectableRows' => '2',
 	'dataProvider'=>$itemDP,
 	'template'=>"{items}\n{pager}",
+      'bulkActions' => array(
+		'actionButtons' => array(
+			array(
+				'buttonType' => 'button',
+				'type' => 'danger',
+				'size' => 'small',
+				'label' => 'Delete',
+                'icon' =>'icon-trash',
+				'click' => 'js:batchDelete',
+                
+				'htmlOptions'=>array('class'=>'bulk-action'),
+				),
+	
+            ),
+	
+			'checkBoxColumnConfig' => array(
+				'name' => 'id'
+			),
+        ),
 	'columns'=>array(
 		array('name'=>'id',
                     'class'=>'CCheckBoxColumn',),
         array('name'=>'isbn','header'=>'ISBN','value'=>'$data->isbn'),
 		array('name'=>'title','header'=>'Title'),
 		array('name'=>'publisher','header'=>'Publisher'),
-		array('header'=>'Quantity','name'=>'number_of_copy'),
+		array('name'=>'local_price'),
+        array('header'=>'Quantity','name'=>'number_of_copy'),
+        array('header'=>'Total','value'=>'$data->local_price * $data->number_of_copy'),
+        
 		/*
 		array(
             'class'=>'DataColumn',
@@ -46,7 +81,7 @@ array(
                     )
                 .\'";
                 updateItem();
-                $("#itemDialog").dialog("open");}\'
+                $("#item-lmDialog").dialog("open");}\'
             )
         );',
 ),
@@ -56,7 +91,7 @@ array(
 ?>
 
 <?php
-$deleteURL = Yii::app()->createUrl('acquisitionsuggestion/deleteItem');
+$deleteURL = Yii::app()->createUrl('acquisitionSuggestion/deleteItem');
 Yii::app()->clientScript->registerScript('ajaxupdate', "
 $('#acq_suggestion_item a.ajaxupdate').live('click', function() {
 		
@@ -87,7 +122,28 @@ $('#acq_suggestion_item a.ajaxupdate').live('click', function() {
         return false;
 });
 
-
+function batchDelete(values)
+{
+    var ids = new Array();
+        if(values.size()>0){
+            values.each(function(idx){
+                ids.push($(this).val());
+            });
+            $.ajax({
+                type: 'POST',
+                url: '/acquisitionSuggestion/DeleteItem',
+                data: {'ids':ids},
+                dataType:'json',
+                success: function(data){
+                    
+					$.lmNotify(data);
+                    if(data.status == 'success'){
+						$.fn.yiiGridView.update('acq_suggestion_item');
+						}
+                }
+            });
+        }
+}
 $('.deleteall-button').click(function(){
 
          var th=this;
@@ -135,63 +191,27 @@ $this->widget('bootstrap.widgets.TbButton',array(
         'onclick'=>'{
               updateItem._updateItem_url="' .$newItemUrl .'";
               updateItem();
-              $("#itemDialog").dialog("open");
+              $("#item-lmDialog").dialog("open");
           
         }'
         )
 ));
 ?>
 &nbsp
-<?php
-$newItemUrl = Yii::app()->createUrl("acquisitionSuggestion/uploadMarc") ;
-$this->widget('bootstrap.widgets.TbButton',array(
-	'label' => 'Upload Marc',
-	'size' => 'medium',
-	'icon' => 'icon-plus-sign',
-	'htmlOptions' =>array(
-        'class' =>'item_new',
-        'onclick'=>'{
-              //updateItem._updateItem_url="' .$newItemUrl .'";
-			  //updateItem._form="upload";
-              //updateItem();
-              $("#fileupload").dialog("open");
-          
-        }'
-        )
-));
-?>
 
-<?php
-$this->beginWidget('zii.widgets.jui.CJuiDialog',array(
-    'id'=>'fileupload',
-    // additional javascript options for the dialog plugin
-    'options'=>array(
-        'title'=>'Upload Marc',
-        'autoOpen'=>false,
-        'width'=>'600',
-		'height'=>'300',
-        'modal'=>true,
-    ),
-));
-	//$itemModel = new AcquisitionSuggestionItem();
-	//$itemModel->acq_suggestion_id = $sID;
-	$this->renderPartial('_file_upload',array('sID'=>$sID,'model'=>$model));
-?>
-<div id="divUploadForm"></div>
-<?php
-$this->endWidget('zii.widgets.jui.CJuiDialog');
-?>
+
 
 
 <?php
 $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
-    'id'=>'itemDialog',
+    'id'=>'item-lmDialog',
     // additional javascript options for the dialog plugin
     'options'=>array(
         'title'=>'Suggestion Item',
         'autoOpen'=>false,
-        'width'=>'600',
-		'height'=>'520',
+        'width'=>'590',
+		'height'=>'480',
+        'resizable'=>false,
         'modal'=>true,
     ),
 ));
@@ -212,10 +232,8 @@ function updateItem()
     var _updateItem_url;
 	var _form;
 	var _div;
-	if (updateItem._form =='upload')
-		updateItem._div = 'divUploadForm'
-	else
-		updateItem._div = 'divForForm';
+
+    updateItem._div = 'divForForm';
     <?php echo CHtml::ajax(array(
         'url'=>'js:updateItem._updateItem_url',
         'data'=> "js:$(this).serialize()",
@@ -225,16 +243,19 @@ function updateItem()
             {
                 if (data.status == 'failure')
                 {
-					$('#itemDialog div.divForForm').html(data.div);
+					$('#item-lmDialog div.divForForm').html(data.div);
                     
 					// Here is the trick: on submit-> once again this function!
-                    $('#itemDialog div.divForForm form').submit(updateItem);
+                    $('#item-lmDialog div.divForForm form').submit(updateItem);
                 }
                 else
                 {
-                    $(divForForm).html(data.div);
-					$('#itemDialog div.divItem_').html(data.div);
-                    setTimeout(\"$('#itemDialog').dialog('close') \",2000);
+                    $.lmNotify(data);
+                    //if (data.status =='success')
+                        
+                    //$('#itemDialog div.divForForm').html(data.div);
+					//$('#itemDialog div.divItem_').html(data.div);
+                    setTimeout(\"$('#item-lmDialog').dialog('close') \",2000);
  
                     // Refresh the grid with the update
                     $.fn.yiiGridView.update('acq_suggestion_item');

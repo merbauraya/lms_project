@@ -11,6 +11,9 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
+<?php
+    echo $form->textFieldRow($model,'issn');
+?>
 <div class="control-group">
 	<label class="control-label" for="AcquisitionSuggestionItem_isbn10">ISBN10</label>
 	<div class="controls">
@@ -44,12 +47,14 @@
         	<?php echo $form->textFieldRow($model,'publisher',array('class'=>'span4','maxlength'=>40,'title'=>'Publisher')); ?>
         	<?php echo $form->textFieldRow($model,'year',array('class'=>'span4','maxlength'=>40)); ?>
         	<?php echo $form->textFieldRow($model,'edition',array('class'=>'span4','maxlength'=>40)); ?>   
-        	<?php echo $form->textFieldRow($model,'price',array('class'=>'span2','maxlength'=>40)); ?>     
+        	<?php echo $form->textFieldRow($model,'price',array('class'=>'span2','maxlength'=>40)); ?> 
+            <?php echo $form->dropDownListRow($model,'currency',Currency::getDropDownList()) ?>    
+            <?php echo $form->textFieldRow($model,'local_price',array('class'=>'span2','maxlength'=>40)); ?> 
         	<?php echo $form->textFieldRow($model,'number_of_copy',array('class'=>'span4','maxlength'=>40)); ?>
-                  	<?php echo $form->textFieldRow($model,'note',array('class'=>'span4','maxlength'=>40)); ?>
+            <?php echo $form->textFieldRow($model,'note',array('class'=>'span4','maxlength'=>40)); ?>
                   	 <div class="form-actions">
 <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'type'=>'primary', 'label'=>'Submit')); ?>
-<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'reset', 'label'=>'Cancel','htmlOptions'=>array('onclick'=>'{$("#itemDialog").dialog("close");return false;}')
+<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'reset', 'label'=>'Cancel','htmlOptions'=>array('onclick'=>'{$("#item-lmDialog").dialog("close");return false;}')
 
 )); ?>
 </div>

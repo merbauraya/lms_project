@@ -9,13 +9,13 @@ class EConfig extends CApplicationComponent
 	public $autoCreateConfigTable = false;
 	public $connectionID = 'db';
 	public $cacheID = false;
-	public $strictMode = true;
+	public $strictMode = false;
 	
 	private $_db;
 	private $_cache;
 	private $_config;
 
-	public function get($key)
+	public function get($category,$key)
 	{
 
 		$db = $this->_getDb();
@@ -26,7 +26,7 @@ class EConfig extends CApplicationComponent
 			$this->_getConfig($db, $cache);
 		}
 		
-		if (false === is_array($this->_config) || false === array_key_exists($key, $this->_config))
+		if (false === is_array($this->_config) || false ===  array_key_exists($category.$key, $this->_config))
 		{
 			if (true === $this->strictMode)
 			{
@@ -38,11 +38,11 @@ class EConfig extends CApplicationComponent
 			}
 		}
 		
-		return (null === $this->_config[$key]) ? null : $this->_config[$key];
+		return (null === $this->_config[$category.$key]) ? null : $this->_config[$category.$key];
 		
 	}
 	
-	public function set($key, $value)
+	public function set($key, $value,$category)
 	{
 
 		$db = $this->_getDb();
@@ -61,18 +61,22 @@ class EConfig extends CApplicationComponent
 			}
 			else
 			{
-				$dbCommand = $db->createCommand("INSERT INTO {$this->configTableName} ('key', 'value') VALUES (:key, :value)");
+				$dbCommand = $db->createCommand("INSERT INTO {$this->configTableName} ('key', 'value','library_id','category') VALUES (:key, :value,:library,:category)");
 				$dbCommand->bindParam(':key', $key, PDO::PARAM_STR);				
 				$dbCommand->bindValue(':value', $value, PDO::PARAM_STR);
+                $dbCommand->bindValue(':library', LmUtil::UserLibraryId(), PDO::PARAM_INT);
+                $dbCommand->bindValue(':category', $category, PDO::PARAM_STR);
 				$dbCommand->execute();
 			}
 		}
 
 		if (false === isset($dbCommand))
 		{
-			$dbCommand = $db->createCommand("UPDATE {$this->configTableName} SET value = :value WHERE key = :key");
+			$dbCommand = $db->createCommand("UPDATE {$this->configTableName} SET value = :value WHERE key = :key and library_id=:library and category=:category");
 			$dbCommand->bindValue(':value', $value, PDO::PARAM_STR);		
 			$dbCommand->bindParam(':key', $key, PDO::PARAM_STR);
+            $dbCommand->bindParam(':library', LmUtil::UserLibraryId(), PDO::PARAM_INT);
+            $dbCommand->bindParam(':category', $category, PDO::PARAM_STR);
 			$dbCommand->execute();
 		}
 
@@ -132,19 +136,17 @@ class EConfig extends CApplicationComponent
 	private function _getConfig($db, $cache)
 	{
 
-		if (true === $this->autoCreateConfigTable)
-		{
-			$this->_createConfigTable($db);
-		}
+		
 		
 		if (false === $cache || false === ($this->_config = $cache->get(self::CACHE_KEY)))
 		{
 			
-			$dbReader = $db->createCommand("SELECT * FROM {$this->configTableName}")->query();
+			$dbReader = $db->createCommand("SELECT * FROM {$this->configTableName} where library_id=". LmUtil::UserLibraryId())->query();
 
 			while (false !== ($row = $dbReader->read()))
 			{
-				$this->_config[$row['key']] = $row['value'];
+				$this->_config[$row['category'].$row['key']] = $row['value'];
+                //$this->_config[$row['category']] = $row['category'];
 			}
 			
 			if (false !== $cache)
@@ -156,10 +158,7 @@ class EConfig extends CApplicationComponent
 
 	}
 	
-	private function _createConfigTable($db)
-	{
-		$db->createCommand("CREATE TABLE IF NOT EXISTS `{$this->configTableName}` (`key` VARCHAR(100) PRIMARY KEY, `value` TEXT) COLLATE = utf8_bin")->execute();
-	}
+	
 	
 }
 

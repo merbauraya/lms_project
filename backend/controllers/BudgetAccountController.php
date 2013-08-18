@@ -61,14 +61,19 @@ class BudgetAccountController extends Controller
 		$model=new BudgetAccount;
 
 		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+		$this->performAjaxValidation($model);
 
 		if(isset($_POST['BudgetAccount']))
 		{
 			$model->attributes=$_POST['BudgetAccount'];
-			if($model->save())
+            $model->date_created = LmUtil::dBCurrentDateTime();
+            $model->library_id = LmUtil::UserLibraryId();
+            $model->created_by = LmUtil::UserId();
+			if($model->validate() && $model->save()  )
 				$this->redirect(array('view','id'=>$model->id));
-		}
+           // else
+           //     var_dump( $model->getErrors());
+        }
 
 		$this->render('create',array(
 			'model'=>$model,
@@ -90,6 +95,7 @@ class BudgetAccountController extends Controller
 		if(isset($_POST['BudgetAccount']))
 		{
 			$model->attributes=$_POST['BudgetAccount'];
+            
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}

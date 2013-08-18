@@ -15,6 +15,7 @@
 	<?php
         Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/common.js'); 
         Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/jquery.nicescroll.min.js'); 
+        Yii::app()->yiistrap->register(); 
     ?>
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
@@ -118,22 +119,22 @@
 				
 				'___',
 			array('label'=>'Purchase Order','items'=>array(
-					array('label'=>'New Purchase Order','url'=>'/purchaseorder/create'),
+					array('label'=>'New Purchase Order','url'=>'/purchaseOrder/create'),
 					array('label'=>'Purchase Order List','url'=>
-					'/purchaseorder/index'),
+					'/purchaseOrder/index'),
 					'___',
 					array('label'=>'Release Purchase Order','url'=>
-					'/purchaseorder/release'),
+					'/purchaseOrder/release'),
 				)
 				
 				),
 			array('label'=>'Receiving','items'=>array(
-			array('label'=>'New Purchase Order','url'=>'/purchaseorder/create'),
+			array('label'=>'New Purchase Order','url'=>'/purchaseOrder/create'),
 			array('label'=>'Purchase Order List','url'=>
-			'/purchaseorder/index'),
+			'/purchaseOrder/index'),
 			'___',
 			array('label'=>'Release Purchase Order','url'=>
-			'/purchaseorder/release'),
+			'/purchaseOrder/release'),
 			)
 			
 			),	
@@ -166,7 +167,7 @@
 			),
 	
 			array('label'=>'Settings', 'items'=>array(
-			 	array('label'=>'Systems', 'url'=>array('/setting/update')),
+			 	array('label'=>'Systems', 'url'=>array('/AppSetting')),
 				array('label'=>'Budget','items'=>array(
 					array('label'=>'Budget Account','url'=>
 						array('budgetAccount/admin')),

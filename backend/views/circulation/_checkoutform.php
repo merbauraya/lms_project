@@ -5,7 +5,7 @@
 	'type'=>'horizontal',
     	'clientOptions'=>array(
 		'validateOnSubmit'=>true,
-        'validateOnChange'=>true,
+        'validateOnChange'=>false,
         
 	),
 )); ?>

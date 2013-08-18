@@ -1,14 +1,3 @@
-<?php
-$this->breadcrumbs=array(
-	'Budget Accounts'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List BudgetAccount','url'=>array('index')),
-	array('label'=>'Manage BudgetAccount','url'=>array('admin')),
-);
-?>
 
 <?php
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(

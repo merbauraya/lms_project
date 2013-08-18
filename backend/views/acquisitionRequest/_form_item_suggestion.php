@@ -32,7 +32,7 @@ $this->widget('bootstrap.widgets.TbButton',array(
 
 </div>
 <?php
-$_url = Yii::app()->createUrl('acquisitionrequest/loadSuggestionItem');
+$_url = Yii::app()->createUrl('acquisitionRequest/loadSuggestionItem');
 Yii::app()->clientScript->registerScript('sc_load_sugg_item',"
 $('body').on('click','#_btn_load_sugg_items',function(){
 

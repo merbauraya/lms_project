@@ -27,4 +27,22 @@ class Location extends BaseLocation
 			)
 		);
 	}
+    public static function getDropDownList($allOption=false)
+    {
+        $models = self::model()->findAll('library_id=:library ',array(':library'=>LmUtil::UserLibraryId()));
+        $data = array();
+        
+        if ($allOption)
+            $data[null]='N/A';
+			//echo CHtml::tag('option',
+				//array('value'=>null),CHtml::encode('All'),true);
+		foreach($models as $model)
+		{
+			$data[$model->id]=$model->name;
+            //echo CHtml::tag('option',
+			//array('value'=>$model->id),CHtml::encode($model->name),true);
+		}
+        
+       return $data;
+    }
 }

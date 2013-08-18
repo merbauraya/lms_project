@@ -19,25 +19,56 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
-	<div class="control-group">
-		<label class="control-label" for="AcquisitionRequest_requested_by">Requested By</label>
-		<div class="controls">
-			<input type="hidden" id="__user_id">
-			<input type="hidden" id="__fullname">
-			<input type="hidden" name="AcquisitionRequest[requested_by]" id="AcquisitionRequest_requested_by" value="<?php echo $model->requested_by ?>">
-			<input type="hidden" name="AcquisitionRequest[id]" id="AcquisitionRequest_id" value="<?php echo $model->id ?>">
-			<input class="span5" name="requested_by" id="__user_fullname" type="text" value="<?php echo isset($model->patron->name)? $model->patron->name : '';  
-			
-			?>">
-			
-			<?php $this->widget('bootstrap.widgets.TbButton', array(
-			'icon'=>'icon-search',
-			'type'=>'',
-			'label'=>'...',
-		'htmlOptions'=>array('onclick'=>'$("#user_dialog").dialog("open"); return false;'))); ?>
-		</div>
-	</div>
 
+    <div class="control-group">
+        <label class="control-label" for="selfrequest">Self Request</label>
+        <div class="controls">
+            <?php echo CHtml::checkBox('selfrequest', true,array('id'=>'selfrequest')) ?>
+        </div>
+    </div>
+    <?php 
+		echo $form->select2row($model, 'requested_by', array(
+		'asDropDownList' => false,
+		'attribute'=>'requested_by',
+		'options' => array(
+			'delay'=>300,
+			'minimumInputLength'=>3,
+			'width' => '60%',
+			'closeOnSelect' => false,
+			'placeholder' => 'Select Patron',
+			'allowClear' => false,
+			'ajax' => array(
+				'url' => CController::createUrl('patron/AjaxGetPatron'),
+				'dataType' => 'json',
+				'data' => 'js:function(term,page) 
+							{ return {
+								term: term, 
+								page_limit: 10, 
+								page: page,
+                                type: "sel2",
+                                match: "username",
+								ret: "id",
+								}; }',
+				'results' => 'js:function(data,page) { return {results: data}; }',
+			),
+			'initSelection'=>'js:function(element,callback)
+							  {var data={id:element.val(),text:element.val()};
+							  callback(data);
+							  }',
+			
+		),
+		'events'=>array('change'=>'js:function(e)
+			{
+				var theID=e.val;
+				console.log(e);
+				
+			}'				 
+		)
+		
+	));
+	
+	
+	?>
 	<?php echo $form->datepickerRow($model, 'request_date',
         		array('prepend'=>'<i class="icon-calendar"></i>',
 				'options'=>array(
@@ -47,16 +78,16 @@
 				
 				); 
 		?>
-<?php echo $form->dropDownListRow($model, 'department_id',
-       CHtml::listData(Department::model()->findAll(), 'id', 'name')); 
+<?php //echo $form->dropDownListRow($model, 'department_id',
+      // CHtml::listData(Department::model()->findAll(), 'id', 'name')); 
 ?>	
 	
 <?php echo $form->dropDownListRow($model, 'budget_id',
        CHtml::listData(BudgetAccount::model()->findAll(), 'id', 'name')); 
 ?>
 
-<?php echo $form->dropDownListRow($model, 'library_id',
-       CHtml::listData(Library::model()->findAll(), 'id', 'name')); 
+<?php //echo $form->dropDownListRow($model, 'library_id',
+      // CHtml::listData(Library::model()->findAll(), 'id', 'name')); 
 ?>
 
 	

@@ -14,11 +14,16 @@
  * @property integer $library_id
  * @property integer $dept_id
  * @property boolean $is_active
+ * @property string $current_balance
+ * @property string $booked_amount
+ * @property string $committed_amount
+ * @property integer $location_id
  *
  * The followings are the available model relations:
+ * @property AcqPurchaseOrderItem[] $acqPurchaseOrderItems
  * @property Department $dept
  * @property Library $library
- * @property AcqPurchaseOrderItem[] $acqPurchaseOrderItems
+ * @property Location $location
  *
  * @package application.models.base
  * @name BaseBudgetAccount
@@ -42,13 +47,14 @@ abstract class BaseBudgetAccount extends LmActiveRecord
 		// will receive user inputs.
 		return array(
 			array('budget_code, library_id', 'required'),
-			array('created_by, library_id, dept_id', 'numerical', 'integerOnly'=>true),
-			array('budget_code', 'length', 'max'=>25),
+			array('created_by, library_id, dept_id, location_id', 'numerical', 'integerOnly'=>true),
+			array('budget_code', 'length', 'max'=>20),
 			array('name', 'length', 'max'=>50),
-			array('start_date, end_date, date_created, is_active', 'safe'),
+			array('current_balance, booked_amount, committed_amount', 'length', 'max'=>15),
+			array('start_date, end_date, is_active,location_id', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, budget_code, name, start_date, end_date, date_created, created_by, library_id, dept_id, is_active', 'safe', 'on'=>'search'),
+			array('id, budget_code, name, start_date, end_date, date_created, created_by, library_id, dept_id, is_active, current_balance, booked_amount, committed_amount, location_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,9 +66,10 @@ abstract class BaseBudgetAccount extends LmActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'acqPurchaseOrderItems' => array(self::HAS_MANY, 'AcqPurchaseOrderItem', 'budget_id'),
 			'dept' => array(self::BELONGS_TO, 'Department', 'dept_id'),
 			'library' => array(self::BELONGS_TO, 'Library', 'library_id'),
-			'acqPurchaseOrderItems' => array(self::HAS_MANY, 'AcqPurchaseOrderItem', 'budget_id'),
+			'location' => array(self::BELONGS_TO, 'Location', 'location_id'),
 		);
 	}
 
@@ -82,6 +89,10 @@ abstract class BaseBudgetAccount extends LmActiveRecord
 			'library_id' => 'Library',
 			'dept_id' => 'Dept',
 			'is_active' => 'Is Active',
+			'current_balance' => 'Current Balance',
+			'booked_amount' => 'Booked Amount',
+			'committed_amount' => 'Committed Amount',
+			'location_id' => 'Location',
 		);
 	}
 
@@ -106,6 +117,10 @@ abstract class BaseBudgetAccount extends LmActiveRecord
 		$criteria->compare('library_id',$this->library_id);
 		$criteria->compare('dept_id',$this->dept_id);
 		$criteria->compare('is_active',$this->is_active);
+		$criteria->compare('current_balance',$this->current_balance,true);
+		$criteria->compare('booked_amount',$this->booked_amount,true);
+		$criteria->compare('committed_amount',$this->committed_amount,true);
+		$criteria->compare('location_id',$this->location_id);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

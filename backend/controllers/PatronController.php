@@ -51,21 +51,38 @@ class PatronController extends Controller
 	{
 		if (isset($_GET['term'])) {
 			
-			$vdr = Patron::model()->findAll(array('order'=>'username', 
-												'condition'=>'username LIKE :username and library_id=:library', 
-												'params'=>array(':username'=>$_GET['term'].'%',
+			$match = isset($_GET['match']) ? $_GET['match'] : 'username';
+            $limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
+            $results = Patron::searchByMulti($_GET['term'],$match,LmUtil::UserLibraryId(),$limit);
+            /*
+            $vdr = Patron::model()->findAll(array('order'=>'username', 
+												'condition'=>'username LIKE :username or name like :username and library_id=:library', 
+												'params'=>array(':username'=>'%'.$_GET['term'].'%',
 															    ':library'=>LmUtil::UserLibraryId()),
 												'limit'=>$_GET['page_limit']
 												));
-			$data = array();
-			foreach ($vdr as $value) {
+			*/
+            $data = array();
+            if (isset($_GET['type']) && ($_GET['type'] ==='sel2'))
+            {
+                foreach ($results as $value) {
 				$data[] = array(
-				'id' => $_GET['ret']=='uname' ? $value->username : $value->id,
-				'label' => $value->username,//. ' - ' .$value->name,
-                'name' => $value->name,
-				'status' => $value->status_id,
-				);
-			}
+                    'id' => $_GET['ret']=='uname' ? $value->username : $value->id,
+                    'text' => $value->username. ' - ' .$value->name,
+                    );
+                }
+            }else
+            {
+                foreach ($results as $value) {
+                    $data[] = array(
+                    'id' => $_GET['ret']=== 'uname' ? $value->username : $value->id,
+                    'label' => $value->username .' - ' .$value->name,
+                    'name' => $value->name,
+                    'text'=> $value->username. ' - ' .$value->name,
+                    'status' => $value->status_id,
+                    );
+                }
+            }
 			echo CJSON::encode($data);
 		}
 		Yii::app()->end();

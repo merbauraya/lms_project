@@ -1,3 +1,8 @@
+
+<?php
+	$this->widget('extcommon.lmwidget.LmJgrowl', array('form' => $model, 'flash' => '')); 
+?>
+
 <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 	'id'=>'acquisition-suggestion-form',
 	'enableAjaxValidation'=>false,
@@ -7,6 +12,13 @@
 	<p class="help-block">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
+        <div class="control-group">
+        <label class="control-label" for="selfsuggest">Self Suggestion</label>
+        <div class="controls">
+            <?php echo CHtml::checkBox('selfsuggest', true,array('id'=>'selfsuggest')) ?>
+        </div>
+    </div>
+    
 	<?php 
 		echo $form->select2row($model, 'suggested_by', array(
 		'asDropDownList' => false,
@@ -23,11 +35,13 @@
 				'dataType' => 'json',
 				'data' => 'js:function(term,page) 
 							{ return {
-								q: term, 
+								term: term, 
 								page_limit: 10, 
 								page: page,
+                                type: "sel2",
+                                match: "username",
 								ret: "id",
-								lib: $("#AcquisitionSuggestion_library_id").val()}; }',
+								}; }',
 				'results' => 'js:function(data,page) { return {results: data}; }',
 			),
 			'initSelection'=>'js:function(element,callback)
@@ -49,22 +63,7 @@
 	
 	?>
     
-    
-	<div class="control-group">
-		<label class="control-label required" for="AcquisitionSuggestion_suggested_by">Suggested By <span class="required">*</span></label>
-		<div class="controls">
-			<input type="hidden" name="AcquisitionSuggestion[suggested_by]" id="AcquisitionSuggestion_suggested_by" value="<?php echo $model->suggested_by ?>">
-			<input class="span5" name="suggested_by" id="suggested_by" type="text" value="<?php echo isset($model->patron->name)? $model->patron->name : '';  
-			
-			?>">
-			
-			<?php $this->widget('bootstrap.widgets.TbButton', array(
-			'icon'=>'icon-search',
-			'type'=>'',
-			'label'=>'...',
-		'htmlOptions'=>array('onclick'=>'$("#user_dialog").dialog("open"); return false;'))); ?>
-		</div>
-	</div>
+
 	
 	
 <?php echo $form->datepickerRow($model, 'suggest_date',
@@ -76,12 +75,12 @@
 				); 
 		?>
 	<?php //echo $form->textFieldRow($model,'description',array('class'=>'span6','maxlength'=>80)); ?>
-	<?php echo $form->dropDownListRow($model, 'department_id',
-       CHtml::listData(Department::model()->findAll(), 'id', 'name')); 
+	<?php //echo $form->dropDownListRow($model, 'department_id',
+       //CHtml::listData(Department::model()->findAll('library_id = :library or library_id is null order by id',array(':library'=>LmUtil::UserLibraryId())), 'id', 'name')); 
 ?>	
 	
 <?php echo $form->dropDownListRow($model, 'budget_id',
-       CHtml::listData(BudgetAccount::model()->findAll(), 'id', 'name')); 
+      BudgetAccount::getDropDownList(!LmUtil::getSettingAcquisition('ENFORCE_BUDGET_SUGGESTION') == '1')); 
 ?>
 	
 	<?php //echo $form->textFieldRow($model,'staff_no',array('class'=>'span5','maxlength'=>50)); ?>
@@ -92,7 +91,7 @@
 	<?php //echo $form->textFieldRow($model,'suggestor_office_no',array('class'=>'span5','maxlength'=>12)); ?>
 	
 
-<?php echo $form->dropDownListRow($model, 'publication',AcquisitionRequest::model()->PublicationType);
+<?php //echo $form->dropDownListRow($model, 'publication',AcquisitionRequest::model()->PublicationType);
        //CHtml::listData(Currency::model()->findAll(), 'id', 'name')); 
 ?>
 
@@ -102,8 +101,8 @@
 
 
 
-<?php echo $form->dropDownListRow($model, 'library_id',
-       CHtml::listData(Library::model()->findAll(), 'id', 'name')); 
+<?php // echo $form->dropDownListRow($model, 'library_id',
+      // CHtml::listData(Library::model()->findAll(), 'id', 'name')); 
 ?>
 
 	

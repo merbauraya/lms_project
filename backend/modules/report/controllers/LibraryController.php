@@ -70,7 +70,10 @@ class LibraryController extends Controller
 			if ($export == 'view')
 				$this->renderReport($dp,$columns,$title);
 			else
-				$this->exportReport($dp,$columns,$title,$export);
+            {
+				$exportType = isset($_GET['exportType']) ? $_GET['exportType'] : 'Excel2007';
+                $this->exportReport($dp,$columns,$title,$exportType);
+            }
             
         }else
         
@@ -86,7 +89,8 @@ class LibraryController extends Controller
     protected function exportReport($dataProvider,$columns,$subject,$exportType)
     {
 		
-		$this->widget('tlbExcelView', array(
+		echo $exportType;
+        $this->widget('tlbExcelView', array(
 			'dataProvider'=> $dataProvider,
 			'id'=>'report-grid',
 			'title'=>'report',
@@ -96,7 +100,7 @@ class LibraryController extends Controller
 			'subject'=>$subject,
 			'sheetTitle'=>'SheetTitle',
 			'exportType' =>$exportType,
-			
+			//'export'=>'export',
 			'columns'=>$columns,
 			//'template'=>"{summary}\n{items}\n{exportbuttons}\n{pager}",
 			'libPath'=>'extcommon.phpexcel.Classes.PHPExcel'
@@ -111,7 +115,8 @@ class LibraryController extends Controller
 			'title'=>'report',
 			'autoWidth'=>false,
 			'subject'=>$title,
-			'exportType' =>'Excel2007',
+            'grid_mode'=>'grid',
+			//'exportType' =>'Excel2007',
 			'exportButtons'=>array('Excel2007','PDF','CSV','HTML'),
 			//'type'=>'bordered condensed stripped',
 			'columns'=>$columns,

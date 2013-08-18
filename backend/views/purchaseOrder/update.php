@@ -1,14 +1,3 @@
-<?php
-$this->breadcrumbs=array(
-	'Purchase Order'=>array('index'),
-	'Create',
-);
-
-$this->menu=array(
-	array('label'=>'List Purchase Order','url'=>array('index')),
-	array('label'=>'Manage Purchase Order','url'=>array('admin')),
-);
-?>
 
 <?php  
 

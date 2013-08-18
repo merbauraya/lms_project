@@ -1,14 +1,4 @@
-<?php
-$this->breadcrumbs=array(
-	'Acquisition Suggestions'=>array('index'),
-	'Create',
-);
 
-$this->menu=array(
-	array('label'=>'List AcquisitionSuggestion','url'=>array('index')),
-	array('label'=>'Manage AcquisitionSuggestion','url'=>array('admin')),
-);
-?>
 <?php
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(
 		'title' => "Create Acquisition Suggestion",

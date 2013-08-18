@@ -63,18 +63,15 @@ class AcquisitionRequestController extends Controller
 		$operation = 'addRequest';
 		$model = new AcquisitionRequest;
 		
-		
-		/*
-		if (!GenericUtils::checkAccess($operation))
-		{
-			throw new CHttpException(403,GenericUtils::ERROR_NO_ACCESS);
-		} */
 		$session = Yii::app()->session;
 		//$session['isQuote'] = Invoice::DOC_QUOTATION;
 		if (isset($_POST['AcquisitionRequest']))
 		{
 			$model->attributes=$_POST['AcquisitionRequest'];
-			//$model->suggested_by =  Yii::app()->user->getId(); 
+            $model->library_id = LmUtil::UserLibraryId();
+			//$model->suggested_by =  Yii::app()->user->getId();
+            if ($_POST['selfrequest'] == 1)
+                $model->requested_by = LmUtil::UserId();
 			$items =  new AcquisitionRequestItem;
 			if($model->save())
 				$this->redirect(array('update',
@@ -229,6 +226,7 @@ class AcquisitionRequestController extends Controller
 			Yii::app()->clientscript->scriptMap['bootstrap.js'] = false; 
 			Yii::app()->clientscript->scriptMap['bootstrap.bootbox.min.js'] = false; 
 			Yii::app()->clientscript->scriptMap['jquery.ba-bbq.js'] = false; 
+            Yii::app()->clientscript->scriptMap['Chart.js'] = false; 
 		}
 		
 		$this->renderPartial('_sugg_item_list',array('itemsDP'=>$itemsDP),false,true);
@@ -275,11 +273,11 @@ class AcquisitionRequestController extends Controller
 			{
 				//start by updating suggestion item status 
 				$cmd->execute();
-				$sql = 'insert into acq_request_item (isbn,isbn_13,title,author,edition,number_of_copy,             currency_id,price,local_price,note,acq_request_id,
-				created_by,status_id,publisher)
+				$sql = 'insert into acq_request_item (isbn,isbn_13,title,author,edition,number_of_copy, currency_id,price,local_price,note,acq_request_id,
+				created_by,status_id,publisher,acq_suggestion_item_id)
 				
 				select isbn,isbn_13,title,author,edition,number_of_copy,	currency_id,price,local_price,note,:request_id,
-				:created_by,:item_status,publisher
+				:created_by,:item_status,publisher,id
 				from acq_suggestion_item
 				where id in ('. $idPlaceholder .')';
 				
@@ -290,13 +288,21 @@ class AcquisitionRequestController extends Controller
 				$cmd2->bindParam(':request_id',$request_id,PDO::PARAM_INT);
 				$cmd2->bindParam(':created_by',$user_id,PDO::PARAM_INT);
 				$cmd2->bindParam(':item_status',$request_status,PDO::PARAM_INT);
-				$cmd2->execute();
+				$ret = $cmd2->execute();
 				
 				$transaction->commit();
+                echo CJSON::encode(array(
+				'status'=>'success', 
+				'message'=>$ret .' Item(s) successfully promoted'
+				));
 			} catch (Exception $ex)
 			{
 				$transaction->rollback();
 				LmUtil::logError('DB Error : ' .$ex->getMessage(),$this->id.$this->action->id);
+                echo CJSON::encode(array(
+				'status'=>'error', 
+				'message'=>'Error while promoting item'
+				));
 			
 			}
 				
@@ -577,18 +583,67 @@ class AcquisitionRequestController extends Controller
 		}
 	
 	}
+    /**
+     * Delete Acquisition Request Item
+     * 
+     * 
+     * 
+     * 
+     */
+     
 	public function actionDeleteItem()
 	{
 		if(Yii::app()->request->isPostRequest && isset($_POST['ids']))
 		{
 			$itemIds = $_POST['ids'];
-			//if item is from approved suggestion, we revert back suggestion item
-			//else we just simply delete the item
+			//if item is from suggestion, we revert update suggestion status to rejected
 			
-			echo CJSON::encode(array(
-				'status'=>'success',
-				'message'=>'Request items deleted')
-			);
+            $sql = 'update acq_suggestion_item
+                   set status_id = :status
+                   where id in (
+                    select acq_suggestion_item_id from acq_request_item
+                    where id in (' ;
+            
+            $idPlaceholder = LmUtil::sqlInConditionArrayPlaceHolder('id',$itemIds);
+			$sql .= $idPlaceholder .'))';
+			//now bind all the params
+			$cmd = Yii::app()->db->createCommand($sql);
+			for ($i = 0; $i < count($itemIds);++$i)
+				$cmd->bindValue(':id'.$i, $itemIds[$i],PDO::PARAM_INT);
+            
+            $cmd->bindValue(':status',AcquisitionSuggestion::SUGGESTION_REJECTED);
+            
+            
+            //else we just simply delete the item
+			$sql = 'delete from acq_request_item where id in (';
+            $idPlaceholder = LmUtil::sqlInConditionArrayPlaceHolder('id',$itemIds);
+			$sql .= $idPlaceholder .')';
+			//now bind all the params
+			$cmd2 = Yii::app()->db->createCommand($sql);
+			for ($i = 0; $i < count($itemIds);++$i)
+				$cmd2->bindValue(':id'.$i, $itemIds[$i],PDO::PARAM_INT);
+            
+            $transaction =  Yii::app()->db->beginTransaction();
+			try 
+            { 
+                $cmd->execute();
+                $cmd2->execute();
+                $transaction->commit();
+                echo CJSON::encode(array(
+                    'status'=>'success',
+                    'message'=>'Request items deleted')
+                );
+			
+            }catch (CException $ex)
+			{
+				$transaction->rollBack();
+                LmUtil::logError('DB Error : ' .$ex->getMessage(),$this->id.'.'.$this->action->id);
+				echo CJSON::encode(array(
+                    'status'=>'error',
+                    'message'=>'Error while deleting item')
+                );
+			}
+            
 			
 				
 		}else

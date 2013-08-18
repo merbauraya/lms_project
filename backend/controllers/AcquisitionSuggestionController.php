@@ -68,19 +68,25 @@ class AcquisitionSuggestionController extends Controller
 		if (isset($_POST['AcquisitionSuggestion']))
 		{
 			$model->attributes=$_POST['AcquisitionSuggestion'];
-			//$model->suggested_by =  Yii::app()->user->getId(); 
+			$model->library_id = LmUtil::UserLibraryId();
+            if ($_POST['selfsuggest'] == '1')
+                $model->suggested_by = LmUtil::UserId();
 			$items =  new AcquisitionSuggestionItem;
-			if($model->save())
+			if($model->validate() && $model->save())
+            {
 				$model->text_id = DocumentIdSetting::formatID($model->library_id,AcquisitionSuggestion::DOCUMENT_TYPE,$model->id);
 				$model->save(); //TODO move this numbering to db procedure
 				$this->redirect(array('update',
 									  'id'=>$model->id				  
 									  )
 							    ); 
-		} else {
-			$model = new AcquisitionSuggestion;
+            }
+           
+		} 
+        
+			//$model = new AcquisitionSuggestion;
 			$this->render('precreate',array('model'=>$model));
-		}
+		
 		
 	}
 	/**
@@ -163,13 +169,125 @@ class AcquisitionSuggestionController extends Controller
 	 */
 	public function actionIndex()
 	{
+        $criteria = new CDbCriteria();
+        $criteria->with = array('suggestedBy','budget');
 		
-		$dataProvider=new CActiveDataProvider('AcquisitionSuggestion');
+        $criteria->condition = 'library_id = :library';
+        $criteria->params = array(':library'=>LmUtil::UserLibraryId());
+		$itemDP=new CActiveDataProvider(
+			'AcquisitionSuggestion',
+			array(
+             'criteria'   => $criteria,
+             
+             'pagination' => array(
+                 'pageSize' => '20',
+				)
+			)
+		);
+		
+        
+      
 		$this->render('index',array(
-			'dataProvider'=>$dataProvider
+			'dataProvider'=>$itemDP
 		));
 	}
-
+    
+    public function actionReport()
+    {
+        $model = new ReportModel();
+        $params = array();
+        if (isset($_GET['ReportModel']))
+        {
+            $model->attributes = $_GET['ReportModel'];
+            $budget = $_GET['ReportModel']['budget_id'];
+            $_d = explode('-',$model->daterange);
+            $range = LmUtil::ConvertToDBDate($_d);
+            $start = $range[0];
+            $end = $range[1];
+            $sql = 'select a.*,b.name as suggester,c.name as budget_name  from acq_suggestion a
+                    left join patron b on a.suggested_by = b.id
+                    left outer join budget_account c on a.budget_id = c.id
+                    where a.library_id = :library 
+                    
+                    and a.suggest_date between :start and :end ';
+          
+            $params = array(':library'=>LmUtil::UserLibraryId(),
+                            ':start' => $start,
+                            
+                            ':end' => $end);
+            
+            if (!empty($model->suggested_by))
+            {
+                $sql .= ' and a.suggested_by = :user';
+                $params = array_merge($params,array(':user'=>$model->suggested_by));
+            }
+            
+            if (is_array($budget) && (count($budget)>1))
+            {
+                
+                $sql .= 'and suggested_by in (';
+                $idPlaceholder = LmUtil::sqlInConditionArrayPlaceHolder('id',$budget);
+                $sql .= $idPlaceholder .')';
+                for ($i = 0; $i < count($budget);++$i)
+                    $params = array_merge($params,array(':id'.$i => $budget[$i]));
+                    
+            }else
+            {
+                   
+                if (!empty($budget[0]))
+                {
+                    $sql .= 'and budget_id = :budget';
+                    $params = array_merge($params,array(':budget'=>$budget[0]));
+                }
+                
+                
+            }
+          $count = 20;  
+          $dp=new CSqlDataProvider($sql,array(
+				'totalItemCount'=>$count,
+				'params'   => $params,
+				'pagination' => array(
+							'pageSize' => '20',
+						)
+					)
+			);
+            $columns = array(
+				array('name'=>'text_id','header'=>'Id'),
+                array('name'=>'suggest_date','header'=>'Suggestion Date'),
+				array('name'=>'suggester','header'=>'Suggester'),
+                array('name'=>'budget_name','header'=>'Budget'),
+                
+				
+			);
+			$title = 'Acquisition Suggestion';
+			
+			$export = isset($_GET['export']) ? $_GET['export'] : 'view';
+			if ($export == 'view')
+				$this->renderReport($dp,$columns,$title);
+			else
+				$this->exportReport($dp,$columns,$title,$export);  
+          
+            
+        }else
+            $this->render('report',array('model'=>$model));
+    }
+        protected function renderReport($dataProvider,$columns,$title)
+    {
+		
+		$this->widget('tlbExcelView', array(
+			'dataProvider'=> $dataProvider,
+			'title'=>'report',
+			'autoWidth'=>false,
+			'subject'=>$title,
+			'exportType' =>'Excel2007',
+			'exportButtons'=>array('Excel2007','PDF','CSV','HTML'),
+			//'type'=>'bordered condensed stripped',
+			'columns'=>$columns,
+			'template'=>"{summary}\n{items}\n{exportbuttons}\n{pager}",
+			'libPath'=>'extcommon.phpexcel.Classes.PHPExcel'
+));
+		
+	}
 	/**
 	 * Manages all models.
 	 */
@@ -369,7 +487,7 @@ class AcquisitionSuggestionController extends Controller
                 {
                     echo CJSON::encode(array(
                         'status'=>'success', 
-                        'div'=>"Item successfully updated"
+                        'message'=>"Item successfully updated"
                         ));
                     exit;               
                 }
@@ -415,7 +533,7 @@ class AcquisitionSuggestionController extends Controller
                 {
                     echo CJSON::encode(array(
                         'status'=>'success',
-                        'div'=>"Item successfully created"
+                        'message'=>"Item successfully created"
                         ));
                     exit;
                 }
@@ -436,45 +554,50 @@ class AcquisitionSuggestionController extends Controller
           
           
     }
+    /**
+     * Delete suggestion item
+     * Expected post ids param for list of id for item to be deleted
+     * 
+     * 
+     */
     public function actionDeleteItem()
 	{
-		//todo wrap this in single sql stmt
-		if(Yii::app()->request->isPostRequest && isset($_POST[
-              'ids']))
-              {
-                $itemIds = $_POST['ids'];
-                $acqItemModel = new AcquisitionSuggestionItem();
-                foreach ($itemIds as $itemId)
-                {
-                        $acqItemModel->deleteByPk($itemId);
-                }
-              }
-              /*
-              if (isset($_POST['acq_suggestion_item_c0']))
-              {
-                 $itemsToDelete = $_POST['acq_suggestion_item_c0'];
-                 $acqItemModel = new AcquisitionSuggestionItem();
-                 foreach ($itemsToDelete as $itemID)
-                 {
-                         $acqItemModel->deleteByPk($itemID);
-
-                 }
-                 $this->redirect('update');
-              } */
-                /*
-              if(Yii::app()->request->isPostRequest)
-		{
-	        	// we only allow deletion via POST request
-//			$this->loadModel($id)->delete();
-                        AcquisitionSuggestionItem::model()->findByPK($itemID)->delete();
-			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		//	if(!isset($_GET['ajax']))
-		//		$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-		}
-		else
-			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
-                 */
-         }
+		
+        
+        if(Yii::app()->request->isPostRequest && isset($_POST['ids']))
+        {
+            $itemIds = $_POST['ids'];
+            $sql = 'delete from acq_suggestion_item
+                    where id in (';
+        
+            $idPlaceholder = LmUtil::sqlInConditionArrayPlaceHolder('id',$itemIds);
+            $sql .= $idPlaceholder .')';
+			//now bind all the params
+			$cmd = Yii::app()->db->createCommand($sql);
+			for ($i = 0; $i < count($itemIds);++$i)
+				$cmd->bindParam(':id'.$i, $itemIds[$i],PDO::PARAM_INT);
+            
+            try
+            {
+                $cmd->execute();
+                echo CJSON::encode(array(
+                        'status'=>'success',
+                        'message'=>"Item successfully deleted"
+                        ));
+                exit;
+            }catch (Exception $ex)
+            {
+                
+                LmUtil::logError('DB Error : ' .$ex->getMessage(),$this->id. '.'.$this->action->id);
+                echo CJSON::encode(array(
+                        'status'=>'error',
+                        'message'=>"Error deleting item"
+                        ));
+            } 
+           
+        }
+ 
+    }
 	public function actionUploadMarc()
 	{
 		$model = new AcquisitionSuggestionItem;

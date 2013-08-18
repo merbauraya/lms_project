@@ -157,7 +157,7 @@ div.control-group > .dropdown-menu li > a
 	padding: 0 10px !important;
 }
 
-
+.ui-dialog { z-index: 2000 !important ;}
 .ajax_loading {
     
     background-image: url(../img/ajax-loader-horizontal.gif);
@@ -318,9 +318,10 @@ div[id*="lmDialog"]
              input, select, .ui-autocomplete-input, textarea, .uneditable-input
    {
     font-size: 12px !important;
-    line-height: 14px !important;
+    
     padding: 4px;
-	height:14px;
+	/*height:14px;
+    line-height: 14px !important;*/
 
 }
 input,textarea,select,a,button,span,ul {

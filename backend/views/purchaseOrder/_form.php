@@ -44,6 +44,7 @@
 						return {q: term, 
 								page_limit: 10, 
 								page: page,
+                                type: "sel2",
 								ret: "code"}; }',
 					'results' => 'js:function(data,page) { return {results: data}; }',
 				),

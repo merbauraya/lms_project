@@ -79,7 +79,7 @@ $this->endWidget('zii.widgets.jui.CJuiDialog');
   $(document).ready(function()
     {
          
-       // $('#ctlLookupDialog').niceScroll('#ctlLookupDialog .divForForm',{boxzoom:true,cursorwidth:10});  // hw acceleration enabled when using wrapper
+        $('#ctlLookupDialog').niceScroll('#ctlLookupDialog .divForForm',{boxzoom:true,cursorwidth:10});  // hw acceleration enabled when using wrapper
        
         
     });

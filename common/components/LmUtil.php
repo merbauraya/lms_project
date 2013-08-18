@@ -12,6 +12,33 @@ class LmUtil
     const DB_DATEFORMAT = 'Y-m-d H:i:s' ; 
     const YII_DISPLAY_DATEFORMAT = 'dd/MM/yyyy'; //yii equivalent date format 
     
+    const SETTING_CATEGORY_CATALOGING = 'CATALOGING';
+    const SETTING_CATEGORY_ACQUISITION = 'ACQUISITION';
+    const SETTING_CATEGORY_CIRCULATION = 'CIRCULATION';
+    const SETTING_CATEGORY_GENERAL = 'GENERAL';
+    
+    public static function getSettingGeneral($key)
+    {
+        return Yii::app()->config->get(self::SETTING_CATEGORY_GENERAL,$key);
+    }
+    public static function getSettingCirculation($key)
+    {
+        return Yii::app()->config->get(self::SETTING_CATEGORY_CIRCULATION,$key);
+        
+    }
+    //get app setting for cataloging category for specific key
+    public static function getSettingCataloging($key)
+    {
+        return Yii::app()->config->get(self::SETTING_CATEGORY_CATALOGING,$key);
+        
+    }
+    //get app setting for acquisiion category for specific key
+    public static function getSettingAcquisition($key)
+    {
+        return Yii::app()->config->get(self::SETTING_CATEGORY_ACQUISITION,$key);
+        
+    }   
+    
     public static function getDBDateFormat()
     {
 		return 'yyyy-MM-dd HH:mm:ss';
@@ -71,8 +98,8 @@ class LmUtil
 	public static function UserId()
 	{
 		
-		$ret = Yii::app()->user->getId();
-		return $ret;
+		 return Yii::app()->user->getId();
+		
 	}
 	public static function UserLibraryId()
 	{
@@ -137,9 +164,9 @@ class LmUtil
 	 **/
 	public static function dBCurrentDateTime()
 	{
-		$time = time();
+		//$time = time();
         
-        return date("Y-m-d H:i:s", $time);
+        return date("Y-m-d H:i:s", time());
 	}
 	public static function dbNOWexpression()
 	{

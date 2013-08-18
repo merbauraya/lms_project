@@ -48,7 +48,7 @@
                   	<?php echo $form->textFieldRow($model,'note',array('class'=>'span4','maxlength'=>40)); ?>
                   	 <div class="form-actions">
 <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'type'=>'primary', 'label'=>'Submit')); ?>
-<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'reset', 'label'=>'Cancel','htmlOptions'=>array('onclick'=>'{$("#itemDialog").dialog("close");return false;}')
+<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'reset', 'label'=>'Cancel','htmlOptions'=>array('onclick'=>'{$("#item-lmDialog").dialog("close");return false;}')
 
 )); ?>
 </div>

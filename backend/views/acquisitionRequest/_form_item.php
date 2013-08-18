@@ -80,7 +80,7 @@ array(
                     )
                 .\'";
                 updateItem();
-                $("#itemDialog").dialog("open");}\'
+                $("#item-lmDialog").dialog("open");}\'
             )
         );',
 ),
@@ -90,8 +90,8 @@ array(
 ?>
 
 <?php
-$deleteURL = Yii::app()->createUrl('acquisitionrequest/deleteItem');
-$approveURL = Yii::app()->createUrl('acquisitionrequest/approveitem');
+$deleteURL = Yii::app()->createUrl('acquisitionRequest/deleteItem');
+$approveURL = Yii::app()->createUrl('acquisitionRequest/approveitem');
 Yii::app()->clientScript->registerScript('ajaxupdate', "
 $('#grid_acq_request_item a.ajaxupdate').live('click', function() {
 		
@@ -139,7 +139,7 @@ $this->widget('bootstrap.widgets.TbButton',array(
         'onclick'=>'{
               updateItem._updateItem_url="' .$newItemUrl .'";
               updateItem();
-              $("#itemDialog").dialog("open");
+              $("#item-lmDialog").dialog("open");
           
         }'
         )
@@ -149,14 +149,16 @@ $this->widget('bootstrap.widgets.TbButton',array(
 
  <?php
 $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
-    'id'=>'itemDialog',
+    'id'=>'item-lmDialog',
     // additional javascript options for the dialog plugin
     'options'=>array(
         'title'=>'Suggestion Item',
         'autoOpen'=>false,
         'width'=>'600',
 		'height'=>'520',
+        
         'modal'=>true,
+        'resizable'=>false,
     ),
 ));
 	//$itemModel = new AcquisitionSuggestionItem();
@@ -171,12 +173,15 @@ $this->endWidget('zii.widgets.jui.CJuiDialog');
 <script type="text/javascript">
 	// as a global variable
     var gridId = "grid_acq_request_item";
-	var deleteUrl="<?php echo Yii::app()->createUrl('acquisitionrequest/deleteItem')  ?>";
-    var rejectUrl="<?php echo Yii::app()->createUrl('acquisitionrequest/rejectItem')  ?>";
-	var approveUrl="<?php echo Yii::app()->createUrl('acquisitionrequest/approveItem')  ?>";
+	var deleteUrl="<?php echo Yii::app()->createUrl('acquisitionRequest/deleteItem')  ?>";
+    var rejectUrl="<?php echo Yii::app()->createUrl('acquisitionRequest/rejectItem')  ?>";
+	var approveUrl="<?php echo Yii::app()->createUrl('acquisitionRequest/approveItem')  ?>";
 	$(function(){
         // prevent the click event
         $(document).on('click','#grid_acq_request_item a.bulk-action',function() {
+            return false;
+        });
+        $(document).on('click','#grid_sugg_items a.bulk-action',function() {
             return false;
         });
     });
@@ -246,6 +251,46 @@ $this->endWidget('zii.widgets.jui.CJuiDialog');
             });
         }
     }
+     function batchSuggApprove(values)
+    {
+       var _request_id = $('#request_id').val();
+       var ids = new Array();
+        if(values.size()>0){
+             values.each(function(idx){
+                ids.push($(this).val());
+            });
+            $.ajax({
+            type: "POST",
+            url: '/acquisitionRequest/promoteSuggestion',
+            data: {"ids": ids,rid: _request_id},
+      
+            dataType:'json',
+            success: function(data){
+                //alert( "Data Saved: " + resp);
+                $.lmNotify(data);
+                if(data.status == "success")
+                {
+                   $.fn.yiiGridView.update("grid_sugg_items");
+                    $.fn.yiiGridView.update("grid_req_items");
+                }
+            }
+        });
+        
+        
+        
+        }
+        
+    }
+    
+    function batchSuggReject(values)
+    {
+        var url='/acquisitionRequest/rejectSuggestion'
+    
+    }
+    function batchSuggDelete(values)
+    {
+    
+    }
 function updateItem()
 {
     // public property
@@ -260,14 +305,14 @@ function updateItem()
             {
                 if (data.status == 'failure')
                 {
-                    $('#itemDialog div.divForForm').html(data.div);
+                    $('#item-lmDialog div.divForForm').html(data.div);
                     // Here is the trick: on submit-> once again this function!
-                    $('#itemDialog div.divForForm form').submit(updateItem);
+                    $('#item-lmDialog div.divForForm form').submit(updateItem);
                 }
                 else
                 {
-                    $('#itemDialog div.divItem_').html(data.div);
-                    setTimeout(\"$('#itemDialog').dialog('close') \",2000);
+                    $('#item-lmDialog div.divItem_').html(data.div);
+                    setTimeout(\"$('#item-lmDialog').dialog('close') \",2000);
  
                     // Refresh the grid with the update
                     $.fn.yiiGridView.update('acq_suggestion_item');

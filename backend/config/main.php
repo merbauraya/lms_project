@@ -57,7 +57,16 @@ return CMap::mergeArray(
         'timeZone' => 'Asia/Kuala_Lumpur',
 
 		// setup import paths aliases
-		// @see http://www.yiiframework.com/doc/api/1.1/YiiBase#import-detail
+        'aliases'=>array(
+			'xupload'=>'common.extensions.xupload',
+            'chartjs' => 'common.extensions.chartjs',
+ 
+            
+		
+		),
+        
+        
+        // @see http://www.yiiframework.com/doc/api/1.1/YiiBase#import-detail
 		'import' => array(
 			'common.components.*',
 			'common.extensions.*',
@@ -65,7 +74,7 @@ return CMap::mergeArray(
 			'common.modules.auth.*',
 			'common.modules.auth.components.*',
 			'backend.components.z3950.*',
-
+  
 			'common.models.*',
 			'common.lib.vendor.*',
 
@@ -76,12 +85,7 @@ return CMap::mergeArray(
 			'application.models.wizard.*',
 			
 		),
-		'aliases'=>array(
-			'xupload'=>'common.extensions.xupload',
-            'chartjs' => 'common.extensions.chartjs',
-            
-		
-		),
+
 		/* uncomment and set if required */
 		// @see http://www.yiiframework.com/doc/api/1.1/CModule#setModules-detail
 		 'modules' => array(
