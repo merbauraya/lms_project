@@ -5,8 +5,6 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="language" content="en" />
 
-	<!-- blueprint CSS framework -->
-	<!link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/grid.css"/>
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/style.css"/>
 
 
@@ -14,8 +12,12 @@
 </head>
 
 <body>
-		<div style="margin-bottom:20px;margin-top: 100px;">	
-		<div class="center_wrapper" style="width:500px;">
+		<!--<div style="margin-bottom:20px;margin-top: 100px;">	
+		<div class="center_wrapper" class="span3"> -->
+        <div class="row">
+            <div class="span6 offset3">
+
+        
 			
 			<?php echo $content; ?>
 		</div><!-- content -->

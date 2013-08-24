@@ -67,7 +67,7 @@ class LibraryController extends Controller
 			$title = 'Membership registration by department';
 			
 			$export = isset($_GET['export']) ? $_GET['export'] : 'view';
-			if ($export == 'view')
+			if ($export == 'view' && !isset($_GET['exportType']))
 				$this->renderReport($dp,$columns,$title);
 			else
             {

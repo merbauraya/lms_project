@@ -79,7 +79,13 @@ class LmUtil
         return Yii::app()->dateFormatter->format(LmUtil::getDBDateFormat(),$val); 
 		
 	}
-	
+	public static function yesNoBadges($value)
+    {
+        $type = $value ? 'info' : 'inverse';
+        $label = $value ? 'Yes' : 'No';
+        return '<span class="label label-'. $type .'">'. $label.'</span>';
+        
+    }
 	/**
 	* Return current date in a format that can used during DB operation
 	*
@@ -106,9 +112,13 @@ class LmUtil
 	    return Yii::app()->user->getLibraryId();
 	    
 	}
-	public static function le($controller,$message)
+    public static function throw400Error($msg='Invalid request. Please do not repeat this request again.')
+    {
+        throw new CHttpException(400,$msg);
+    }
+	public static function le($controller,$message,$category='DB Error')
 	{
-		self::logError('DB Error : ' .$message,$controller->id.$controller->action->id);
+		self::logError($category .' :: ' .$message,$controller->id.$controller->action->id);
 	}
     public static function successFlash($message)
     {

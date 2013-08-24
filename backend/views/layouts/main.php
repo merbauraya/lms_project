@@ -15,7 +15,7 @@
 	<?php
         Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/common.js'); 
         Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/jquery.nicescroll.min.js'); 
-        Yii::app()->yiistrap->register(); 
+ 
     ?>
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
@@ -110,7 +110,7 @@
 			array('label'=>'Request','items'=>array(
 					array('label'=>'New Request','url'=>
 					array('acquisitionRequest/create')),
-					array('label'=>'List Request','url'=>array('acquisitionRequest/index')),
+					array('label'=>'List Request','url'=>array('acquisitionRequest/admin')),
 					'___',
 					array('label'=>'Request Approval','url'=>array('acquisitionRequest/approvallist')),
 					)),

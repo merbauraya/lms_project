@@ -22,8 +22,7 @@ $this->menu=array(
 		'requested_by',
 		'request_date',
 		'status',
-		'currency_id',
-		'vendor_id',
+	
 		'notes',
 		'budget_id',
 		'library_id',

@@ -1,21 +1,18 @@
 <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 	'action'=>Yii::app()->createUrl($this->route),
 	'method'=>'get',
+    'type'=>'horizontal',
 )); ?>
 
-	<?php echo $form->textFieldRow($model,'id',array('class'=>'span5')); ?>
+	
 
 	<?php echo $form->textFieldRow($model,'requested_by',array('class'=>'span5')); ?>
 
 	<?php echo $form->textFieldRow($model,'request_date',array('class'=>'span5')); ?>
 
-	<?php echo $form->textFieldRow($model,'status',array('class'=>'span5')); ?>
+	<?php echo $form->textFieldRow($model,'status_id',array('class'=>'span5')); ?>
 
-	<?php echo $form->textFieldRow($model,'currency_id',array('class'=>'span5')); ?>
-
-	<?php echo $form->textFieldRow($model,'vendor_id',array('class'=>'span5')); ?>
-
-	<?php echo $form->textAreaRow($model,'notes',array('rows'=>6, 'cols'=>50, 'class'=>'span8')); ?>
+	
 
 	<?php echo $form->textFieldRow($model,'budget_id',array('class'=>'span5')); ?>
 

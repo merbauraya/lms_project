@@ -10,15 +10,16 @@
 	'selectableRows' => '2',
 	'dataProvider'=>$itemsDP,
 	'template'=>"{items}\n{pager}",
+    //'ajaxUrl' => Yii::app()->createUrl('acquisitionRequest/loadSuggestionItem'),
     'bulkActions' => array(
 		'actionButtons' => array(
 			array(
-				'buttonType' => 'button',
+				'buttonType' => 'link',
 				'type' => 'primary',
 				'size' => 'small',
 				'label' => 'Promote Suggestion',
 				'click' => 'js:batchSuggApprove',
-                
+                'id'=>'_btn-sugg_promote',
 				'htmlOptions'=>array('class'=>'bulk-action'),
 				),
 			array(
@@ -26,6 +27,7 @@
 				'type' => 'warning',
 				'size' => 'small',
 				'label' => 'Reject Item',
+                 'id'=>'_btn-sugg_reject',
 				'click' => 'js:batchSuggReject',
 				'htmlOptions'=>array('class'=>'bulk-action'),
                 ),	
@@ -35,6 +37,7 @@
 				'size' => 'small',
 				'label' => 'Delete Item',
 				'icon'=> 'icon-trash',
+                 'id'=>'_btn-sugg_delete',
 				'click' => 'js:batchSuggDelete',
 				'htmlOptions'=>array('class'=>'bulk-action'),
 				
@@ -55,7 +58,7 @@
 		array('name'=>'publisher','header'=>'Publisher'),
         array('name'=>'date_created','header'=>'Created'),
         array('name'=>'local_price','header'=>'Local Price'),
-        
+/*        
     
 array(
 
@@ -76,8 +79,8 @@ array(
                 updateItem();
                 $("#item-lmDialog").dialog("open");}\'
             )
-        );',
-),
+        );', 
+), */
 	),
 ));
 
@@ -85,6 +88,7 @@ array(
 
 
 <?php $this->endWidget(); ?>
+
 
 
 

@@ -43,6 +43,7 @@ _url += _suggId;
 jQuery.ajax({
 	'id' : 'loadSuggItem',
 	'url' : _url,
+    type : 'post',
 	'cache' : false,
 	'success' : function(html)
 		{jQuery('#div_sugg_items').html(html)}});

@@ -17,7 +17,7 @@ $this->widget('bootstrap.widgets.TbButton',array(
 	'bulkActions' => array(
 		'actionButtons' => array(
 			array(
-				'buttonType' => 'button',
+				'buttonType' => 'link',
 				'type' => 'primary',
 				'size' => 'small',
 				'label' => 'Approve Item',
@@ -169,163 +169,29 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
 <?php
 $this->endWidget('zii.widgets.jui.CJuiDialog');
 ?>
-
-<script type="text/javascript">
-	// as a global variable
-    var gridId = "grid_acq_request_item";
-	var deleteUrl="<?php echo Yii::app()->createUrl('acquisitionRequest/deleteItem')  ?>";
-    var rejectUrl="<?php echo Yii::app()->createUrl('acquisitionRequest/rejectItem')  ?>";
-	var approveUrl="<?php echo Yii::app()->createUrl('acquisitionRequest/approveItem')  ?>";
+<?php
+Yii::app()->clientScript->registerScript('__request_',"
+    var gridId = 'grid_acq_request_item';
+	
 	$(function(){
         // prevent the click event
         $(document).on('click','#grid_acq_request_item a.bulk-action',function() {
             return false;
         });
-        $(document).on('click','#grid_sugg_items a.bulk-action',function() {
-            return false;
-        });
+    
     });
-	function batchDelete(values){
-        
-        var ids = new Array();
-        if(values.size()>0){
-            values.each(function(idx){
-                ids.push($(this).val());
-            });
-            $.ajax({
-                type: "POST",
-                url: deleteUrl,
-                data: {"ids":ids},
-                dataType:'json',
-                success: function(data){
-                    //alert( "Data Saved: " + resp);
-					$.lmNotify(data);
-                    if(data.status == "success"){
-						$.fn.yiiGridView.update(gridId);
-						}
-                }
-            });
-        }
-    }
-	function batchReject(values){
-        
-        var ids = new Array();
-        if(values.size()>0){
-            values.each(function(idx){
-                ids.push($(this).val());
-            });
-            $.ajax({
-                type: "POST",
-                url: rejectUrl,
-                data: {"ids":ids},
-                dataType:'json',
-                success: function(data){
-                    //alert( "Data Saved: " + resp);
-					$.lmNotify(data);
-                    if(data.status == "success"){
-						$.fn.yiiGridView.update(gridId);
-						}
-                }
-            });
-        }
-    }
-	function batchApprove(values){
-        
-        var ids = new Array();
-        if(values.size()>0){
-            values.each(function(idx){
-                ids.push($(this).val());
-            });
-            $.ajax({
-                type: "POST",
-                url: approveUrl,
-                data: {"ids":ids},
-                dataType:'json',
-                success: function(data){
-                    //alert( "Data Saved: " + resp);
-					$.lmNotify(data);
-                    if(data.status == "success"){
-						$.fn.yiiGridView.update(gridId);
-						}
-                }
-            });
-        }
-    }
-     function batchSuggApprove(values)
-    {
-       var _request_id = $('#request_id').val();
-       var ids = new Array();
-        if(values.size()>0){
-             values.each(function(idx){
-                ids.push($(this).val());
-            });
-            $.ajax({
-            type: "POST",
-            url: '/acquisitionRequest/promoteSuggestion',
-            data: {"ids": ids,rid: _request_id},
-      
-            dataType:'json',
-            success: function(data){
-                //alert( "Data Saved: " + resp);
-                $.lmNotify(data);
-                if(data.status == "success")
-                {
-                   $.fn.yiiGridView.update("grid_sugg_items");
-                    $.fn.yiiGridView.update("grid_req_items");
-                }
-            }
-        });
-        
-        
-        
-        }
-        
-    }
     
-    function batchSuggReject(values)
-    {
-        var url='/acquisitionRequest/rejectSuggestion'
     
-    }
-    function batchSuggDelete(values)
-    {
+   
+ 
     
-    }
-function updateItem()
-{
-    // public property
-    var _updateItem_url;
- 
-    <?php echo CHtml::ajax(array(
-        'url'=>'js:updateItem._updateItem_url',
-        'data'=> "js:$(this).serialize()",
-        'type'=>'post',
-        'dataType'=>'json',
-        'success'=>"function(data)
-            {
-                if (data.status == 'failure')
-                {
-                    $('#item-lmDialog div.divForForm').html(data.div);
-                    // Here is the trick: on submit-> once again this function!
-                    $('#item-lmDialog div.divForForm form').submit(updateItem);
-                }
-                else
-                {
-                    $('#item-lmDialog div.divItem_').html(data.div);
-                    setTimeout(\"$('#item-lmDialog').dialog('close') \",2000);
- 
-                    // Refresh the grid with the update
-                    $.fn.yiiGridView.update('acq_suggestion_item');
-                }
- 
-        } ",
-    ))?>;
-    return false;
- 
-}
- 
-</script>
- 
+
+",CClientScript::POS_BEGIN);
+
+
+?>
+
+
 
  
  

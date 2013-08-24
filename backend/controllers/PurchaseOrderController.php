@@ -188,7 +188,7 @@ class PurchaseOrderController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$operation = 'addPurchaseOrder';
+		
 		$model = new PurchaseOrder;
 		
 		/*

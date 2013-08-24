@@ -34,6 +34,17 @@ class VendorController extends Controller
 		Yii::app()->end();
 		
 	}
+    public function actionSearch()
+    {
+        $model=new Vendor('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Vendor']))
+			$model->attributes=$_GET['Vendor'];
+
+		
+        
+        
+    }
 	public function actionAjaxGetVendorList()
 	{
 		//check whether we return code or id

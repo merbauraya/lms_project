@@ -16,9 +16,7 @@
 	<?php echo CHtml::encode($data->status_id); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('currency_id')); ?>:</b>
-	<?php echo CHtml::encode($data->currency_id); ?>
-	<br />
+	
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('vendor_id')); ?>:</b>
 	<?php echo CHtml::encode($data->vendor_id); ?>

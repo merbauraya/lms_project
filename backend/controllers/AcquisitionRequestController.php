@@ -69,6 +69,8 @@ class AcquisitionRequestController extends Controller
 		{
 			$model->attributes=$_POST['AcquisitionRequest'];
             $model->library_id = LmUtil::UserLibraryId();
+            $model->date_created = LmUtil::dBCurrentDateTime();
+            $model->status_id = AcquisitionRequest::REQUEST_NEW;
 			//$model->suggested_by =  Yii::app()->user->getId();
             if ($_POST['selfrequest'] == 1)
                 $model->requested_by = LmUtil::UserId();
