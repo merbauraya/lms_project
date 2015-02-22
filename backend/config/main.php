@@ -53,7 +53,8 @@ return CMap::mergeArray(
 		// @see http://www.yiiframework.com/doc/api/1.1/CModule#preload-detail
 		'preload' => array('bootstrap', 'log','chartjs'),
 		// @see http://www.yiiframework.com/doc/api/1.1/CApplication#language-detail
-		'language' => 'en',
+		'sourceLanguage' => 'en_us',
+        'language' => 'ms_MY',
         'timeZone' => 'Asia/Kuala_Lumpur',
 
 		// setup import paths aliases
@@ -109,6 +110,9 @@ return CMap::mergeArray(
             ),
             'report'=>array(
                 'class'=>'backend.modules.report.ReportModule',
+            ),
+            'inquiry'=>array(
+                'class'=>'backend.modules.inquiry.InquiryModule',
             ),
 		), 
 		'components'=>array(),

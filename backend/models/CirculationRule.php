@@ -44,7 +44,7 @@ class CirculationRule extends BaseCirculationRule
      * It will also return default rule as  a fallback
      *       
      */
-    public static function getRule($patron,$accession)
+    public static function getRule($patron,$accession,$libraryId)
     {
         //$patron = Patron::model()->findByAttribute('username',$patron)->with('PatronCategory');
         //we find the default rule and the exact rule based on patron/accession
@@ -54,7 +54,7 @@ class CirculationRule extends BaseCirculationRule
                 and c.id = b.smd_id
                 and a.smd_id = b.smd_id
                 and b.accession_number=:accession
-                and d.username=:patron
+                and (d.username=:patron or d.card_number =:patron)
                 and d.patron_category_id = a.patron_category_id
                 and e.id = a.item_category_id
                 union 

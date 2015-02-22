@@ -12,7 +12,8 @@ class CirculationTrans extends BaseCirculationTrans
 	const PERIOD_DAY=1;
 	const PERIOD_HOUR=2;
 	
-	/**
+	
+		/**
 	 * Returns the static model of the specified AR class.
 	 * @return CirculationTrans the static model class
 	 */
@@ -59,5 +60,68 @@ class CirculationTrans extends BaseCirculationTrans
 		}
 		return $ret;
 		
+	}
+	
+	/**
+	 * Retrieves a list of models based on the current search/filter conditions.
+	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 */
+	public function search($overdue  = false)
+	{
+		// Warning: Please modify the following code to remove attributes that
+		// should not be searched.
+		//$overdue = false;
+		$criteria=new CDbCriteria;
+		$criteria->with = "accession";
+		$criteria->compare('id',$this->id);
+		$criteria->compare('library_id',$this->library_id);
+		$criteria->compare('patron_username',$this->patron_username,true);
+		$criteria->compare('t.accession_number',$this->accession_number,true);
+		$criteria->compare('checkout_date',$this->checkout_date,true);
+		$criteria->compare('due_date',$this->due_date,true);
+		$criteria->compare('last_renewed_date',$this->last_renewed_date,true);
+	   $criteria->compare('member_card_number',$this->member_card_number,true);
+	   $criteria->compare('accession.location_id',$this->locationId);
+		
+		if ($overdue)
+		{
+			$now = new CDbExpression("NOW()");
+			$criteria->condition = 'due_date < :dueDate';
+			$criteria->params = array(':dueDate'=>$now);		
+			echo 	'mazlan:'.$this->accession_number;
+		}	   
+	   
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
+	}
+	/**
+	 * Retrieves a list of models based on the current search/filter conditions.
+	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 */
+	public function overdue()
+	{
+		// Warning: Please modify the following code to remove attributes that
+		// should not be searched.
+
+		$criteria=new CDbCriteria;
+		$criteria->with = "accession";
+		$criteria->compare('id',$this->id);
+		$criteria->compare('library_id',$this->library_id);
+		$criteria->compare('patron_username',$this->patron_username,true);
+		$criteria->compare('t.accession_number',$this->accession_number,true);
+		$criteria->compare('checkout_date',$this->checkout_date,true);
+		$criteria->compare('due_date',$this->due_date,true);
+		$criteria->compare('last_renewed_date',$this->last_renewed_date,true);
+	   $criteria->compare('member_card_number',$this->member_card_number,true);
+	   $criteria->compare('accession.location_id',$this->locationId);
+		$now = new CDbExpression("NOW()");
+		$criteria->condition = 'due_date < :dueDate';
+		$criteria->params = array(':dueDate'=>$now);	   
+	   
+	   echo 'mxmx'.$this->accession_number;
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
 	}
 }

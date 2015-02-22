@@ -178,7 +178,7 @@ class MarcActiveRecord //extends MarcBase
 			
         }
         //set cataloging agency
-        $this->Marc->appendField(new File_MARC_Control_Field('003',Yii::app()->config->get(self::CATALOGING_AGENCY)));
+        $this->Marc->appendField(new File_MARC_Control_Field('003',Yii::app()->config->get("CATALOGING",self::CATALOGING_AGENCY)));
         print $this->Marc;
     }
     private function parseControlField($meta,$value)
@@ -188,7 +188,10 @@ class MarcActiveRecord //extends MarcBase
         // 1 - counter
         $tag = $meta[0];
         if ((int)$tag==00)
+        {
             $this->Marc->setLeader($value);
+            print $value;
+        }
         else    
             $this->Marc->appendField(new File_MARC_Control_Field($tag,$value));
     }

@@ -23,6 +23,8 @@
  */
 abstract class BaseCirculationTrans extends LmActiveRecord
 {
+	private $locationId = null;	
+	
 	/**
 	 * @return string the associated database table name
 	 */
@@ -39,17 +41,18 @@ abstract class BaseCirculationTrans extends LmActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('library_id', 'numerical', 'integerOnly'=>true),
+			array('library_id,locationId', 'numerical', 'integerOnly'=>true),
 			array('accession_number', 'length', 'max'=>20),
-			array('library_id,accession_number,patron_username','required'),
-            array('patron_username','exist','allowEmpty' => false, 'attributeName' => 'username', 'className' => 'Patron','message'=>'Patron does not exist'),
-            array('accession_number','exist','allowEmpty' => false, 'attributeName' => 'accession_number', 'className' => 'CatalogItem','message'=>'Invalid accession number'),
+			array('library_id,accession_number,member_card_number,patron_username','required'),
+         array('member_card_number','exist','allowEmpty' => false, 'attributeName' => 'card_number', 'className' => 'Patron','message'=>'Patron does not exist'),
+         array('accession_number','exist','allowEmpty' => false, 'attributeName' => 'accession_number', 'className' => 'CatalogItem','message'=>'Invalid accession number'),
             
 		
-			array('patron_username, accession_number,checkout_date, due_date, checkin_date, last_renewed_date', 'safe'),
+			array('patron_username, accession_number,checkout_date, due_date, checkin_date, last_renewed_date,locationId', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, library_id, patron_username, accession_number, checkout_date, due_date, checkin_date, last_renewed_date', 'safe', 'on'=>'search'),
+			array('id, library_id, patron_username, accession_number, checkout_date, due_date, checkin_date, last_renewed_date,locationId', 'safe', 'on'=>'search'),
+			array('id, library_id, patron_username, accession_number, checkout_date, due_date, checkin_date, last_renewed_date,locationId', 'safe', 'on'=>'overdue'),		
 		);
 	}
 
@@ -61,9 +64,10 @@ abstract class BaseCirculationTrans extends LmActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'accessionNumber' => array(self::BELONGS_TO, 'CatalogItem', 'accession_number'),
+			'accession' => array(self::BELONGS_TO, 'CatalogItem', 'accession_number'),
 			'library' => array(self::BELONGS_TO, 'Library', 'library_id'),
 			'patronUsername' => array(self::BELONGS_TO, 'Patron', 'patron_username'),
+			'patronCardNumber' => array(self::BELONGS_TO,'Patron','member_card_number'),
 		);
 	}
 
@@ -81,6 +85,8 @@ abstract class BaseCirculationTrans extends LmActiveRecord
 			'due_date' => 'Due Date',
 			'checkin_date' => 'Checkin Date',
 			'last_renewed_date' => 'Last Renewed Date',
+			'member_card_number' => 'Member Card Number',
+			'locationId' => 'Location'
 		);
 	}
 
@@ -88,7 +94,7 @@ abstract class BaseCirculationTrans extends LmActiveRecord
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
 	 */
-	public function search()
+	public function search($overdue = false)
 	{
 		// Warning: Please modify the following code to remove attributes that
 		// should not be searched.
@@ -103,9 +109,23 @@ abstract class BaseCirculationTrans extends LmActiveRecord
 		$criteria->compare('due_date',$this->due_date,true);
 		$criteria->compare('checkin_date',$this->checkin_date,true);
 		$criteria->compare('last_renewed_date',$this->last_renewed_date,true);
-
+	   $criteria->compare('member_card_number',$this->member_card_number,true);
+	   $criteria->compare('locationid',$this->locationid);
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
+	}
+	public function getLocationId()
+	{
+		if ($this->locationId === null && $this->accession !== null)
+		{
+			$this->locationId = $this->accession->location_id; 
+		}
+		return $this->locationId;
+		
+	}
+	public function setLocationId($value)
+	{
+		$this->locationId = $value;
 	}
 }

@@ -89,6 +89,19 @@ class PatronController extends Controller
 	
 	
 	}
+	
+    public function actionViewByCardNumber()
+    {
+        if (!isset($_GET['cardnumber']))
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        $cardnumber = $_GET['cardnumber'];
+        $model = Patron::model()->with('department','patronCategory')->findByAttributes(array('card_number'=>$cardnumber));
+        if (Yii::app()->request->isAjaxRequest)
+            $this->renderPartial('view',array('model'=>$model));
+        else
+            $this->render();
+        
+    }
     public function actionViewByUsername()
     {
         if (!isset($_GET['username']))

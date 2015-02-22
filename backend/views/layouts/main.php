@@ -10,8 +10,8 @@
 	<![endif]-->
 
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/style.css" />
-	<!link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css" />
-	
+	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/sprite-icons.css" />
+
 	<?php
         Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/common.js'); 
         Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/jquery.nicescroll.min.js'); 
@@ -113,11 +113,15 @@
 					array('label'=>'List Request','url'=>array('acquisitionRequest/admin')),
 					'___',
 					array('label'=>'Request Approval','url'=>array('acquisitionRequest/approvallist')),
+                    
 					)),
-				
-				
-				
+			
 				'___',
+            array('label'=>'Request for Quotation','items'=>array(
+                    array('label'=>'Create','url'=>array('AcquisitionRFQ/create')),
+                    array('label'=>'Manage RFQ ','url'=>array('AcquisitionRFQ/admin')),
+            )),
+            '___',
 			array('label'=>'Purchase Order','items'=>array(
 					array('label'=>'New Purchase Order','url'=>'/purchaseOrder/create'),
 					array('label'=>'Purchase Order List','url'=>
@@ -180,14 +184,14 @@
 					
 					)),
 				array('label'=>'Patron Management', 'items'=>array(
-						array('label'=>'Patron Category','url'=>
-							array('patroncategory/admin')),
+						array('label'=>'Patron Category','url'=> CController::createAbsoluteUrl('patronCategory/admin')),
+						//	array('patronCategory/admin')),
 						array('label'=>'Patron Status','url'=>
-							array('patronstatus/admin')),
+							array('patronStatus/admin')),
 						array('label'=>'Create Patron','url'=>
-							array('patron/create')),
+							array('usermgmt/user/create')),
 						array('label'=>'Manage Patron','url'=>
-							array('patron/admin')),
+							array('usermgmt/user/admin')),
 						array('label'=>'Patron Authorization','url'=>
 							array('auth/')),
 						)
@@ -208,6 +212,9 @@
 				),
 				
 			)),
+            array('label'=>'Inquiry','url'=>array('/inquiry'),'itemOptions'=>array('icon'=>'icon-ok')
+            
+            ),
 			array('label'=>'Report','url'=>array('/report'),'itemOptions'=>array('icon'=>'icon-ok')
             
             ),				 
@@ -238,7 +245,7 @@
 
 <div class="row-fluid">
 	<div id="footer">
-		Copyright &copy; <?php echo date('Y'); ?> by Merbau LMS Sdn. Bhd.<br/>
+		Copyright &copy; 2013-<?php echo date('Y'); ?> Kencana LMS by Idetronic Sdn Bhd.<br/>
 		All Rights Reserved.<br/>
 		<?php //echo Yii::powered(); ?>
 	</div><!-- footer -->

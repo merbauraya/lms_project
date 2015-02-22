@@ -60,7 +60,7 @@ class AcquisitionRequestController extends Controller
 
 	public function actionCreate()
 	{
-		$operation = 'addRequest';
+		
 		$model = new AcquisitionRequest;
 		
 		$session = Yii::app()->session;
@@ -70,16 +70,18 @@ class AcquisitionRequestController extends Controller
 			$model->attributes=$_POST['AcquisitionRequest'];
             $model->library_id = LmUtil::UserLibraryId();
             $model->date_created = LmUtil::dBCurrentDateTime();
-            $model->status_id = AcquisitionRequest::REQUEST_NEW;
+            $model->status_id = AcquisitionRequest::STATUS_NEW;
 			//$model->suggested_by =  Yii::app()->user->getId();
             if ($_POST['selfrequest'] == 1)
                 $model->requested_by = LmUtil::UserId();
 			$items =  new AcquisitionRequestItem;
 			if($model->save())
-				$this->redirect(array('update',
-									  'id'=>$model->id				  
-									  )
-							    ); 
+            {
+                $model->text_id = DocumentIdSetting::formatID($model->library_id,AcquisitionRequest::DOCUMENT_TYPE,$model->id);
+	
+                $this->redirect(array('update','id'=>$model->id)); 
+                
+            }
 		} else {
 			
 			$this->render('create',array('model'=>$model));
@@ -416,8 +418,8 @@ class AcquisitionRequestController extends Controller
 		
 		$criteria = new CDbCriteria();
 		$criteria->condition = 't.status_id = :status_id';
-		$criteria->params = array(':status_id'=>AcquisitionRequest::REQUEST_NEW);
-		$criteria->with = array('patron','patron.department');
+		$criteria->params = array(':status_id'=>AcquisitionRequest::STATUS_NEW);
+		$criteria->with = array('requestedBy');
 		$requestDP=new CActiveDataProvider( 'AcquisitionRequest', array( 	'criteria' => $criteria, 
 		'pagination' => array( 'pageSize' => '20', ) ) 
 		);
@@ -432,7 +434,7 @@ class AcquisitionRequestController extends Controller
 		}
 		*/
 		$ids = array(0);
-		$itemModel = new AcquisitionRequestItem("searchNewItemByRequestId($ids)");
+		$itemModel = new AcquisitionRequestItem();//"searchNewItemByRequestId($ids)");
 		
 		//$requestItemDP = AcquisitionRequestItem::model()->searchNewItemByRequestId($ids);
 		
@@ -466,7 +468,7 @@ class AcquisitionRequestController extends Controller
 				$parentID = array(0);
 		}		
 		
-		$itemModel =new AcquisitionRequestItem("searchNewItemByRequestId($parentID)");
+		$itemModel =new AcquisitionRequestItem();//"searchNewItemByRequestId($parentID)");
 		//prevent the following script to be re-rendered	 
 		if (Yii::app()->request->isAjaxRequest){
 				Yii::app()->clientscript->scriptMap['jquery.js'] = false; 

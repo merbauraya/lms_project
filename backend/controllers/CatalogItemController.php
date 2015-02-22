@@ -61,10 +61,23 @@ class CatalogItemController extends Controller
 		$criteria->with = array('category','condition','location','smd');
 		$model = CatalogItem::model()->find($criteria);
 		
-		
-		$this->render('view',array(
-			'model'=>$model,
-		));
+		if(Yii::app()->request->isAjaxRequest)
+        {
+            echo CJSON::encode(array(
+                'status'=>'search', 
+                'div'=>$this->renderPartial('view',array('model'=>$model),true),
+                )
+                
+                
+            );        
+          
+        }
+        else
+        {
+            $this->render('view',array(
+                'model'=>$model,
+            ));
+        }
 	}
 
 	/**
@@ -156,6 +169,37 @@ class CatalogItemController extends Controller
 		}
 		else
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+	}
+	/**
+	* Get list of available(non checked out) catalog item
+	*
+	*
+	*/
+	public function actionAjaxGetAvailableItem()
+	{
+		if (isset($_GET['term'])) {
+			
+         $library = LmUtil::UserLibraryId();
+			$vdr = CatalogItem::model()->findAll(array('order'=>'accession_number', 
+												'condition'=>'owner_library=:library and check_out_date is null and accession_number LIKE :accession', 
+												'params'=>array(':accession'=>$_GET['term'].'%',
+															    ':library'=>$library),
+												'with'=>array('catalog'),				
+												'limit'=>$_GET['page_limit']
+												));
+			$data = array();
+			foreach ($vdr as $value) {
+				$data[] = array(
+				'id' => $_GET['ret']=='accession' ? $value->accession_number : $value->id,
+				'label' => $value->accession_number,
+                'name'=>$value->catalog->title_245a,
+				);
+			}
+			echo CJSON::encode($data);
+		}
+		Yii::app()->end();
+	
+	
 	}
 	public function actionAjaxGetItem()
 	{

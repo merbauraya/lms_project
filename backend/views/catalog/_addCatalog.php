@@ -27,7 +27,7 @@
     $tabKey='';
     $saveTag='';
     $marcArr = array();
-	$arrMarc = array();
+	 $arrMarc = array();
 	//rebuild array for marc tag grouping
 	foreach ($templates as $template) 
 	{

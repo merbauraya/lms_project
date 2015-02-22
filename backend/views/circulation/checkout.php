@@ -45,8 +45,8 @@ Yii::app()->clientScript->registerScript('_patron', "
         'id' : 'loadPoItem',
         'type' : 'GET',
         'dataType': 'html',
-        'data': {username: $('#CirculationTrans_patron_username').val()},
-        'url' : '/patron/ViewByUsername/',
+        'data': {cardnumber: $('#CirculationTrans_member_card_number').val()},
+        'url' : '/patron/ViewByCardNumber/',
         'cache' : false,
         'success' : function(data)
           {

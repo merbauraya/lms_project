@@ -17,6 +17,26 @@ class PatronCategory extends BasePatronCategory
 	{
 		return parent::model($className);
 	}
+    public static function item($id)
+    {
+        $model=PatronCategory::model()->findByPk($id);
+        if ($model)
+            return $model->name;
+    }
+    public static function items()
+    {
+        $_items=array();
+        $models=PatronCategory::model()->findAll();
+        
+        foreach($models as $model)
+		{
+            //self::$_items[$category][$model->id]=$model->name;
+			$_items[$model->id]=$model->name;
+		}
+        return $_items;
+        
+    }
+    
     /*
      * Return list of Patron Category suitable for dropdown list
      * @param addAll if true, All option will be appended to the list

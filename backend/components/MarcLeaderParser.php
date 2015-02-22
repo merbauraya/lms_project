@@ -29,7 +29,12 @@ class MarcLeaderParser
     public function getFormat()
     {
         
-        $fixedField = $this->marc->getField('008');
+        
+         return CatalogFormat::FORMAT_UNKNOWN;
+         // bugs in getfield('008');
+        $fixedField = $this->marc->getField('008',true);
+        if ($fixedField)
+            print "matle". $fixedField;
         $formatCode = ' ';
         $marcAr = MarcActiveRecord::setMarc($this->marc);
         (string) $dataField = $this->marc->getField('245');

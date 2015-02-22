@@ -28,8 +28,9 @@
 	'columns'=>array(
 		array('name'=>'id',
                     'class'=>'CCheckBoxColumn',),
-        array('header'=>'Requested By','value'=>'$data->patron->name'),
-		array('header'=>'Faculty','value'=>'$data->patron->department->name'),
+        array('header'=>'Id','value'=>'$data->text_id'),
+        array('header'=>'Requested By','value'=>'$data->requestedBy->name'),
+		//array('header'=>'Faculty','value'=>'$data->patron->department->name'),
 		array('name'=>'request_date','header'=>'Request Date'),
 		//array('name'=>'publisher','header'=>'Publisher'),
 		/*
@@ -171,7 +172,7 @@ $this->widget('bootstrap.widgets.TbButton',array(
 </div>
 </div>
 <?php
-$_url = Yii::app()->createUrl('acquisitionrequest/loadRequestItem');
+$_url = Yii::app()->createUrl('acquisitionRequest/loadRequestItem');
 Yii::app()->clientScript->registerScript('sc_load_req_item',"
 $('body').on('click','#_btn_load_req_items',function(){
 
@@ -247,8 +248,8 @@ var request = $.ajax({
 <?php
 //todo : merge these two functions below
 
-$approveUrl = Yii::app()->createUrl('acquisitionrequest/approveItem');
-$rejectUrl =  Yii::app()->createUrl('acquisitionrequest/rejectItem');
+$approveUrl = Yii::app()->createUrl('acquisitionRequest/approveItem');
+$rejectUrl =  Yii::app()->createUrl('acquisitionRequest/rejectItem');
 Yii::app()->clientScript->registerScript('sc_action_request_item', "
 
 $('.requestitem_action').live('click',function(){

@@ -9,7 +9,7 @@
 	$this->beginWidget('extcommon.lmwidget.LmBox', array(
 		'title' => 'Renew ',
 		//'headerIcon' => 'icon-user',
-		'content' => $this->renderPartial('_checkinform',array('model'=>$model,'action'=>$action),true),
+		'content' => $this->renderPartial('_renewalform',array('model'=>$model),true),
 	));
 	
 	

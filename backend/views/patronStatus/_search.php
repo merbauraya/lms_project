@@ -1,5 +1,6 @@
 <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 	'action'=>Yii::app()->createUrl($this->route),
+    'type'=>'horizontal',
 	'method'=>'get',
 )); ?>
 

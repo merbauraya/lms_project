@@ -21,7 +21,7 @@ class CirculationController extends Controller
 		return array(
 			
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('checkout','checkin','renewal'),
+				'actions'=>array('checkout','checkin','renewal','overdueItem'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -151,11 +151,16 @@ class CirculationController extends Controller
                 
 		if (isset($_POST['CirculationTrans']))
 		{
+			
+			
 			$model->attributes = $_POST['CirculationTrans'];
+			//if we are using card number, init username with card number and vice versa
+			if (!$model->patron_username)
+				$model->patron_username = Patron::getUserNameByCardNumber($model->member_card_number);// '4885';
 			$sql = "update catalog_item
 					set date_last_checked_out = :co_date,
 					check_out_date = :co_date,
-                    date_last_seen = :co_date,
+               date_last_seen = :co_date,
 					reserved = false,
 					checkout_count = checkout_count+1
 					where accession_number = :accession";
@@ -170,7 +175,7 @@ class CirculationController extends Controller
 			try
 			{
 				$model->checkout_date = LmUtil::dBCurrentDateTime();
-                $model->due_date = $this->getDueDate($model->patron_username,$model->accession_number);
+            $model->due_date = $this->getDueDate($model->member_card_number,$model->accession_number);
 				$model->save();
 				$cmd->execute();
 				$trans->commit();
@@ -179,7 +184,7 @@ class CirculationController extends Controller
 					'message'=>'Item checkout successfully'
 				)); */
 				Yii::app()->user->setFlash('success','Item checkout successfully');
-                $model->unsetAttributes();
+            $model->unsetAttributes();
 			}catch (Exception $ex)
 			{
 				$trans->rollback();
@@ -199,10 +204,10 @@ class CirculationController extends Controller
         
         //echo $_REQEUST['username'];
         
-        if (isset($_REQUEST['username']) && isset($_REQUEST['library']))
+        if (isset($_REQUEST['cardnumber']) && isset($_REQUEST['library']))
         {
         
-            $username = $_REQUEST['username'];
+            $cardnumber = $_REQUEST['cardnumber'];
             $library = $_REQUEST['library'];
             $returntype = '';
             if (isset($_REQUEST['ret']))
@@ -214,12 +219,12 @@ class CirculationController extends Controller
                     left outer join cir_transaction b on a.username = b.patron_username 
                     left outer join catalog_item c on b.accession_number  = c.accession_number
                     ,patron_status d
-                    where username = :username
+                    where card_number = :cardnumber
                     and a.library_id = :library
                     and d.id = a.status_id ';
 
             $cmd = Yii::app()->db->createCommand($sql);
-            $cmd->bindValue(':username',$username,PDO::PARAM_STR);
+            $cmd->bindValue(':cardnumber',$cardnumber,PDO::PARAM_STR);
             $cmd->bindValue(':library',$library,PDO::PARAM_INT);
             
             $results = $cmd->queryAll(); //return all rows
@@ -265,16 +270,53 @@ class CirculationController extends Controller
     }
 	public function actionRenewal()
 	{
-		$model = new CirculationTrans();
-		$this->render('check_in_renew',array('model'=>$model));
+        $model = new CirculationTrans;
+        $this->performAjaxValidation($model);
+        if (isset($_POST['CirculationTrans']))
+        {
+            $model->attributes = $_POST['CirculationTrans'];
+            $accession = $model->accession_number;
+            echo "xxxx";
+            echo $accession;
+            echo "brbr";
+            
+        }
+        
+        $this->render('check_in_renew',array('model'=>$model));
+        
 	}
+  
+    public function actionReservation()
+    {
+        $model = new CirculationReservation;
+        $this->render('reservation',array('model'=>$model));
+        
+    }
     /**
-     * 
-     * 
-     * 
-     * 
+     * Return details of the overdue item
+     * @param id accession number
      * 
      */
+     
+    public function actionOverdueItem($accession)
+    {
+         $item = CirculationTrans::model()->with('accessionNumber','patronCardNumber')->findByAttributes(
+            array('accession_number'=> $accession)
+          
+            
+            );
+         
+        
+        if (Yii::app()->request->isAjaxRequest)
+        {
+            
+            echo CJSON::encode(array(
+                'status'=>'failure', 
+                'div'=>$this->renderPartial('_itemOverdue', array('model'=>$item), true)));
+            exit;               
+        }
+      
+    }
 	private function getDueDate($accession,$patron)
 	{
 		
@@ -294,22 +336,23 @@ class CirculationController extends Controller
         $date = new DateTime();
         if ($periodType == CirculationRule::PERIOD_DAY)
         {
-            $date->modify('+ '.$due . ' day');
-            if (LmUtil::isWeekend($date))
+            $dueDate = $date->modify('+ '.$due. ' day');
+            if (LmUtil::isWeekend($dueDate))
             {
                 //check if we are on saturday or sunday
-                $day = date('N', strtotime($date));
-                $date->modify('+ '. 8-$day .' day');
+                //$day = date('N', strtotime($date));
+                $day = date('N');
+                $dueDate->modify('+ '. 8-$day .' day');
                 
             }
             
         }else //hourly due
         {
-            $date->modify('+ ' .$due . ' hour' );
+            $dueDate->modify('+ ' .$due . ' hour' );
             
             
         }
-        return $date->format('Y-m-d H:i:s');
+        return $dueDate->format('Y-m-d H:i:s');
         	
 		
 	}
@@ -360,9 +403,22 @@ class CirculationController extends Controller
         ));
          if (Yii::app()->request->isAjaxRequest)
             $this->renderPartial('_userholding',array('itemDP'=>$itemDP));
+         else
+            $this->renderPartial('_userholding',array('itemDP'=>$itemDP));
+            
         
     }
+    protected function calculateFine($data,$row)
+    {
+			$fine = LmUtil::calculateFine($data->member_card_number,$data->accession_number,$data->due_date,$data->library_id);
+			return $fine;
     
+    }
+    protected function calculateOverdue($data,$row)
+    {
+	    $overdue = LmUtil::calculateOverdue($data->member_card_number,$data->accession_number,$data->due_date,$data->library_id);	    
+		return $overdue;    
+    }
     /**
 	 * Performs the AJAX validation.
 	 * @param CModel the model to be validated

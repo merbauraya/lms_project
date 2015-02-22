@@ -76,8 +76,48 @@ header h6
 	line-height: 34px;
 }
 
+.btn_export
+{
+    text-align:right !important;
+    
+}
+[class^="export-"], [class*=" export-"]
+{
+    height:18px;
+    line-height:18px;
+    display:inline-block;
+    width:18px;
+    vertical-align:text-top;
+    padding-right:5px;
+}
+.export-Excel2007
+{
+    background: url('../images/excel.png') center left no-repeat !important;
 
+}
+.export-PDF
+{
+background: url('../images/PDF.png') center left no-repeat !important;
+}
+.export-CSV
+{
+background: url('../images/CSV.png') center left no-repeat !important;
+}
+.export-HTML
+{
+background: url('../images/HTML.png') center left no-repeat !important;
+}
+.btn_export_PDF
+{
 
+}
+.btn_export_CSV
+{
+
+}
+.btn_export_HTML
+{
+}
 ul.quicklink
 {
 	list-style: none;
@@ -324,7 +364,7 @@ div[id*="lmDialog"]
     line-height: 14px !important;*/
 
 }
-input,textarea,select,a,button,span,ul {
+input,textarea,select,a,button,ul {
   -webkit-border-radius: 0 !important;
      -moz-border-radius: 0 !important;
           border-radius: 0 !important;

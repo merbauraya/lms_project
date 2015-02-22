@@ -24,7 +24,8 @@
         CHtml::listData(Library::model()->findAll(), 'id', 'name'),array('class'=>'span7')); 
     //echo CHtml::activeHiddenField($model,'patron_username');
     //echo $form->textFieldRow($model,'patron_username');
-
+	 echo $form->textFieldRow($model,'member_card_number',array('class'=>'span3'));
+/*    
     echo $form->autocompleteRow($model,'patron_username',array(
             
             'source'=>$this->createUrl('patron/AjaxGetPatron',array('ret'=>'uname','page_limit'=>10)),
@@ -35,6 +36,8 @@
                 'select'=>"js:function(event,ui)
                     {
                         $('#username').html(ui.item.name);
+                        $('#CirculationTrans_patron_username').val(ui.item.id);
+                        
                         $('#CirculationTrans_patron_username_em_').html(ui.item.name);
                         $('#CirculationTrans_patron_username_em_').toggle();
                       
@@ -43,27 +46,25 @@
             //'htmlOptions'=>array(
             //    'class'=>'span2',
             //),
-    ));
+    )); */
      echo $form->autocompleteRow($model,'accession_number',array(
             
-            'source'=>$this->createUrl('CatalogItem/AjaxGetItem',array('ret'=>'accession','page_limit'=>10)),
+            'source'=>$this->createUrl('CatalogItem/AjaxGetAvailableItem',array('ret'=>'accession','page_limit'=>10)),
             'options'=>array(
                 'minLength'=>'4',
                 'delay'=>300,
                 'showAnim'=>'fold',
                 'select'=>"js:function(event,ui)
                     {
-                      //  $('#username').html(ui.item.name);
+                      $('#CirculationTrans_accession_number').val(ui.item.id);
                       //  $('#CirculationTrans_patron_username_em_').html(ui.item.name);
                       //  $('#CirculationTrans_patron_username_em_').toggle();
                       
                     }"
             ),
-            //'htmlOptions'=>array(
-            //    'class'=>'span2',
-            //),
+          
     ));
-
+    
  
 
 	
@@ -86,12 +87,12 @@ Yii::app()->clientScript->registerScript('lookup', "
     
     
     });
-       $('#CirculationTrans_patron_username').blur(function(){
+       $('#CirculationTrans_member_card_number').blur(function(){
             jQuery.ajax({
                 'id' : 'loadPatron',
                 'type' : 'POST',
                 'dataType': 'json',
-                'data': {username: $('#CirculationTrans_patron_username').val(),
+                'data': {cardnumber: $('#CirculationTrans_member_card_number').val(),
                         library:$('#CirculationTrans_library_id').val(),
                         ret:'json'
                         },

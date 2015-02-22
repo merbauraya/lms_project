@@ -5,8 +5,6 @@
 
 	<?php echo $form->textFieldRow($model,'id',array('class'=>'span5')); ?>
 
-	<?php echo $form->textFieldRow($model,'desc',array('class'=>'span5','maxlength'=>100)); ?>
-
 	<?php echo $form->textFieldRow($model,'date_created',array('class'=>'span5')); ?>
 
 	<?php echo $form->textFieldRow($model,'date_modified',array('class'=>'span5')); ?>

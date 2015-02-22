@@ -117,6 +117,7 @@ class SiteController extends Controller
 		$this->layout = 'login';
         $model = new LoginForm();
 
+
 		if (isset($_POST['ajax']) && $_POST['ajax'] === 'login-form')
 		{
 			echo CActiveForm::validate($model, array('username', 'password', 'verifyCode'));
@@ -125,7 +126,8 @@ class SiteController extends Controller
 
 		if (isset($_POST['LoginForm']))
 		{
-			$model->attributes = $_POST['LoginForm'];
+			echo 'isset';
+            $model->attributes = $_POST['LoginForm'];
 			if ($model->validate(array('username', 'password', 'verifyCode')) && $model->login())
 				$this->redirect(user()->returnUrl);
 		}

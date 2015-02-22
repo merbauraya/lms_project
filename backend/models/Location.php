@@ -33,7 +33,7 @@ class Location extends BaseLocation
         $data = array();
         
         if ($allOption)
-            $data[null]='N/A';
+            $data[null]=Yii::t('message','<All>');
 			//echo CHtml::tag('option',
 				//array('value'=>null),CHtml::encode('All'),true);
 		foreach($models as $model)
@@ -44,5 +44,26 @@ class Location extends BaseLocation
 		}
         
        return $data;
+    
     }
+     public static function item($id)
+    {
+        $model=self::model()->findByPk($id);
+        if ($model)
+            return $model->name;
+    }
+    public static function items()
+    {
+        $_items=array();
+        $models=PatronCategory::model()->findAll();
+        
+        foreach($models as $model)
+		{
+            //self::$_items[$category][$model->id]=$model->name;
+			$_items[$model->id]=$model->name;
+		}
+        return $_items;
+        
+    }
+    
 }

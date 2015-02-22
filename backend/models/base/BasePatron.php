@@ -66,7 +66,7 @@ abstract class BasePatron extends LmActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name, library_id, username, password,password_repeat', 'required'),
+			array('name, library_id, username, password,password_repeat,card_number', 'required'),
 			array('library_id, patron_category_id, login_attempts, created_by, department_id, status_id', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>100),
 			array('username, phone1, phone2, mobile_no', 'length', 'max'=>15),
@@ -136,6 +136,7 @@ abstract class BasePatron extends LmActiveRecord
 			'staff_no' => 'Staff No',
 			'status_id' => 'Status',
 			'last_login_time' => 'Last Login Time',
+            'card_number' => 'Card Number'
 		);
 	}
 
@@ -156,7 +157,8 @@ abstract class BasePatron extends LmActiveRecord
 		$criteria->compare('patron_category_id',$this->patron_category_id);
 		$criteria->compare('username',$this->username,true);
 		$criteria->compare('password',$this->password,true);
-		$criteria->compare('email',$this->email,true);
+		$criteria->compare('card_number',$this->card_number,true);
+        $criteria->compare('email',$this->email,true);
 		$criteria->compare('phone1',$this->phone1,true);
 		$criteria->compare('phone2',$this->phone2,true);
 		$criteria->compare('login_attempts',$this->login_attempts);
